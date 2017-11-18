@@ -7,6 +7,10 @@ use router::Router;
 use serde_json;
 use serde_json::{Error};
 
+pub trait TeamRepository {
+    fn register(&mut self, registration: Registration) -> RegistrationAttempt;
+}
+
 pub struct Teams {
     teams: HashMap<String, Team>,
 }
@@ -16,7 +20,13 @@ impl Teams {
         Teams { teams: HashMap::new() }
     }
 
-    pub fn register(&mut self, registration: Registration) -> RegistrationAttempt {
+    fn ip_addresses(&self) -> Vec<&str> {
+        self.teams.iter().map(|team| &team.1.ip_address[..]).collect()
+    }
+}
+
+impl TeamRepository for Teams {
+    fn register(&mut self, registration: Registration) -> RegistrationAttempt {
         if self.teams.contains_key(&registration.name) {
             return RegistrationAttempt::Failure(Reason::NameTaken);
         }
@@ -29,10 +39,6 @@ impl Teams {
 
         self.teams.insert(registration.name.clone(), Team::from(registration));
         RegistrationAttempt::Success
-    }
-
-    fn ip_addresses(&self) -> Vec<&str> {
-        self.teams.iter().map(|team| &team.1.ip_address[..]).collect()
     }
 }
 
@@ -55,7 +61,7 @@ struct Team {
 
 impl From<Registration> for Team {
     fn from(registration: Registration) -> Self {
-        Team { name: registration.name, ip_address: registration.ip_address }        
+        Team { name: registration.name, ip_address: registration.ip_address }
     }
 }
 
