@@ -1,3 +1,4 @@
+extern crate bws;
 extern crate dotenv;
 extern crate iron;
 #[macro_use] extern crate log;
@@ -9,11 +10,12 @@ extern crate simplelog;
 use std::env;
 
 use dotenv::dotenv;
-use iron::{Iron, Chain, Request, Response, IronResult, status};
+use iron::{Iron, Chain};
 use logger::Logger;
 use mount::Mount;
-use router::Router;
 use simplelog::{Config, LogLevelFilter, TermLogger, CombinedLogger};
+
+use bws::register;
 
 fn main() {
     dotenv().ok();
@@ -43,18 +45,7 @@ fn chain() -> Chain {
 fn mount() -> Mount {
     let mut mount = Mount::new();
 
-    mount.mount("/register", router());
+    mount.mount("/register", register::router());
 
     mount
-}
-
-fn router() -> Router {
-    let mut router = Router::new();
-    router.post("/", handler, "register");
-
-    router
-}
-
-fn handler(_req: &mut Request) -> IronResult<Response> {
-    Ok(Response::with(status::NoContent))
 }
