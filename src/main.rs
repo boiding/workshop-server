@@ -8,6 +8,7 @@ extern crate router;
 extern crate simplelog;
 
 use std::env;
+use std::sync::{Arc, RwLock};
 
 use dotenv::dotenv;
 use iron::{Iron, Chain};
@@ -16,6 +17,7 @@ use mount::Mount;
 use simplelog::{Config, LogLevelFilter, TermLogger, CombinedLogger};
 
 use bws::register;
+use bws::register::Teams;
 
 fn main() {
     dotenv().ok();
@@ -30,11 +32,12 @@ fn main() {
     let server_address = env::var("address").expect("\"address\" in environment variables");
     info!("starting server at {}", server_address);
 
-    Iron::new(chain()).http(server_address).unwrap();
+    let team_repository_ref = Arc::new(RwLock::new(Teams::new()));
+    Iron::new(chain(&team_repository_ref)).http(server_address).unwrap();
 }
 
-fn chain() -> Chain {
-    let mut chain = Chain::new(mount());
+fn chain(team_repository_ref: &Arc<RwLock<Teams>>) -> Chain {
+    let mut chain = Chain::new(mount(&team_repository_ref));
     let (logger_before, logger_after) = Logger::new(None);
     chain.link_before(logger_before);
     chain.link_after(logger_after);
@@ -42,10 +45,10 @@ fn chain() -> Chain {
     chain
 }
 
-fn mount() -> Mount {
+fn mount(team_repository_ref: &Arc<RwLock<Teams>>) -> Mount {
     let mut mount = Mount::new();
 
-    mount.mount("/register", register::router());
+    mount.mount("/register", register::router(&team_repository_ref));
 
     mount
 }
