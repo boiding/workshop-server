@@ -84,37 +84,34 @@ impl RegistrationFailure {
 
 pub fn router() -> Router {
     let mut router = Router::new();
-    router.post("/", handler, "register");
+    router.post("/", |request: &mut Request|{
+        let mut body: String = String::new();
+        if let Ok(_) = request.body.read_to_string(&mut body) {
+            let registration_result: Result<Registration, Error> = serde_json::from_str(&body);
+            if let Ok(registration) = registration_result {
+                info!("received {:?}", registration);
 
-    router
-}
+                Ok(Response::with(status::NoContent))
+            } else {
+                error!("unable to deserialize registation \"{}\"", body);
+                let reason = RegistrationFailure::new(
+                    format!("unable to deserialize registration \"{}\"", body)
+                );
+                let payload = serde_json::to_string(&reason).unwrap();
 
-fn handler(request: &mut Request) -> IronResult<Response> {
-    let mut body: String = String::new();
-    if let Ok(_) = request.body.read_to_string(&mut body) {
-        let registration_result: Result<Registration, Error> = serde_json::from_str(&body);
-        if let Ok(registration) = registration_result {
-            info!("received {:?}", registration);
-
-            Ok(Response::with(status::NoContent))
+                Ok(Response::with((status::InternalServerError, payload)))
+            }
         } else {
-            error!("unable to deserialize registation \"{}\"", body);
-            let reason = RegistrationFailure::new(
-                format!("unable to deserialize registration \"{}\"", body)
-            );
+            error!("unable to read body");
+            let reason = RegistrationFailure::new("unable to read body");
             let payload = serde_json::to_string(&reason).unwrap();
 
             Ok(Response::with((status::InternalServerError, payload)))
         }
-    } else {
-        error!("unable to read body");
-        let reason = RegistrationFailure::new("unable to read body");
-        let payload = serde_json::to_string(&reason).unwrap();
+    }, "register");
 
-        Ok(Response::with((status::InternalServerError, payload)))
-    }
+    router
 }
-
 
 #[cfg(test)]
 mod tests {
