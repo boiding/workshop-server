@@ -3,6 +3,7 @@ use std::collections::HashMap;
 
 pub trait TeamRepository {
     fn register(&mut self, registration: Registration) -> RegistrationAttempt;
+    fn unregister(&mut self, unregistration: Unregistration) -> UnregistrationAttempt;
 }
 
 pub struct Teams {
@@ -22,28 +23,37 @@ impl Teams {
 impl TeamRepository for Teams {
     fn register(&mut self, registration: Registration) -> RegistrationAttempt {
         if self.teams.contains_key(&registration.name) {
-            return RegistrationAttempt::Failure(Reason::NameTaken);
+            return RegistrationAttempt::Failure(RegistrationFailureReason::NameTaken);
         }
 
         for ip_address in self.ip_addresses() {
             if ip_address == registration.ip_address {
-                return RegistrationAttempt::Failure(Reason::IPAddressTaken);
+                return RegistrationAttempt::Failure(RegistrationFailureReason::IPAddressTaken);
             }
         }
 
         self.teams.insert(registration.name.clone(), Team::from(registration));
         RegistrationAttempt::Success
     }
+
+    fn unregister(&mut self, unregistration: Unregistration) -> UnregistrationAttempt {
+        if !self.teams.contains_key(&unregistration.name) {
+            return UnregistrationAttempt::Failure(UnregistrationFailureReason::NameNotRegistered);
+        }
+
+        self.teams.remove(&unregistration.name);
+        UnregistrationAttempt::Success
+    }
 }
 
 #[derive(PartialEq, Debug)]
 pub enum RegistrationAttempt {
     Success,
-    Failure(Reason)
+    Failure(RegistrationFailureReason)
 }
 
 #[derive(PartialEq, Debug)]
-pub enum Reason {
+pub enum RegistrationFailureReason {
     NameTaken,
     IPAddressTaken,
 }
@@ -73,6 +83,33 @@ pub struct RegistrationFailure {
 impl RegistrationFailure {
     pub fn new<S>(reason: S) -> RegistrationFailure where S: Into<String> {
         RegistrationFailure { reason: reason.into() }
+    }
+}
+
+#[derive(PartialEq, Debug)]
+pub enum UnregistrationAttempt {
+    Success,
+    Failure(UnregistrationFailureReason)
+}
+
+#[derive(PartialEq, Debug)]
+pub enum UnregistrationFailureReason {
+    NameNotRegistered,
+}
+
+#[derive(Deserialize, Debug)]
+pub struct Unregistration {
+    name: String,
+}
+
+#[derive(Serialize, Debug)]
+pub struct UnregistrationFailure {
+    reason: String,
+}
+
+impl UnregistrationFailure {
+    pub fn new<S>(reason: S) -> UnregistrationFailure where S: Into<String> {
+        UnregistrationFailure { reason: reason.into() }
     }
 }
 
