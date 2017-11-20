@@ -9,6 +9,7 @@ extern crate simplelog;
 
 use std::env;
 use std::sync::{Arc, RwLock};
+use std::thread;
 
 use dotenv::dotenv;
 use iron::{Iron, Chain};
@@ -29,11 +30,16 @@ fn main() {
 
     info!("Logger configured");
 
-    let server_address = env::var("address").expect("\"address\" in environment variables");
-    info!("starting server at {}", server_address);
-
     let team_repository_ref = Arc::new(RwLock::new(Teams::new()));
-    Iron::new(chain(&team_repository_ref)).http(server_address).unwrap();
+    let iron_team_repository_ref = team_repository_ref.clone();
+    let iron_thread = thread::spawn(move ||{
+        let server_address = env::var("address").expect("\"address\" in environment variables");
+        info!("starting server at {}", server_address);
+
+        Iron::new(chain(&iron_team_repository_ref)).http(server_address).unwrap();
+    });
+
+    iron_thread.join().unwrap();
 }
 
 fn chain(team_repository_ref: &Arc<RwLock<Teams>>) -> Chain {
