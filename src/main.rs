@@ -19,6 +19,7 @@ use simplelog::{Config, LogLevelFilter, TermLogger, CombinedLogger};
 
 use bws::register;
 use bws::register::Teams;
+use bws::heartbeat::Heartbeat;
 
 fn main() {
     dotenv().ok();
@@ -39,7 +40,15 @@ fn main() {
         Iron::new(chain(&iron_team_repository_ref)).http(server_address).unwrap();
     });
 
+    let heartbeat_team_repository_ref = team_repository_ref.clone();
+    let heartbeat_thread = thread::spawn(move ||{
+        let mut heartbeat = Heartbeat::new(heartbeat_team_repository_ref);
+
+        heartbeat.monitor();
+    });
+
     iron_thread.join().unwrap();
+    heartbeat_thread.join().unwrap();
 }
 
 fn chain(team_repository_ref: &Arc<RwLock<Teams>>) -> Chain {
