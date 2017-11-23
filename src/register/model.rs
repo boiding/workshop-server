@@ -64,11 +64,12 @@ pub enum RegistrationFailureReason {
 pub struct Team {
     name: String,
     ip_address: String,
+    port: u16,
 }
 
 impl Team {
     pub fn heartbeat_uri(&self) -> Result<Uri, hyper::error::UriError> {
-        let address = format!("{}://{}:{}", "http", self.ip_address, "2643");
+        let address = format!("{}://{}:{}/heartbeat", "http", self.ip_address, self.port);
 
         address.parse()
     }
@@ -76,7 +77,7 @@ impl Team {
 
 impl From<Registration> for Team {
     fn from(registration: Registration) -> Self {
-        Team { name: registration.name, ip_address: registration.ip_address }
+        Team { name: registration.name, ip_address: registration.ip_address, port: registration.port }
     }
 }
 
@@ -90,6 +91,7 @@ impl Display for Team {
 pub struct Registration {
     name: String,
     ip_address: String,
+    port: u16,
 }
 
 #[derive(Serialize, Debug)]

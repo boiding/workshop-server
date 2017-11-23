@@ -1,11 +1,10 @@
 use std::env;
-use std::io::{self, Write};
 use std::sync::{Arc, RwLock};
 use std::thread;
 use std::time::Duration;
 
-use futures::{Future, Stream};
-use hyper::Client;
+use futures::Future;
+use hyper::{Request, Method, Client};
 use tokio_core::reactor::Core;
 
 use super::register::Teams;
@@ -34,19 +33,19 @@ impl Heartbeat {
             for (_, team) in team_repository.teams.iter() {
                 match team.heartbeat_uri() {
                     Ok(uri) => {
+                        info!("heartbeat at {}", uri);
+                        let request = Request::new(Method::Head, uri);
                         let work = client
-                            .get(uri)
+                            .request(request)
                             .map(|response|{
                                 info!("{} {}", team, response.status());
                             })
-                            .map_err(|e|{
-                                error!("{} {:?}", team, e);
+                            .map_err(|_|{
+                                error!("{} disconnected", team);
                             });
 
                         match core.run(work) {
-                            Ok(_) => info!("heartbeat for {} received", team),
-
-                            Err(e) => error!("heartbeat for {}: {:?}", team, e),
+                            _ => () /* Everything is fine */
                         }
                     },
 

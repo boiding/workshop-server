@@ -25,7 +25,7 @@ fn main() {
     dotenv().ok();
     CombinedLogger::init(
         vec![
-            TermLogger::new(LogLevelFilter::Debug, Config::default()).unwrap(),
+            TermLogger::new(LogLevelFilter::Info, Config::default()).unwrap(),
         ]
     ).unwrap();
 
