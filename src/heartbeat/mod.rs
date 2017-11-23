@@ -30,17 +30,32 @@ impl Heartbeat {
         let sleep_duration = Duration::from_secs(sleep_duration_value);
 
         loop {
-            let uri = "http://httpbin.org/ip".parse().unwrap(); // TODO handle error?
-            let work = client.get(uri).and_then(|res| {
-                println!("Response: {}", res.status());
+            let team_repository = self.team_repository_ref.read().unwrap();
+            for (_, team) in team_repository.teams.iter() {
+                match team.heartbeat_uri() {
+                    Ok(uri) => {
+                        let work = client
+                            .get(uri)
+                            .map(|response|{
+                                info!("{} {}", team, response.status());
+                            })
+                            .map_err(|e|{
+                                error!("{} {:?}", team, e);
+                            });
 
-                res.body().for_each(|chunk| {
-                    io::stdout()
-                        .write_all(&chunk)
-                        .map_err(From::from)
-                })
-            });
-            core.run(work).unwrap(); // TODO handle error?
+                        match core.run(work) {
+                            Ok(_) => info!("heartbeat for {} received", team),
+
+                            Err(e) => error!("heartbeat for {}: {:?}", team, e),
+                        }
+                    },
+
+                    Err(e) => {
+                        error!("{}", e)
+                    }
+                }
+            }
+
             thread::sleep(sleep_duration);
         }
     }

@@ -1,5 +1,8 @@
 use std::convert::{From, Into};
 use std::collections::HashMap;
+use std::fmt::{Display, Error, Formatter};
+
+use hyper::{self, Uri};
 
 pub trait TeamRepository {
     fn register(&mut self, registration: Registration) -> RegistrationAttempt;
@@ -7,7 +10,7 @@ pub trait TeamRepository {
 }
 
 pub struct Teams {
-    teams: HashMap<String, Team>,
+    pub teams: HashMap<String, Team>,
 }
 
 impl Teams {
@@ -58,14 +61,28 @@ pub enum RegistrationFailureReason {
     IPAddressTaken,
 }
 
-struct Team {
+pub struct Team {
     name: String,
     ip_address: String,
+}
+
+impl Team {
+    pub fn heartbeat_uri(&self) -> Result<Uri, hyper::error::UriError> {
+        let address = format!("{}://{}:{}", "http", self.ip_address, "2643");
+
+        address.parse()
+    }
 }
 
 impl From<Registration> for Team {
     fn from(registration: Registration) -> Self {
         Team { name: registration.name, ip_address: registration.ip_address }
+    }
+}
+
+impl Display for Team {
+    fn fmt(&self, f: &mut Formatter) -> Result<(), Error> {
+        write!(f, "{} {}", self.name, self.ip_address)
     }
 }
 
