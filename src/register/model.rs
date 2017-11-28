@@ -1,4 +1,4 @@
-use std::convert::{From, Into};
+use std::convert::Into;
 use std::collections::HashMap;
 use std::fmt::{Display, Error, Formatter};
 
@@ -19,7 +19,10 @@ impl Teams {
     }
 
     fn ip_addresses(&self) -> Vec<&str> {
-        self.teams.iter().map(|team| &team.1.ip_address[..]).collect()
+        self.teams
+            .iter()
+            .map(|team| &team.1.ip_address[..])
+            .collect()
     }
 }
 
@@ -35,7 +38,10 @@ impl TeamRepository for Teams {
             }
         }
 
-        self.teams.insert(registration.name.clone(), Team::from(registration));
+        self.teams.insert(
+            registration.name.clone(),
+            registration.into(),
+        );
         RegistrationAttempt::Success
     }
 
@@ -52,7 +58,7 @@ impl TeamRepository for Teams {
 #[derive(PartialEq, Debug)]
 pub enum RegistrationAttempt {
     Success,
-    Failure(RegistrationFailureReason)
+    Failure(RegistrationFailureReason),
 }
 
 #[derive(PartialEq, Debug)]
@@ -75,12 +81,6 @@ impl Team {
     }
 }
 
-impl From<Registration> for Team {
-    fn from(registration: Registration) -> Self {
-        Team { name: registration.name, ip_address: registration.ip_address, port: registration.port }
-    }
-}
-
 impl Display for Team {
     fn fmt(&self, f: &mut Formatter) -> Result<(), Error> {
         write!(f, "{} {}", self.name, self.ip_address)
@@ -94,13 +94,26 @@ pub struct Registration {
     port: u16,
 }
 
+impl Into<Team> for Registration {
+    fn into(self) -> Team {
+        Team {
+            name: self.name,
+            ip_address: self.ip_address,
+            port: self.port,
+        }
+    }
+}
+
 #[derive(Serialize, Debug)]
 pub struct RegistrationFailure {
     reason: String,
 }
 
 impl RegistrationFailure {
-    pub fn new<S>(reason: S) -> RegistrationFailure where S: Into<String> {
+    pub fn new<S>(reason: S) -> RegistrationFailure
+    where
+        S: Into<String>,
+    {
         RegistrationFailure { reason: reason.into() }
     }
 }
@@ -108,7 +121,7 @@ impl RegistrationFailure {
 #[derive(PartialEq, Debug)]
 pub enum UnregistrationAttempt {
     Success,
-    Failure(UnregistrationFailureReason)
+    Failure(UnregistrationFailureReason),
 }
 
 #[derive(PartialEq, Debug)]
@@ -127,7 +140,10 @@ pub struct UnregistrationFailure {
 }
 
 impl UnregistrationFailure {
-    pub fn new<S>(reason: S) -> UnregistrationFailure where S: Into<String> {
+    pub fn new<S>(reason: S) -> UnregistrationFailure
+    where
+        S: Into<String>,
+    {
         UnregistrationFailure { reason: reason.into() }
     }
 }
@@ -141,8 +157,8 @@ mod tests {
     fn team_should_be_registered_with_a_registration() {
         let mut teams = Teams::new();
         let registration = Registration {
-            name : "TEST".to_owned(),
-            ip_address : "TEST ADDRESS".to_owned(),
+            name: "TEST".to_owned(),
+            ip_address: "TEST ADDRESS".to_owned(),
         };
 
         let result = teams.register(registration);
@@ -154,14 +170,14 @@ mod tests {
     fn team_with_same_name_should_not_be_registered() {
         let mut teams = Teams::new();
         let first = Registration {
-            name : "TEST".to_owned(),
-            ip_address : "TEST ADDRESS".to_owned(),
+            name: "TEST".to_owned(),
+            ip_address: "TEST ADDRESS".to_owned(),
         };
         let _ = teams.register(first);
 
         let second = Registration {
-            name : "TEST".to_owned(),
-            ip_address : "OTHER TEST ADDRESS".to_owned(),
+            name: "TEST".to_owned(),
+            ip_address: "OTHER TEST ADDRESS".to_owned(),
         };
         let result = teams.register(second);
 
@@ -172,14 +188,14 @@ mod tests {
     fn team_with_same_ip_address_should_not_be_registered() {
         let mut teams = Teams::new();
         let first = Registration {
-            name : "TEST".to_owned(),
-            ip_address : "TEST ADDRESS".to_owned(),
+            name: "TEST".to_owned(),
+            ip_address: "TEST ADDRESS".to_owned(),
         };
         let _ = teams.register(first);
 
         let second = Registration {
-            name : "OTHER TEST".to_owned(),
-            ip_address : "TEST ADDRESS".to_owned(),
+            name: "OTHER TEST".to_owned(),
+            ip_address: "TEST ADDRESS".to_owned(),
         };
         let result = teams.register(second);
 
