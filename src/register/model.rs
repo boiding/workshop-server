@@ -1,29 +1,10 @@
 use std::convert::Into;
-use std::collections::HashMap;
-use std::fmt::{Display, Error, Formatter};
 
-use hyper::{self, Uri};
+use super::super::model::{Teams, Team};
 
 pub trait TeamRepository {
     fn register(&mut self, registration: Registration) -> RegistrationAttempt;
     fn unregister(&mut self, unregistration: Unregistration) -> UnregistrationAttempt;
-}
-
-pub struct Teams {
-    pub teams: HashMap<String, Team>,
-}
-
-impl Teams {
-    pub fn new() -> Teams {
-        Teams { teams: HashMap::new() }
-    }
-
-    fn ip_addresses(&self) -> Vec<&str> {
-        self.teams
-            .iter()
-            .map(|team| &team.1.ip_address[..])
-            .collect()
-    }
 }
 
 impl TeamRepository for Teams {
@@ -67,26 +48,6 @@ pub enum RegistrationFailureReason {
     IPAddressTaken,
 }
 
-pub struct Team {
-    name: String,
-    ip_address: String,
-    port: u16,
-}
-
-impl Team {
-    pub fn heartbeat_uri(&self) -> Result<Uri, hyper::error::UriError> {
-        let address = format!("{}://{}:{}/heartbeat", "http", self.ip_address, self.port);
-
-        address.parse()
-    }
-}
-
-impl Display for Team {
-    fn fmt(&self, f: &mut Formatter) -> Result<(), Error> {
-        write!(f, "{} {}", self.name, self.ip_address)
-    }
-}
-
 #[derive(Deserialize, Debug)]
 pub struct Registration {
     name: String,
@@ -96,11 +57,7 @@ pub struct Registration {
 
 impl Into<Team> for Registration {
     fn into(self) -> Team {
-        Team {
-            name: self.name,
-            ip_address: self.ip_address,
-            port: self.port,
-        }
+        Team::new(self.name, self.ip_address, self.port)
     }
 }
 
@@ -159,6 +116,7 @@ mod tests {
         let registration = Registration {
             name: "TEST".to_owned(),
             ip_address: "TEST ADDRESS".to_owned(),
+            port: 2643,
         };
 
         let result = teams.register(registration);
@@ -172,16 +130,18 @@ mod tests {
         let first = Registration {
             name: "TEST".to_owned(),
             ip_address: "TEST ADDRESS".to_owned(),
+            port: 2643,
         };
         let _ = teams.register(first);
 
         let second = Registration {
             name: "TEST".to_owned(),
             ip_address: "OTHER TEST ADDRESS".to_owned(),
+            port: 2643,
         };
         let result = teams.register(second);
 
-        assert_eq!(result, RegistrationAttempt::Failure(Reason::NameTaken));
+        assert_eq!(result, RegistrationAttempt::Failure(RegistrationFailureReason::NameTaken));
     }
 
     #[test]
@@ -190,15 +150,17 @@ mod tests {
         let first = Registration {
             name: "TEST".to_owned(),
             ip_address: "TEST ADDRESS".to_owned(),
+            port: 2643,
         };
         let _ = teams.register(first);
 
         let second = Registration {
             name: "OTHER TEST".to_owned(),
             ip_address: "TEST ADDRESS".to_owned(),
+            port: 2643,
         };
         let result = teams.register(second);
 
-        assert_eq!(result, RegistrationAttempt::Failure(Reason::IPAddressTaken));
+        assert_eq!(result, RegistrationAttempt::Failure(RegistrationFailureReason::IPAddressTaken));
     }
 }

@@ -18,7 +18,7 @@ use mount::Mount;
 use simplelog::{Config, LogLevelFilter, TermLogger, CombinedLogger};
 
 use bws::register;
-use bws::register::Teams;
+use bws::model::Teams;
 use bws::heartbeat::Heartbeat;
 
 fn main() {

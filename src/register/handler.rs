@@ -7,6 +7,7 @@ use serde_json;
 use serde_json::Error;
 
 use super::model::*;
+use super::super::model::Teams;
 
 pub fn router(tr_ref: &Arc<RwLock<Teams>>) -> Router {
     let mut router = Router::new();

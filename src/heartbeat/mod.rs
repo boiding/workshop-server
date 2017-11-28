@@ -7,7 +7,7 @@ use futures::Future;
 use hyper::{Request, Method, Client};
 use tokio_core::reactor::Core;
 
-use super::register::Teams;
+use super::model::Teams;
 
 pub struct Heartbeat {
     team_repository_ref: Arc<RwLock<Teams>>,
