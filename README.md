@@ -8,3 +8,6 @@ Running amounts to
 cargo run
 ```
 
+### Configuration
+Some parameters can be configured via environment variables. Take a look at the
+`.env`.
