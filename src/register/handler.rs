@@ -40,10 +40,10 @@ pub fn router(tr_ref: &Arc<RwLock<Teams>>) -> Router {
                                 Ok(Response::with((status::InternalServerError, payload)))
                             },
 
-                            RegistrationFailureReason::IPAddressTaken => {
-                                error!("ip address already registered");
+                            RegistrationFailureReason::IPAddressWithPortTaken => {
+                                error!("ip address with the port already registered");
                                 let reason = RegistrationFailure::new(
-                                    format!("ip address already registered")
+                                    format!("ip address with the port already registered")
                                 );
                                 let payload = serde_json::to_string(&reason).unwrap();
 

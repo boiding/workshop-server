@@ -14,7 +14,7 @@ impl TeamRepository for Teams {
         }
 
         if !self.available(&registration.ip_address, registration.port) {
-            return RegistrationAttempt::Failure(RegistrationFailureReason::IPAddressTaken); // TODO correct failure reason; combination of ip address and port
+            return RegistrationAttempt::Failure(RegistrationFailureReason::IPAddressWithPortTaken);
         }
 
         self.teams.insert(
@@ -43,7 +43,7 @@ pub enum RegistrationAttempt {
 #[derive(PartialEq, Debug)]
 pub enum RegistrationFailureReason {
     NameTaken,
-    IPAddressTaken,
+    IPAddressWithPortTaken,
 }
 
 #[derive(Deserialize, Debug)]
@@ -159,6 +159,6 @@ mod tests {
         };
         let result = teams.register(second);
 
-        assert_eq!(result, RegistrationAttempt::Failure(RegistrationFailureReason::IPAddressTaken));
+        assert_eq!(result, RegistrationAttempt::Failure(RegistrationFailureReason::IPAddressWithPortTaken));
     }
 }
