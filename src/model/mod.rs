@@ -12,11 +12,11 @@ impl Teams {
         Teams { teams: HashMap::new() }
     }
 
-    pub fn ip_addresses(&self) -> Vec<&str> {
+    pub fn available(&self, ip_address: &str, port: u16) -> bool {
         self.teams
             .iter()
-            .map(|team| &team.1.ip_address[..])
-            .collect()
+            .filter(|&(_name ,team)| team.ip_address == ip_address && team.port == port)
+            .count() == 0
     }
 }
 

@@ -13,10 +13,8 @@ impl TeamRepository for Teams {
             return RegistrationAttempt::Failure(RegistrationFailureReason::NameTaken);
         }
 
-        for ip_address in self.ip_addresses() {
-            if ip_address == registration.ip_address {
-                return RegistrationAttempt::Failure(RegistrationFailureReason::IPAddressTaken);
-            }
+        if !self.available(&registration.ip_address, registration.port) {
+            return RegistrationAttempt::Failure(RegistrationFailureReason::IPAddressTaken); // TODO correct failure reason; combination of ip address and port
         }
 
         self.teams.insert(
