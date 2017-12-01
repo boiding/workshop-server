@@ -46,6 +46,16 @@ pub enum RegistrationFailureReason {
     IPAddressWithPortTaken,
 }
 
+impl Into<String> for RegistrationFailureReason {
+    fn into(self) -> String {
+        (match self {
+            RegistrationFailureReason::NameTaken => "name already taken",
+
+            RegistrationFailureReason::IPAddressWithPortTaken => "ip address with port already taken",
+        }).to_string()
+    }
+}
+
 #[derive(Deserialize, Debug)]
 pub struct Registration {
     name: String,

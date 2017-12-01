@@ -29,27 +29,12 @@ pub fn router(tr_ref: &Arc<RwLock<Teams>>) -> Router {
                     },
 
                     RegistrationAttempt::Failure(reason) => {
-                        match reason {
-                            RegistrationFailureReason::NameTaken => {
-                                error!("name already registered");
-                                let reason = RegistrationFailure::new(
-                                    format!("name already registered")
-                                );
-                                let payload = serde_json::to_string(&reason).unwrap();
+                        let message: String = reason.into();
+                        error!("registration failed \"{}\"", message);
+                        let reason = RegistrationFailure::new(message);
+                        let payload = serde_json::to_string(&reason).unwrap();
 
-                                Ok(Response::with((status::InternalServerError, payload)))
-                            },
-
-                            RegistrationFailureReason::IPAddressWithPortTaken => {
-                                error!("ip address with the port already registered");
-                                let reason = RegistrationFailure::new(
-                                    format!("ip address with the port already registered")
-                                );
-                                let payload = serde_json::to_string(&reason).unwrap();
-
-                                Ok(Response::with((status::InternalServerError, payload)))
-                            }
-                        }
+                        Ok(Response::with((status::InternalServerError, payload)))
                     }
                 }
             } else {
