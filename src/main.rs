@@ -31,18 +31,18 @@ fn main() {
 
     info!("Logger configured");
 
-    let (tx, rx): (Sender<Message>, Receiver<Message>) = channel();
+    let (team_tx, team_rx): (Sender<Message>, Receiver<Message>) = channel();
     let teams_thread = thread::spawn(move ||{
         info!("teams thread started");
         let team_repository = Teams::new();
         loop {
-            let message = rx.recv().unwrap();
+            let message = team_rx.recv().unwrap();
             info!("received message \"{:?}\"", message);
         }
     });
 
     let team_repository_ref = Arc::new(RwLock::new(Teams::new()));
-    let iron_tx = tx.clone();
+    let iron_tx = team_tx.clone();
     let iron_thread = thread::spawn(move ||{
         let server_address = env::var("address").expect("\"address\" in environment variables");
         info!("starting server at {}", server_address);
