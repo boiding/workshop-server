@@ -37,7 +37,7 @@ impl Heartbeat {
             match message {
                 HeartbeatMessage::Check(servers) => {
                     for (team_name, uri) in servers {
-                        info!("heartbeat at {}", uri);
+                        info!("heartbeat for {} at {}", team_name, uri);
                         let request = Request::new(Method::Head, uri);
                         let work = client
                             .request(request)
