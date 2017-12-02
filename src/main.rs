@@ -18,6 +18,7 @@ use simplelog::{Config, LogLevelFilter, TermLogger, CombinedLogger};
 use bws::communication::Message;
 use bws::heartbeat::{Heartbeat, HeartbeatMessage};
 use bws::model::Teams;
+use bws::register::model::{TeamRepository, RegistrationAttempt, UnregistrationAttempt};
 use bws::server;
 
 fn main() {
@@ -32,12 +33,35 @@ fn main() {
 
     let (team_tx, team_rx): (Sender<Message>, Receiver<Message>) = channel();
     let (heartbeat_tx, heartbeat_rx): (Sender<HeartbeatMessage>, Receiver<HeartbeatMessage>) = channel();
+    let team_heartbeat_tx = heartbeat_tx.clone();
     let teams_thread = thread::spawn(move ||{
         info!("teams thread started");
-        let team_repository = Teams::new();
+        let mut team_repository = Teams::new();
         loop {
             let message = team_rx.recv().unwrap();
-            info!("received message \"{:?}\"", message);
+            match message {
+                Message::Register(registration) => {
+                    let attempt = team_repository.register(registration);
+                    match attempt {
+                        RegistrationAttempt::Success => info!("successfully registered a server"),
+                        RegistrationAttempt::Failure(reason) => error!("problem registering a server: \"{:?}\"", reason),
+                    }
+                },
+                Message::Unregister(unregistration) => {
+                    let attempt = team_repository.unregister(unregistration);
+                    match attempt {
+                        UnregistrationAttempt::Success => info!("successfully unregistered a server"),
+                        UnregistrationAttempt::Failure(reason) => error!("problem unregistering a server: \"{:?}\"", reason),
+                    }
+                },
+                Message::Heartbeat => {
+                    let servers = team_repository.teams.iter()
+                        .map(|(name, team)|{ (name.clone(), team.heartbeat_uri().unwrap()) })
+                        .collect();
+
+                    team_heartbeat_tx.send(HeartbeatMessage::Check(servers)).unwrap();
+                }
+            }
         }
     });
 
