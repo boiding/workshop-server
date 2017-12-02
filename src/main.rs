@@ -60,7 +60,10 @@ fn main() {
                         .collect();
 
                     team_heartbeat_tx.send(HeartbeatMessage::Check(servers)).unwrap();
-                }
+                },
+                Message::HeartbeatStatus((name, connected)) => {
+                    info!("received heartbeat status for {}: connected {}", name, connected);
+                },
             }
         }
     });

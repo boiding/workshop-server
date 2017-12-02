@@ -1,4 +1,5 @@
 use std::env;
+use std::sync::{Arc,Mutex};
 use std::sync::mpsc::{Receiver, Sender};
 use std::thread;
 use std::time::Duration;
@@ -29,6 +30,7 @@ impl Heartbeat {
                 , 10).expect("\"heartbeat_sleep_duration\" to be u64");
         let sleep_duration = Duration::from_secs(sleep_duration_value);
 
+        let team_rx_mutex = Arc::new(Mutex::new(self.tx.clone()));
         loop {
             thread::sleep(sleep_duration);
             self.tx.send(Message::Heartbeat).unwrap();
@@ -38,14 +40,24 @@ impl Heartbeat {
                 HeartbeatMessage::Check(servers) => {
                     for (team_name, uri) in servers {
                         info!("heartbeat for {} at {}", team_name, uri);
+                        let (success_team_rx_mutex, success_team_name) =
+                            (team_rx_mutex.clone(), team_name.clone());
+                        let (failure_team_rx_mutex, failure_team_name) =
+                            (team_rx_mutex.clone(), team_name.clone());
                         let request = Request::new(Method::Head, uri);
                         let work = client
                             .request(request)
-                            .map(|response|{
-                                info!("{} {}", team_name, response.status());
+                            .map(move |response|{
+                                info!("{} {}", success_team_name, response.status());
+                                success_team_rx_mutex
+                                    .lock().unwrap()
+                                    .send(Message::HeartbeatStatus((success_team_name, true))).unwrap();
                             })
-                            .map_err(|_|{
-                                error!("{} disconnected", team_name);
+                            .map_err(move |_|{
+                                error!("{} disconnected", failure_team_name);
+                                failure_team_rx_mutex
+                                    .lock().unwrap()
+                                    .send(Message::HeartbeatStatus((failure_team_name, false))).unwrap();
                             });
 
                         match core.run(work) {
