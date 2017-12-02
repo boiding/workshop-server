@@ -9,6 +9,7 @@ extern crate simplelog;
 
 use std::env;
 use std::sync::{Arc, RwLock};
+use std::sync::mpsc::{channel, Sender, Receiver};
 use std::thread;
 
 use dotenv::dotenv;
@@ -29,11 +30,11 @@ fn main() {
 
     info!("Logger configured");
 
+    let (tx, rx): (Sender<Message>, Receiver<Message>) = channel();
     let teams_thread = thread::spawn(||{
         info!("teams thread started");
         let team_repository = Teams::new();
     });
-
 
     let team_repository_ref = Arc::new(RwLock::new(Teams::new()));
     let iron_team_repository_ref = team_repository_ref.clone();
@@ -55,4 +56,8 @@ fn main() {
     iron_thread.join().unwrap();
     heartbeat_thread.join().unwrap();
     teams_thread.join().unwrap();
+}
+
+enum Message {
+    Ack
 }
