@@ -29,6 +29,12 @@ fn main() {
 
     info!("Logger configured");
 
+    let teams_thread = thread::spawn(||{
+        info!("teams thread started");
+        let team_repository = Teams::new();
+    });
+
+
     let team_repository_ref = Arc::new(RwLock::new(Teams::new()));
     let iron_team_repository_ref = team_repository_ref.clone();
     let iron_thread = thread::spawn(move ||{
@@ -48,4 +54,5 @@ fn main() {
 
     iron_thread.join().unwrap();
     heartbeat_thread.join().unwrap();
+    teams_thread.join().unwrap();
 }
