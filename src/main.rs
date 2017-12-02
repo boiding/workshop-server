@@ -41,6 +41,7 @@ fn main() {
     let heartbeat_team_repository_ref = team_repository_ref.clone();
     let heartbeat_thread = thread::spawn(move ||{
         let mut heartbeat = Heartbeat::new(heartbeat_team_repository_ref);
+        info!("starting heartbeat monitor");
 
         heartbeat.monitor();
     });
