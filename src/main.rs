@@ -16,6 +16,7 @@ use dotenv::dotenv;
 use iron::Iron;
 use simplelog::{Config, LogLevelFilter, TermLogger, CombinedLogger};
 
+use bws::communication::Message;
 use bws::heartbeat::Heartbeat;
 use bws::model::Teams;
 use bws::server;
@@ -31,18 +32,22 @@ fn main() {
     info!("Logger configured");
 
     let (tx, rx): (Sender<Message>, Receiver<Message>) = channel();
-    let teams_thread = thread::spawn(||{
+    let teams_thread = thread::spawn(move ||{
         info!("teams thread started");
         let team_repository = Teams::new();
+        loop {
+            let message = rx.recv().unwrap();
+            info!("received message \"{:?}\"", message);
+        }
     });
 
     let team_repository_ref = Arc::new(RwLock::new(Teams::new()));
-    let iron_team_repository_ref = team_repository_ref.clone();
+    let iron_tx = tx.clone();
     let iron_thread = thread::spawn(move ||{
         let server_address = env::var("address").expect("\"address\" in environment variables");
         info!("starting server at {}", server_address);
 
-        Iron::new(server::chain(&iron_team_repository_ref)).http(server_address).unwrap();
+        Iron::new(server::chain(&iron_tx)).http(server_address).unwrap();
     });
 
     let heartbeat_team_repository_ref = team_repository_ref.clone();
@@ -56,8 +61,4 @@ fn main() {
     iron_thread.join().unwrap();
     heartbeat_thread.join().unwrap();
     teams_thread.join().unwrap();
-}
-
-enum Message {
-    Ack
 }

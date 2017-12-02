@@ -10,6 +10,7 @@ extern crate serde;
 extern crate serde_json;
 extern crate tokio_core;
 
+pub mod communication;
 pub mod heartbeat;
 pub mod model;
 pub mod register;

@@ -1,5 +1,6 @@
 use std::io::Read;
-use std::sync::{Arc, RwLock};
+use std::sync::{Arc, Mutex};
+use std::sync::mpsc::Sender;
 
 use iron::{Request, Response, status};
 use router::Router;
@@ -7,12 +8,13 @@ use serde_json;
 use serde_json::Error;
 
 use super::model::*;
-use super::super::model::Teams;
+use super::super::communication::Message;
 
-pub fn router(tr_ref: &Arc<RwLock<Teams>>) -> Router {
+pub fn router(tx: &Sender<Message>) -> Router {
     let mut router = Router::new();
 
-    let registration_team_repository_ref = tr_ref.clone();
+    let registration_tx = tx.clone();
+    let registration_tx_mutex = Arc::new(Mutex::new(registration_tx));
     router.post("/", move |request: &mut Request|{
         let mut body: String = String::new();
         if let Ok(_) = request.body.read_to_string(&mut body) {
@@ -20,23 +22,11 @@ pub fn router(tr_ref: &Arc<RwLock<Teams>>) -> Router {
             if let Ok(registration) = registration_result {
                 info!("received {:?}", registration);
 
-                let mut team_repository = registration_team_repository_ref.write().unwrap();
-                let attempt = team_repository.register(registration);
-                match attempt {
-                    RegistrationAttempt::Success => {
-                        info!("Successfully registered");
-                        Ok(Response::with(status::NoContent))
-                    },
+                registration_tx_mutex
+                    .lock().unwrap()
+                    .send(Message::Register(registration)).unwrap();
 
-                    RegistrationAttempt::Failure(reason) => {
-                        let message: String = reason.into();
-                        error!("registration failed \"{}\"", message);
-                        let reason = RegistrationFailure::new(message);
-                        let payload = serde_json::to_string(&reason).unwrap();
-
-                        Ok(Response::with((status::InternalServerError, payload)))
-                    }
-                }
+                Ok(Response::with(status::NoContent))
             } else {
                 error!("unable to deserialize registation \"{}\"", body);
                 let reason = RegistrationFailure::new(
@@ -55,7 +45,8 @@ pub fn router(tr_ref: &Arc<RwLock<Teams>>) -> Router {
         }
     }, "register");
 
-    let unregister_team_repository_ref = tr_ref.clone();
+    let unregister_tx = tx.clone();
+    let unregister_tx_mutex = Arc::new(Mutex::new(unregister_tx));
     router.delete("/", move |request: &mut Request|{
         let mut body: String = String::new();
         if let Ok(_) = request.body.read_to_string(&mut body) {
@@ -63,28 +54,11 @@ pub fn router(tr_ref: &Arc<RwLock<Teams>>) -> Router {
             if let Ok(unregistration) = unregistration_result {
                 info!("received {:?}", unregistration);
 
-                let mut team_repository = unregister_team_repository_ref.write().unwrap();
-                let attempt = team_repository.unregister(unregistration);
-                match attempt {
-                    UnregistrationAttempt::Success => {
-                        info!("Successfully unregistered");
-                        Ok(Response::with(status::NoContent))
-                    },
+                unregister_tx_mutex
+                    .lock().unwrap()
+                    .send(Message::Unregister(unregistration)).unwrap();
 
-                    UnregistrationAttempt::Failure(reason) => {
-                        match reason {
-                            UnregistrationFailureReason::NameNotRegistered => {
-                                error!("name not registered");
-                                let reason = UnregistrationFailure::new(
-                                    format!("name not registered")
-                                );
-                                let payload = serde_json::to_string(&reason).unwrap();
-
-                                Ok(Response::with((status::InternalServerError, payload)))
-                            },
-                        }
-                    }
-                }
+                Ok(Response::with(status::NoContent))
             } else {
                 error!("unable to deserialize unregistation \"{}\"", body);
                 let reason = UnregistrationFailure::new(
