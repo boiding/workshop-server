@@ -12,14 +12,12 @@ use std::sync::{Arc, RwLock};
 use std::thread;
 
 use dotenv::dotenv;
-use iron::{Iron, Chain};
-use logger::Logger;
-use mount::Mount;
+use iron::Iron;
 use simplelog::{Config, LogLevelFilter, TermLogger, CombinedLogger};
 
-use bws::register;
-use bws::model::Teams;
 use bws::heartbeat::Heartbeat;
+use bws::model::Teams;
+use bws::server;
 
 fn main() {
     dotenv().ok();
@@ -37,7 +35,7 @@ fn main() {
         let server_address = env::var("address").expect("\"address\" in environment variables");
         info!("starting server at {}", server_address);
 
-        Iron::new(chain(&iron_team_repository_ref)).http(server_address).unwrap();
+        Iron::new(server::chain(&iron_team_repository_ref)).http(server_address).unwrap();
     });
 
     let heartbeat_team_repository_ref = team_repository_ref.clone();
@@ -49,21 +47,4 @@ fn main() {
 
     iron_thread.join().unwrap();
     heartbeat_thread.join().unwrap();
-}
-
-fn chain(team_repository_ref: &Arc<RwLock<Teams>>) -> Chain {
-    let mut chain = Chain::new(mount(&team_repository_ref));
-    let (logger_before, logger_after) = Logger::new(None);
-    chain.link_before(logger_before);
-    chain.link_after(logger_after);
-
-    chain
-}
-
-fn mount(team_repository_ref: &Arc<RwLock<Teams>>) -> Mount {
-    let mut mount = Mount::new();
-
-    mount.mount("/register", register::router(&team_repository_ref));
-
-    mount
 }
