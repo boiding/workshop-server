@@ -4,4 +4,5 @@ use super::register::model::{Registration, Unregistration};
 pub enum Message {
     Register(Registration),
     Unregister(Unregistration),
+    Heartbeat,
 }

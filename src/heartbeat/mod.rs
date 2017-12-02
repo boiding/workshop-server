@@ -1,21 +1,22 @@
 use std::env;
-use std::sync::{Arc, RwLock};
+use std::sync::mpsc::{Receiver, Sender};
 use std::thread;
 use std::time::Duration;
 
 use futures::Future;
-use hyper::{Request, Method, Client};
+use hyper::{Client, Method, Request, Uri};
 use tokio_core::reactor::Core;
 
-use super::model::Teams;
+use super::communication::Message;
 
 pub struct Heartbeat {
-    team_repository_ref: Arc<RwLock<Teams>>,
+    rx: Receiver<HeartbeatMessage>,
+    tx: Sender<Message>,
 }
 
 impl Heartbeat {
-    pub fn new(team_repository_ref: Arc<RwLock<Teams>>) -> Heartbeat {
-        Heartbeat { team_repository_ref }
+    pub fn new(rx: Receiver<HeartbeatMessage>, tx: Sender<Message>) -> Heartbeat {
+        Heartbeat { rx, tx }
     }
 
     pub fn monitor(&mut self) {
@@ -29,33 +30,35 @@ impl Heartbeat {
         let sleep_duration = Duration::from_secs(sleep_duration_value);
 
         loop {
-            let team_repository = self.team_repository_ref.read().unwrap();
-            for (_, team) in team_repository.teams.iter() {
-                match team.heartbeat_uri() {
-                    Ok(uri) => {
+            thread::sleep(sleep_duration);
+            self.tx.send(Message::Heartbeat).unwrap();
+
+            let message = self.rx.recv().unwrap();
+            match message {
+                HeartbeatMessage::Check(servers) => {
+                    for (team_name, uri) in servers {
                         info!("heartbeat at {}", uri);
                         let request = Request::new(Method::Head, uri);
                         let work = client
                             .request(request)
                             .map(|response|{
-                                info!("{} {}", team, response.status());
+                                info!("{} {}", team_name, response.status());
                             })
                             .map_err(|_|{
-                                error!("{} disconnected", team);
+                                error!("{} disconnected", team_name);
                             });
 
                         match core.run(work) {
                             _ => () /* Everything is fine */
                         }
-                    },
-
-                    Err(e) => {
-                        error!("{}", e)
                     }
-                }
+                },
             }
-
-            thread::sleep(sleep_duration);
         }
     }
+}
+
+
+pub enum HeartbeatMessage {
+    Check(Vec<(String, Uri)>),
 }
