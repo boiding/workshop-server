@@ -17,7 +17,7 @@ use simplelog::{Config, LogLevelFilter, TermLogger, CombinedLogger};
 
 use bws::heartbeat::{Heartbeat, HeartbeatMessage};
 use bws::model::Teams;
-use bws::model::communication::Message;
+use bws::model::communication::Message as TeamsMessage;
 use bws::register::model::{TeamRepository, RegistrationAttempt, UnregistrationAttempt};
 use bws::server;
 
@@ -31,7 +31,7 @@ fn main() {
 
     info!("Logger configured");
 
-    let (team_tx, team_rx): (Sender<Message>, Receiver<Message>) = channel();
+    let (team_tx, team_rx): (Sender<TeamsMessage>, Receiver<TeamsMessage>) = channel();
     let (heartbeat_tx, heartbeat_rx): (Sender<HeartbeatMessage>, Receiver<HeartbeatMessage>) = channel();
     let team_heartbeat_tx = heartbeat_tx.clone();
     let teams_thread = thread::spawn(move ||{
@@ -40,28 +40,28 @@ fn main() {
         loop {
             let message = team_rx.recv().unwrap();
             match message {
-                Message::Register(registration) => {
+                TeamsMessage::Register(registration) => {
                     let attempt = team_repository.register(registration);
                     match attempt {
                         RegistrationAttempt::Success => info!("successfully registered a server"),
                         RegistrationAttempt::Failure(reason) => error!("problem registering a server: \"{:?}\"", reason),
                     }
                 },
-                Message::Unregister(unregistration) => {
+                TeamsMessage::Unregister(unregistration) => {
                     let attempt = team_repository.unregister(unregistration);
                     match attempt {
                         UnregistrationAttempt::Success => info!("successfully unregistered a server"),
                         UnregistrationAttempt::Failure(reason) => error!("problem unregistering a server: \"{:?}\"", reason),
                     }
                 },
-                Message::Heartbeat => {
+                TeamsMessage::Heartbeat => {
                     let servers = team_repository.teams.iter()
                         .map(|(name, team)|{ (name.clone(), team.heartbeat_uri().unwrap()) })
                         .collect();
 
                     team_heartbeat_tx.send(HeartbeatMessage::Check(servers)).unwrap();
                 },
-                Message::HeartbeatStatus((name, connected)) => {
+                TeamsMessage::HeartbeatStatus((name, connected)) => {
                     info!("received heartbeat status for {}: connected {}", name, connected);
                 },
             }

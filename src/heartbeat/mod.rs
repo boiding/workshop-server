@@ -8,15 +8,15 @@ use futures::Future;
 use hyper::{Client, Method, Request, Uri};
 use tokio_core::reactor::Core;
 
-use super::model::communication::Message;
+use super::model::communication::Message as TeamsMessage;
 
 pub struct Heartbeat {
     rx: Receiver<HeartbeatMessage>,
-    tx: Sender<Message>,
+    tx: Sender<TeamsMessage>,
 }
 
 impl Heartbeat {
-    pub fn new(rx: Receiver<HeartbeatMessage>, tx: Sender<Message>) -> Heartbeat {
+    pub fn new(rx: Receiver<HeartbeatMessage>, tx: Sender<TeamsMessage>) -> Heartbeat {
         Heartbeat { rx, tx }
     }
 
@@ -33,7 +33,7 @@ impl Heartbeat {
         let team_rx_mutex = Arc::new(Mutex::new(self.tx.clone()));
         loop {
             thread::sleep(sleep_duration);
-            self.tx.send(Message::Heartbeat).unwrap();
+            self.tx.send(TeamsMessage::Heartbeat).unwrap();
 
             let message = self.rx.recv().unwrap();
             match message {
@@ -51,13 +51,13 @@ impl Heartbeat {
                                 info!("{} {}", success_team_name, response.status());
                                 success_team_rx_mutex
                                     .lock().unwrap()
-                                    .send(Message::HeartbeatStatus((success_team_name, true))).unwrap();
+                                    .send(TeamsMessage::HeartbeatStatus((success_team_name, true))).unwrap();
                             })
                             .map_err(move |_|{
                                 error!("{} disconnected", failure_team_name);
                                 failure_team_rx_mutex
                                     .lock().unwrap()
-                                    .send(Message::HeartbeatStatus((failure_team_name, false))).unwrap();
+                                    .send(TeamsMessage::HeartbeatStatus((failure_team_name, false))).unwrap();
                             });
 
                         match core.run(work) {
