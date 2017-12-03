@@ -15,9 +15,9 @@ use dotenv::dotenv;
 use iron::Iron;
 use simplelog::{Config, LogLevelFilter, TermLogger, CombinedLogger};
 
-use bws::communication::Message;
 use bws::heartbeat::{Heartbeat, HeartbeatMessage};
 use bws::model::Teams;
+use bws::model::communication::Message;
 use bws::register::model::{TeamRepository, RegistrationAttempt, UnregistrationAttempt};
 use bws::server;
 

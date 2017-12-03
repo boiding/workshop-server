@@ -3,6 +3,8 @@ use std::fmt::{Display, Error, Formatter};
 
 use hyper::{self, Uri};
 
+pub mod communication;
+
 pub struct Teams {
     pub teams: HashMap<String, Team>,
 }

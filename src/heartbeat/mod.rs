@@ -8,7 +8,7 @@ use futures::Future;
 use hyper::{Client, Method, Request, Uri};
 use tokio_core::reactor::Core;
 
-use super::communication::Message;
+use super::model::communication::Message;
 
 pub struct Heartbeat {
     rx: Receiver<HeartbeatMessage>,

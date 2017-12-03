@@ -4,7 +4,7 @@ use iron::Chain;
 use logger::Logger;
 use mount::Mount;
 
-use super::communication::Message;
+use super::model::communication::Message;
 use super::register;
 
 pub fn chain(tx: &Sender<Message>) -> Chain {
