@@ -63,7 +63,10 @@ fn main() {
                     team_heartbeat_tx.send(HeartbeatMessage::Check(servers)).unwrap();
                 },
                 TeamsMessage::HeartbeatStatus((name, connected)) => {
-                    info!("received heartbeat status for {}: connected {}", name, connected);
+                    match team_repository.teams.get_mut(&name) {
+                        Some(team) => team.set_connection_status(connected),
+                        None => info!("received heartbeat status for {} while unregistered", name),
+                    }
                 },
             }
         }
