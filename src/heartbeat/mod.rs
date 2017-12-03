@@ -1,3 +1,5 @@
+pub mod communication;
+
 use std::env;
 use std::sync::{Arc,Mutex};
 use std::sync::mpsc::{Receiver, Sender};
@@ -5,10 +7,11 @@ use std::thread;
 use std::time::Duration;
 
 use futures::Future;
-use hyper::{Client, Method, Request, Uri};
+use hyper::{Client, Method, Request};
 use tokio_core::reactor::Core;
 
 use super::model::communication::Message as TeamsMessage;
+use self::communication::Message as HeartbeatMessage;
 
 pub struct Heartbeat {
     rx: Receiver<HeartbeatMessage>,
@@ -68,9 +71,4 @@ impl Heartbeat {
             }
         }
     }
-}
-
-
-pub enum HeartbeatMessage {
-    Check(Vec<(String, Uri)>),
 }
