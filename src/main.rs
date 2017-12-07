@@ -17,9 +17,8 @@ use simplelog::{Config, LogLevelFilter, TermLogger, CombinedLogger};
 
 use bws::heartbeat::Heartbeat;
 use bws::heartbeat::communication::Message as HeartbeatMessage;
-use bws::model::Teams;
+use bws::model::Simulation;
 use bws::model::communication::Message as TeamsMessage;
-use bws::register::model::{TeamRepository, RegistrationAttempt, UnregistrationAttempt};
 use bws::server;
 
 fn main() {
@@ -36,40 +35,10 @@ fn main() {
     let (heartbeat_tx, heartbeat_rx): (Sender<HeartbeatMessage>, Receiver<HeartbeatMessage>) = channel();
     let team_heartbeat_tx = heartbeat_tx.clone();
     let teams_thread = thread::spawn(move ||{
-        info!("teams thread started");
-        let mut team_repository = Teams::new();
-        loop {
-            let message = team_rx.recv().unwrap();
-            match message {
-                TeamsMessage::Register(registration) => {
-                    let attempt = team_repository.register(registration);
-                    match attempt {
-                        RegistrationAttempt::Success => info!("successfully registered a server"),
-                        RegistrationAttempt::Failure(reason) => error!("problem registering a server: \"{:?}\"", reason),
-                    }
-                },
-                TeamsMessage::Unregister(unregistration) => {
-                    let attempt = team_repository.unregister(unregistration);
-                    match attempt {
-                        UnregistrationAttempt::Success => info!("successfully unregistered a server"),
-                        UnregistrationAttempt::Failure(reason) => error!("problem unregistering a server: \"{:?}\"", reason),
-                    }
-                },
-                TeamsMessage::Heartbeat => {
-                    let servers = team_repository.teams.iter()
-                        .map(|(name, team)|{ (name.clone(), team.heartbeat_uri().unwrap()) })
-                        .collect();
+        info!("simulation thread started");
+        let mut simulation = Simulation::new();
 
-                    team_heartbeat_tx.send(HeartbeatMessage::Check(servers)).unwrap();
-                },
-                TeamsMessage::HeartbeatStatus((name, connected)) => {
-                    match team_repository.teams.get_mut(&name) {
-                        Some(team) => team.set_connection_status(connected),
-                        None => info!("received heartbeat status for {} while unregistered", name),
-                    }
-                },
-            }
-        }
+        simulation.start(team_rx, team_heartbeat_tx);
     });
 
     let iron_team_tx = team_tx.clone();
