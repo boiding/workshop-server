@@ -34,7 +34,7 @@ fn main() {
     let (team_tx, team_rx): (Sender<TeamsMessage>, Receiver<TeamsMessage>) = channel();
     let (heartbeat_tx, heartbeat_rx): (Sender<HeartbeatMessage>, Receiver<HeartbeatMessage>) = channel();
     let team_heartbeat_tx = heartbeat_tx.clone();
-    let teams_thread = thread::spawn(move ||{
+    let simulation_thread = thread::spawn(move ||{
         info!("simulation thread started");
         let mut simulation = Simulation::new();
 
@@ -59,5 +59,5 @@ fn main() {
 
     iron_thread.join().unwrap();
     heartbeat_thread.join().unwrap();
-    teams_thread.join().unwrap();
+    simulation_thread.join().unwrap();
 }
