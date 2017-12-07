@@ -31,27 +31,27 @@ fn main() {
 
     info!("Logger configured");
 
-    let (team_tx, team_rx): (Sender<TeamsMessage>, Receiver<TeamsMessage>) = channel();
+    let (simulation_tx, simulation_rx): (Sender<TeamsMessage>, Receiver<TeamsMessage>) = channel();
     let (heartbeat_tx, heartbeat_rx): (Sender<HeartbeatMessage>, Receiver<HeartbeatMessage>) = channel();
-    let team_heartbeat_tx = heartbeat_tx.clone();
+    let simulation_heartbeat_tx = heartbeat_tx.clone();
     let simulation_thread = thread::spawn(move ||{
         info!("simulation thread started");
         let mut simulation = Simulation::new();
 
-        simulation.start(team_rx, team_heartbeat_tx);
+        simulation.start(simulation_rx, simulation_heartbeat_tx);
     });
 
-    let iron_team_tx = team_tx.clone();
+    let iron_simulation_tx = simulation_tx.clone();
     let iron_thread = thread::spawn(move ||{
         let server_address = env::var("address").expect("\"address\" in environment variables");
         info!("starting server at {}", server_address);
 
-        Iron::new(server::chain(&iron_team_tx)).http(server_address).unwrap();
+        Iron::new(server::chain(&iron_simulation_tx)).http(server_address).unwrap();
     });
 
-    let heartbeat_team_tx = team_tx.clone();
+    let heartbeat_simulation_tx = simulation_tx.clone();
     let heartbeat_thread = thread::spawn(move ||{
-        let mut heartbeat = Heartbeat::new(heartbeat_rx, heartbeat_team_tx);
+        let mut heartbeat = Heartbeat::new(heartbeat_rx, heartbeat_simulation_tx);
         info!("starting heartbeat monitor");
 
         heartbeat.monitor();
