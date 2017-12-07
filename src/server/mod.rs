@@ -1,8 +1,10 @@
 use std::sync::mpsc::Sender;
+use std::path::Path;
 
 use iron::Chain;
 use logger::Logger;
 use mount::Mount;
+use staticfile::Static;
 
 use super::model::communication::Message;
 use super::register;
@@ -19,6 +21,7 @@ pub fn chain(tx: &Sender<Message>) -> Chain {
 fn mount(tx: &Sender<Message>) -> Mount {
     let mut mount = Mount::new();
 
+    mount.mount("/", Static::new(Path::new("static/")));
     mount.mount("/register", register::router(&tx));
 
     mount
