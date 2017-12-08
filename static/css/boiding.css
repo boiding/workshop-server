@@ -36,3 +36,7 @@
 .teams .team.connected .connection-status {
     background-position: right;
 }
+
+.teams .team.disconnected .name {
+    font-style: italic;
+}
