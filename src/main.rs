@@ -61,8 +61,6 @@ fn main() {
 
     let ws_thread = thread::spawn(move ||{
         let socket_address = env::var("socket").expect("\"socket\" in environment variables");
-        info!("starting web socket at {}", socket_address);
-
         if let Err(error) = listen(socket_address, |out| {
             move |msg: Message| {
                 info!("Server got message '{}'. ", msg);

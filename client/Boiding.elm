@@ -3,10 +3,11 @@ module Boiding exposing (..)
 import Html
 import Html.Attributes as Attribute
 import Dict
+import WebSocket
 
 
 main =
-    Html.program
+    Html.programWithFlags
         { init = init
         , view = view
         , update = update
@@ -14,19 +15,29 @@ main =
         }
 
 
-init : ( Model, Cmd Message )
-init =
+type alias Flags =
+    { socket_address : String
+    }
+
+
+init : Flags -> ( Model, Cmd Message )
+init flags =
     let
         teams =
             Dict.empty
                 |> Dict.insert "red-bergen-crab" { name = "red-bergen-crab", connected = True }
                 |> Dict.insert "yellow-nijmegen-whale" { name = "yellow-nijmegen-whale", connected = False }
     in
-        ( { team_repository = { teams = teams } }, Cmd.none )
+        ( { socket_address = flags.socket_address
+          , team_repository = { teams = teams }
+          }
+        , Cmd.none
+        )
 
 
 type alias Model =
     { team_repository : Teams
+    , socket_address : String
     }
 
 
@@ -42,13 +53,13 @@ type alias Team =
 
 
 type Message
-    = DoNothing
+    = Update String
 
 
 update : Message -> Model -> ( Model, Cmd Message )
 update message model =
     case message of
-        DoNothing ->
+        Update _ ->
             ( model, Cmd.none )
 
 
@@ -80,4 +91,4 @@ viewTeam team =
 
 subscriptions : Model -> Sub Message
 subscriptions model =
-    Sub.none
+    WebSocket.listen model.socket_address Update
