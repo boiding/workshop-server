@@ -14,5 +14,19 @@
     border-radius: 3px;
     padding: 3px;
     margin-bottom: 2px;
-    text-align: right;
+}
+
+.teams .team .connection-status {
+    display: inline-block;
+    min-width: 32px;
+    min-height: 32px;
+    background-image: url("../image/connection.svg");
+}
+
+.teams .team.disconnected .connection-status {
+    background-position: left;
+}
+
+.teams .team.connected .connection-status {
+    background-position: right;
 }
