@@ -6,6 +6,7 @@ extern crate logger;
 extern crate mount;
 extern crate router;
 extern crate simplelog;
+extern crate ws;
 
 use std::env;
 use std::sync::mpsc::{channel, Sender, Receiver};
@@ -14,6 +15,7 @@ use std::thread;
 use dotenv::dotenv;
 use iron::Iron;
 use simplelog::{Config, LogLevelFilter, TermLogger, CombinedLogger};
+use ws::{listen, Message};
 
 use bws::heartbeat::Heartbeat;
 use bws::heartbeat::communication::Message as HeartbeatMessage;
@@ -57,7 +59,22 @@ fn main() {
         heartbeat.monitor();
     });
 
+    let ws_thread = thread::spawn(move ||{
+        let socket_address = env::var("socket").expect("\"socket\" in environment variables");
+        info!("starting web socket at {}", socket_address);
+
+        if let Err(error) = listen(socket_address, |out| {
+            move |msg: Message| {
+                info!("Server got message '{}'. ", msg);
+                out.broadcast("")
+            }
+        }) {
+            error!("Failed to create WebSocket due to {:?}", error);
+        }
+    });
+
     iron_thread.join().unwrap();
     heartbeat_thread.join().unwrap();
+    ws_thread.join().unwrap();
     simulation_thread.join().unwrap();
 }
