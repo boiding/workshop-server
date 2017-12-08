@@ -73,7 +73,8 @@ viewTeam team =
             , ( "connected", team.connected )
             ]
         ]
-        [ Html.span [] [ Html.text team.name ]
+        [ Html.span [ Attribute.class "connection-status" ] []
+        , Html.span [ Attribute.class "name" ] [ Html.text team.name ]
         ]
 
 

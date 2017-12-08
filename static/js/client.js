@@ -8173,13 +8173,28 @@ var _boiding$workshop_server$Boiding$viewTeam = function (team) {
 			ctor: '::',
 			_0: A2(
 				_elm_lang$html$Html$span,
-				{ctor: '[]'},
 				{
 					ctor: '::',
-					_0: _elm_lang$html$Html$text(team.name),
+					_0: _elm_lang$html$Html_Attributes$class('connection-status'),
 					_1: {ctor: '[]'}
-				}),
-			_1: {ctor: '[]'}
+				},
+				{ctor: '[]'}),
+			_1: {
+				ctor: '::',
+				_0: A2(
+					_elm_lang$html$Html$span,
+					{
+						ctor: '::',
+						_0: _elm_lang$html$Html_Attributes$class('name'),
+						_1: {ctor: '[]'}
+					},
+					{
+						ctor: '::',
+						_0: _elm_lang$html$Html$text(team.name),
+						_1: {ctor: '[]'}
+					}),
+				_1: {ctor: '[]'}
+			}
 		});
 };
 var _boiding$workshop_server$Boiding$view = function (model) {
