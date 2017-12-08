@@ -8,6 +8,11 @@
 }
 
 .teams .team {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    justify-content: flex-start;
+    align-items: center;
     border-style: solid;
     border-color: rgb(128, 128, 128);
     border-width: 1px;
@@ -21,6 +26,7 @@
     min-width: 32px;
     min-height: 32px;
     background-image: url("../image/connection.svg");
+    margin-right: 5px;
 }
 
 .teams .team.disconnected .connection-status {
