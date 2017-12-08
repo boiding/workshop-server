@@ -54,6 +54,7 @@ impl Simulation {
     }
 }
 
+#[derive(Serialize)]
 pub struct Teams {
     pub teams: HashMap<String, Team>,
 }
@@ -71,6 +72,7 @@ impl Teams {
     }
 }
 
+#[derive(Serialize)]
 pub struct Team {
     name: String,
     ip_address: String,
