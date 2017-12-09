@@ -40,35 +40,35 @@ fn main() {
 
     let simulation_heartbeat_tx = heartbeat_tx.clone();
     let simulation_ws_tx = ws_tx.clone();
-    let simulation_thread = thread::spawn(move ||{
+    let simulation_thread = thread::Builder::new().name("simulation".to_string()).spawn(move ||{
         info!("simulation thread started");
         let mut simulation = Simulation::new();
 
         simulation.start(simulation_rx, simulation_heartbeat_tx, simulation_ws_tx);
-    });
+    }).unwrap();
 
     let iron_simulation_tx = simulation_tx.clone();
-    let iron_thread = thread::spawn(move ||{
+    let iron_thread = thread::Builder::new().name("iron".to_string()).spawn(move ||{
         let server_address = env::var("address").expect("\"address\" in environment variables");
         info!("starting server at {}", server_address);
 
         Iron::new(server::chain(&iron_simulation_tx)).http(server_address).unwrap();
-    });
+    }).unwrap();
 
     let heartbeat_simulation_tx = simulation_tx.clone();
-    let heartbeat_thread = thread::spawn(move ||{
+    let heartbeat_thread = thread::Builder::new().name("heartbeat".to_string()).spawn(move ||{
         let mut heartbeat = Heartbeat::new(heartbeat_rx, heartbeat_simulation_tx);
         info!("starting heartbeat monitor");
 
         heartbeat.monitor();
-    });
+    }).unwrap();
 
-    let ws_thread = thread::spawn(move ||{
+    let ws_thread = thread::Builder::new().name("socket".to_string()).spawn(move ||{
         let socket_address = env::var("socket").expect("\"socket\" in environment variables");
         let ws_update = WebSocketUpdate::new(socket_address);
 
         ws_update.dispatch(ws_rx)
-    });
+    }).unwrap();
 
     iron_thread.join().unwrap();
     heartbeat_thread.join().unwrap();
