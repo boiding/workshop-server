@@ -28,47 +28,66 @@ impl Simulation {
         ws_tx: Sender<WsMessage>,
     ) {
         loop {
-            let message = rx.recv().unwrap();
-            match message {
-                Message::Register(registration) => {
-                    let attempt = self.team_repository.register(registration);
-                    match attempt {
-                        RegistrationAttempt::Success => info!("successfully registered a server"),
-                        RegistrationAttempt::Failure(reason) => {
-                            error!("problem registering a server: \"{:?}\"", reason)
+            match rx.recv() {
+                Ok(message) => {
+                    match message {
+                        Message::Register(registration) => {
+                            let attempt = self.team_repository.register(registration);
+                            match attempt {
+                                RegistrationAttempt::Success => {
+                                    info!("successfully registered a server")
+                                }
+                                RegistrationAttempt::Failure(reason) => {
+                                    error!("problem registering a server: \"{:?}\"", reason)
+                                }
+                            }
                         }
-                    }
-                }
-                Message::Unregister(unregistration) => {
-                    let attempt = self.team_repository.unregister(unregistration);
-                    match attempt {
-                        UnregistrationAttempt::Success => {
-                            info!("successfully unregistered a server")
+                        Message::Unregister(unregistration) => {
+                            let attempt = self.team_repository.unregister(unregistration);
+                            match attempt {
+                                UnregistrationAttempt::Success => {
+                                    info!("successfully unregistered a server")
+                                }
+                                UnregistrationAttempt::Failure(reason) => {
+                                    error!("problem unregistering a server: \"{:?}\"", reason)
+                                }
+                            }
                         }
-                        UnregistrationAttempt::Failure(reason) => {
-                            error!("problem unregistering a server: \"{:?}\"", reason)
-                        }
-                    }
-                }
-                Message::Heartbeat => {
-                    let servers = self.team_repository
-                        .teams
-                        .iter()
-                        .map(|(name, team)| (name.clone(), team.heartbeat_uri().unwrap()))
-                        .collect();
+                        Message::Heartbeat => {
+                            let servers = self.team_repository
+                                .teams
+                                .iter()
+                                .map(|(name, team)| (name.clone(), team.heartbeat_uri().unwrap()))
+                                .collect();
 
-                    heartbeat_tx.send(HeartbeatMessage::Check(servers)).unwrap();
-                }
-                Message::HeartbeatStatus((name, connected)) => {
-                    match self.team_repository.teams.get_mut(&name) {
-                        Some(team) => team.set_connection_status(connected),
-                        None => info!("received heartbeat status for {} while unregistered", name),
+                            if let Err(error) = heartbeat_tx.send(HeartbeatMessage::Check(servers)) {
+                                error!("could not send heartbeat check message: {}", error);
+                            }
+                        }
+                        Message::HeartbeatStatus((name, connected)) => {
+                            match self.team_repository.teams.get_mut(&name) {
+                                Some(team) => team.set_connection_status(connected),
+                                None => {
+                                    info!(
+                                        "received heartbeat status for {} while unregistered",
+                                        name
+                                    )
+                                }
+                            }
+                        }
                     }
+                }
+
+                Err(error) => {
+                    error!("could not receive message: {}", error);
                 }
             }
 
+
             if let Ok(json) = serde_json::to_string(&self.team_repository) {
-                ws_tx.send(WsMessage::Update(json)).unwrap();
+                if let Err(error) = ws_tx.send(WsMessage::Update(json)) {
+                    error!("could not send update message: {}", error);
+                }
             } else {
                 error!("could not serialize team_repository");
             }
