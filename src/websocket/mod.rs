@@ -24,10 +24,19 @@ impl WebSocketUpdate {
         }) {
             let sender = web_socket.broadcaster();
             let send_thread = thread::Builder::new().name("repeater".to_string()).spawn(move||{
-                let message = rx.recv().unwrap();
-                match message {
-                    WsMessage::Update(payload) => {
-                        sender.send(payload).unwrap();
+                loop {
+                    match rx.recv() {
+                        Ok(message) => {
+                            match message {
+                                WsMessage::Update(payload) => {
+                                    sender.send(payload).unwrap();
+                                }
+                            }
+                        },
+
+                        Err(error) => {
+                            error!("could not receive message: {}", error);
+                        }
                     }
                 }
             }).unwrap();
