@@ -30,6 +30,7 @@ init flags =
     in
         ( { socket_address = flags.socket_address
           , team_repository = { teams = teams }
+          , message = Nothing
           }
         , Cmd.none
         )
@@ -38,6 +39,7 @@ init flags =
 type alias Model =
     { team_repository : Teams
     , socket_address : String
+    , message : Maybe String
     }
 
 
@@ -59,8 +61,8 @@ type Message
 update : Message -> Model -> ( Model, Cmd Message )
 update message model =
     case message of
-        Update _ ->
-            ( model, Cmd.none )
+        Update message ->
+            ( { model | message = Just message }, Cmd.none )
 
 
 view : Model -> Html.Html Message
@@ -71,8 +73,14 @@ view model =
                 |> .teams
                 |> Dict.values
                 |> List.map viewTeam
+
+        message =
+            Maybe.withDefault "no message" model.message
     in
-        Html.div [ Attribute.class "teams" ] teams
+        Html.div []
+            [ Html.span [] [ Html.text message ]
+            , Html.div [ Attribute.class "teams" ] teams
+            ]
 
 
 viewTeam : Team -> Html.Html Message

@@ -9146,6 +9146,7 @@ var _boiding$workshop_server$Boiding$viewTeam = function (team) {
 		});
 };
 var _boiding$workshop_server$Boiding$view = function (model) {
+	var message = A2(_elm_lang$core$Maybe$withDefault, 'no message', model.message);
 	var teams = A2(
 		_elm_lang$core$List$map,
 		_boiding$workshop_server$Boiding$viewTeam,
@@ -9155,17 +9156,43 @@ var _boiding$workshop_server$Boiding$view = function (model) {
 			}(model.team_repository)));
 	return A2(
 		_elm_lang$html$Html$div,
+		{ctor: '[]'},
 		{
 			ctor: '::',
-			_0: _elm_lang$html$Html_Attributes$class('teams'),
-			_1: {ctor: '[]'}
-		},
-		teams);
+			_0: A2(
+				_elm_lang$html$Html$span,
+				{ctor: '[]'},
+				{
+					ctor: '::',
+					_0: _elm_lang$html$Html$text(message),
+					_1: {ctor: '[]'}
+				}),
+			_1: {
+				ctor: '::',
+				_0: A2(
+					_elm_lang$html$Html$div,
+					{
+						ctor: '::',
+						_0: _elm_lang$html$Html_Attributes$class('teams'),
+						_1: {ctor: '[]'}
+					},
+					teams),
+				_1: {ctor: '[]'}
+			}
+		});
 };
 var _boiding$workshop_server$Boiding$update = F2(
 	function (message, model) {
 		var _p0 = message;
-		return {ctor: '_Tuple2', _0: model, _1: _elm_lang$core$Platform_Cmd$none};
+		return {
+			ctor: '_Tuple2',
+			_0: _elm_lang$core$Native_Utils.update(
+				model,
+				{
+					message: _elm_lang$core$Maybe$Just(_p0._0)
+				}),
+			_1: _elm_lang$core$Platform_Cmd$none
+		};
 	});
 var _boiding$workshop_server$Boiding$init = function (flags) {
 	var teams = A3(
@@ -9181,7 +9208,8 @@ var _boiding$workshop_server$Boiding$init = function (flags) {
 		ctor: '_Tuple2',
 		_0: {
 			socket_address: flags.socket_address,
-			team_repository: {teams: teams}
+			team_repository: {teams: teams},
+			message: _elm_lang$core$Maybe$Nothing
 		},
 		_1: _elm_lang$core$Platform_Cmd$none
 	};
@@ -9189,9 +9217,9 @@ var _boiding$workshop_server$Boiding$init = function (flags) {
 var _boiding$workshop_server$Boiding$Flags = function (a) {
 	return {socket_address: a};
 };
-var _boiding$workshop_server$Boiding$Model = F2(
-	function (a, b) {
-		return {team_repository: a, socket_address: b};
+var _boiding$workshop_server$Boiding$Model = F3(
+	function (a, b, c) {
+		return {team_repository: a, socket_address: b, message: c};
 	});
 var _boiding$workshop_server$Boiding$Teams = function (a) {
 	return {teams: a};

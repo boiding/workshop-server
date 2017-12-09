@@ -15,13 +15,14 @@ use std::thread;
 use dotenv::dotenv;
 use iron::Iron;
 use simplelog::{Config, LogLevelFilter, TermLogger, CombinedLogger};
-use ws::{WebSocket, Message};
 
 use bws::heartbeat::Heartbeat;
 use bws::heartbeat::communication::Message as HeartbeatMessage;
 use bws::model::Simulation;
 use bws::model::communication::Message as TeamsMessage;
 use bws::server;
+use bws::websocket::WebSocketUpdate;
+use bws::websocket::communication::Message as WsMessage;
 
 fn main() {
     dotenv().ok();
@@ -38,11 +39,12 @@ fn main() {
     let (ws_tx, ws_rx): (Sender<WsMessage>, Receiver<WsMessage>) = channel();
 
     let simulation_heartbeat_tx = heartbeat_tx.clone();
+    let simulation_ws_tx = ws_tx.clone();
     let simulation_thread = thread::spawn(move ||{
         info!("simulation thread started");
         let mut simulation = Simulation::new();
 
-        simulation.start(simulation_rx, simulation_heartbeat_tx);
+        simulation.start(simulation_rx, simulation_heartbeat_tx, simulation_ws_tx);
     });
 
     let iron_simulation_tx = simulation_tx.clone();
@@ -61,39 +63,15 @@ fn main() {
         heartbeat.monitor();
     });
 
-    let ws_simulation_tx = simulation_tx.clone();
     let ws_thread = thread::spawn(move ||{
         let socket_address = env::var("socket").expect("\"socket\" in environment variables");
-        if let Ok(web_socket) = WebSocket::new(|out: ws::Sender| {
-            move |msg: Message| {
-                info!("Server got message '{}'. ", msg);
-                out.broadcast("")
-            }
-        }) {
-            let sender = web_socket.broadcaster();
-            let send_thread = thread::spawn(move||{
-                let message = ws_rx.recv().unwrap();
-                match message {
-                    WsMessage::Default => {
-                        sender.send("").unwrap();
-                    }
-                }
-            });
-            if let Err(error) = web_socket.listen(socket_address) {
-                error!("Websocket could not listen {:?}", error);
-            }
-            send_thread.join().unwrap();
-        } else {
-            error!("Failed to create WebSocket");
-        }
+        let ws_update = WebSocketUpdate::new(socket_address);
+
+        ws_update.dispatch(ws_rx)
     });
 
     iron_thread.join().unwrap();
     heartbeat_thread.join().unwrap();
     ws_thread.join().unwrap();
     simulation_thread.join().unwrap();
-}
-
-enum WsMessage {
-    Default
 }

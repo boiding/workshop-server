@@ -5,9 +5,12 @@ use std::fmt::{Display, Error, Formatter};
 use std::sync::mpsc::{Receiver, Sender};
 
 use hyper::{self, Uri};
+use serde_json;
+
 use self::communication::Message;
 use super::register::model::{TeamRepository, RegistrationAttempt, UnregistrationAttempt};
 use super::heartbeat::communication::Message as HeartbeatMessage;
+use super::websocket::communication::Message as WsMessage;
 
 pub struct Simulation {
     team_repository: Teams,
@@ -18,37 +21,56 @@ impl Simulation {
         Simulation { team_repository: Teams::new() }
     }
 
-    pub fn start(&mut self, rx: Receiver<Message>, heartbeat_tx: Sender<HeartbeatMessage>) {
-         loop {
+    pub fn start(
+        &mut self,
+        rx: Receiver<Message>,
+        heartbeat_tx: Sender<HeartbeatMessage>,
+        ws_tx: Sender<WsMessage>,
+    ) {
+        loop {
             let message = rx.recv().unwrap();
             match message {
                 Message::Register(registration) => {
                     let attempt = self.team_repository.register(registration);
                     match attempt {
                         RegistrationAttempt::Success => info!("successfully registered a server"),
-                        RegistrationAttempt::Failure(reason) => error!("problem registering a server: \"{:?}\"", reason),
+                        RegistrationAttempt::Failure(reason) => {
+                            error!("problem registering a server: \"{:?}\"", reason)
+                        }
                     }
-                },
+                }
                 Message::Unregister(unregistration) => {
                     let attempt = self.team_repository.unregister(unregistration);
                     match attempt {
-                        UnregistrationAttempt::Success => info!("successfully unregistered a server"),
-                        UnregistrationAttempt::Failure(reason) => error!("problem unregistering a server: \"{:?}\"", reason),
+                        UnregistrationAttempt::Success => {
+                            info!("successfully unregistered a server")
+                        }
+                        UnregistrationAttempt::Failure(reason) => {
+                            error!("problem unregistering a server: \"{:?}\"", reason)
+                        }
                     }
-                },
+                }
                 Message::Heartbeat => {
-                    let servers = self.team_repository.teams.iter()
-                        .map(|(name, team)|{ (name.clone(), team.heartbeat_uri().unwrap()) })
+                    let servers = self.team_repository
+                        .teams
+                        .iter()
+                        .map(|(name, team)| (name.clone(), team.heartbeat_uri().unwrap()))
                         .collect();
 
                     heartbeat_tx.send(HeartbeatMessage::Check(servers)).unwrap();
-                },
+                }
                 Message::HeartbeatStatus((name, connected)) => {
                     match self.team_repository.teams.get_mut(&name) {
                         Some(team) => team.set_connection_status(connected),
                         None => info!("received heartbeat status for {} while unregistered", name),
                     }
-                },
+                }
+            }
+
+            if let Ok(json) = serde_json::to_string(&self.team_repository) {
+                ws_tx.send(WsMessage::Update(json)).unwrap();
+            } else {
+                error!("could not serialize team_repository");
             }
         }
     }
@@ -67,7 +89,9 @@ impl Teams {
     pub fn available(&self, ip_address: &str, port: u16) -> bool {
         self.teams
             .iter()
-            .filter(|&(_name ,team)| team.ip_address == ip_address && team.port == port)
+            .filter(|&(_name, team)| {
+                team.ip_address == ip_address && team.port == port
+            })
             .count() == 0
     }
 }
@@ -81,8 +105,16 @@ pub struct Team {
 }
 
 impl Team {
-    pub fn new<S>(name: S, ip_address: S, port: u16) -> Team where S: Into<String> {
-        Team { name: name.into(), ip_address: ip_address.into(), port, connected: false }
+    pub fn new<S>(name: S, ip_address: S, port: u16) -> Team
+    where
+        S: Into<String>,
+    {
+        Team {
+            name: name.into(),
+            ip_address: ip_address.into(),
+            port,
+            connected: false,
+        }
     }
 
     pub fn heartbeat_uri(&self) -> Result<Uri, hyper::error::UriError> {
@@ -101,4 +133,3 @@ impl Display for Team {
         write!(f, "{} {}", self.name, self.ip_address)
     }
 }
-
