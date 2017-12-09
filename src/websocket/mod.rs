@@ -23,14 +23,14 @@ impl WebSocketUpdate {
             }
         }) {
             let sender = web_socket.broadcaster();
-            let send_thread = thread::spawn(move||{
+            let send_thread = thread::Builder::new().name("repeater".to_string()).spawn(move||{
                 let message = rx.recv().unwrap();
                 match message {
                     WsMessage::Update(payload) => {
                         sender.send(payload).unwrap();
                     }
                 }
-            });
+            }).unwrap();
             if let Err(error) = web_socket.listen(&self.socket_address) {
                 error!("Websocket could not listen {:?}", error);
             }
