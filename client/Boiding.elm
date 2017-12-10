@@ -4,6 +4,7 @@ import Html
 import Html.Attributes as Attribute
 import Dict
 import WebSocket
+import Domain exposing (Teams, Team, viewTeam)
 
 
 main =
@@ -43,17 +44,6 @@ type alias Model =
     }
 
 
-type alias Teams =
-    { teams : Dict.Dict String Team
-    }
-
-
-type alias Team =
-    { name : String
-    , connected : Bool
-    }
-
-
 type Message
     = Update String
 
@@ -81,20 +71,6 @@ view model =
             [ Html.span [] [ Html.text message ]
             , Html.div [ Attribute.class "teams" ] teams
             ]
-
-
-viewTeam : Team -> Html.Html Message
-viewTeam team =
-    Html.div
-        [ Attribute.classList
-            [ ( "team", True )
-            , ( "disconnected", not team.connected )
-            , ( "connected", team.connected )
-            ]
-        ]
-        [ Html.span [ Attribute.class "connection-status" ] []
-        , Html.span [ Attribute.class "name" ] [ Html.text team.name ]
-        ]
 
 
 subscriptions : Model -> Sub Message

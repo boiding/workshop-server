@@ -9096,7 +9096,7 @@ var _elm_lang$websocket$WebSocket$onSelfMsg = F3(
 	});
 _elm_lang$core$Native_Platform.effectManagers['WebSocket'] = {pkg: 'elm-lang/websocket', init: _elm_lang$websocket$WebSocket$init, onEffects: _elm_lang$websocket$WebSocket$onEffects, onSelfMsg: _elm_lang$websocket$WebSocket$onSelfMsg, tag: 'fx', cmdMap: _elm_lang$websocket$WebSocket$cmdMap, subMap: _elm_lang$websocket$WebSocket$subMap};
 
-var _boiding$workshop_server$Boiding$viewTeam = function (team) {
+var _boiding$workshop_server$Domain$viewTeam = function (team) {
 	return A2(
 		_elm_lang$html$Html$div,
 		{
@@ -9145,11 +9145,19 @@ var _boiding$workshop_server$Boiding$viewTeam = function (team) {
 			}
 		});
 };
+var _boiding$workshop_server$Domain$Teams = function (a) {
+	return {teams: a};
+};
+var _boiding$workshop_server$Domain$Team = F2(
+	function (a, b) {
+		return {name: a, connected: b};
+	});
+
 var _boiding$workshop_server$Boiding$view = function (model) {
 	var message = A2(_elm_lang$core$Maybe$withDefault, 'no message', model.message);
 	var teams = A2(
 		_elm_lang$core$List$map,
-		_boiding$workshop_server$Boiding$viewTeam,
+		_boiding$workshop_server$Domain$viewTeam,
 		_elm_lang$core$Dict$values(
 			function (_) {
 				return _.teams;
@@ -9220,13 +9228,6 @@ var _boiding$workshop_server$Boiding$Flags = function (a) {
 var _boiding$workshop_server$Boiding$Model = F3(
 	function (a, b, c) {
 		return {team_repository: a, socket_address: b, message: c};
-	});
-var _boiding$workshop_server$Boiding$Teams = function (a) {
-	return {teams: a};
-};
-var _boiding$workshop_server$Boiding$Team = F2(
-	function (a, b) {
-		return {name: a, connected: b};
 	});
 var _boiding$workshop_server$Boiding$Update = function (a) {
 	return {ctor: 'Update', _0: a};
