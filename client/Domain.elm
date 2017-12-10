@@ -1,5 +1,7 @@
-module Domain exposing (Teams, Team, viewTeam)
+module Domain exposing (Teams, Team, viewTeam, decodeTeams)
 
+import Json.Decode exposing (Decoder, dict, string, bool)
+import Json.Decode.Pipeline exposing (decode, required)
 import Html
 import Html.Attributes as Attribute
 import Dict
@@ -28,3 +30,16 @@ viewTeam team =
         [ Html.span [ Attribute.class "connection-status" ] []
         , Html.span [ Attribute.class "name" ] [ Html.text team.name ]
         ]
+
+
+decodeTeams : Decoder Teams
+decodeTeams =
+    decode Teams
+        |> required "teams" (dict decodeTeam)
+
+
+decodeTeam : Decoder Team
+decodeTeam =
+    decode Team
+        |> required "name" string
+        |> required "connected" bool
