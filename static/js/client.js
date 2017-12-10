@@ -9248,7 +9248,7 @@ var _boiding$workshop_server$Domain$decodeTeams = A3(
 	_NoRedInk$elm_decode_pipeline$Json_Decode_Pipeline$decode(_boiding$workshop_server$Domain$Teams));
 
 var _boiding$workshop_server$Boiding$view = function (model) {
-	var message = A2(_elm_lang$core$Maybe$withDefault, 'no message', model.message);
+	var error_message = A2(_elm_lang$core$Maybe$withDefault, '', model.error_message);
 	var teams = A2(
 		_elm_lang$core$List$map,
 		_boiding$workshop_server$Domain$viewTeam,
@@ -9263,10 +9263,14 @@ var _boiding$workshop_server$Boiding$view = function (model) {
 			ctor: '::',
 			_0: A2(
 				_elm_lang$html$Html$span,
-				{ctor: '[]'},
 				{
 					ctor: '::',
-					_0: _elm_lang$html$Html$text(message),
+					_0: _elm_lang$html$Html_Attributes$class('error'),
+					_1: {ctor: '[]'}
+				},
+				{
+					ctor: '::',
+					_0: _elm_lang$html$Html$text(error_message),
 					_1: {ctor: '[]'}
 				}),
 			_1: {
@@ -9286,15 +9290,22 @@ var _boiding$workshop_server$Boiding$view = function (model) {
 var _boiding$workshop_server$Boiding$update = F2(
 	function (message, model) {
 		var _p0 = message;
-		return {
-			ctor: '_Tuple2',
-			_0: _elm_lang$core$Native_Utils.update(
-				model,
-				{
-					message: _elm_lang$core$Maybe$Just(_p0._0)
-				}),
-			_1: _elm_lang$core$Platform_Cmd$none
-		};
+		var next_model = function () {
+			var _p1 = A2(_elm_lang$core$Json_Decode$decodeString, _boiding$workshop_server$Domain$decodeTeams, _p0._0);
+			if (_p1.ctor === 'Ok') {
+				return _elm_lang$core$Native_Utils.update(
+					model,
+					{team_repository: _p1._0});
+			} else {
+				return _elm_lang$core$Native_Utils.update(
+					model,
+					{
+						error_message: _elm_lang$core$Maybe$Just(
+							_elm_lang$core$Basics$toString(_p1._0))
+					});
+			}
+		}();
+		return {ctor: '_Tuple2', _0: next_model, _1: _elm_lang$core$Platform_Cmd$none};
 	});
 var _boiding$workshop_server$Boiding$init = function (flags) {
 	var teams = A3(
@@ -9311,7 +9322,7 @@ var _boiding$workshop_server$Boiding$init = function (flags) {
 		_0: {
 			socket_address: flags.socket_address,
 			team_repository: {teams: teams},
-			message: _elm_lang$core$Maybe$Nothing
+			error_message: _elm_lang$core$Maybe$Nothing
 		},
 		_1: _elm_lang$core$Platform_Cmd$none
 	};
@@ -9321,7 +9332,7 @@ var _boiding$workshop_server$Boiding$Flags = function (a) {
 };
 var _boiding$workshop_server$Boiding$Model = F3(
 	function (a, b, c) {
-		return {team_repository: a, socket_address: b, message: c};
+		return {team_repository: a, socket_address: b, error_message: c};
 	});
 var _boiding$workshop_server$Boiding$Update = function (a) {
 	return {ctor: 'Update', _0: a};

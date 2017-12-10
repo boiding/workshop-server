@@ -1,10 +1,11 @@
 module Boiding exposing (..)
 
+import Json.Decode exposing (decodeString)
 import Html
 import Html.Attributes as Attribute
 import Dict
 import WebSocket
-import Domain exposing (Teams, Team, viewTeam)
+import Domain exposing (Teams, Team, viewTeam, decodeTeams)
 
 
 main =
@@ -31,7 +32,7 @@ init flags =
     in
         ( { socket_address = flags.socket_address
           , team_repository = { teams = teams }
-          , message = Nothing
+          , error_message = Nothing
           }
         , Cmd.none
         )
@@ -40,7 +41,7 @@ init flags =
 type alias Model =
     { team_repository : Teams
     , socket_address : String
-    , message : Maybe String
+    , error_message : Maybe String
     }
 
 
@@ -51,8 +52,17 @@ type Message
 update : Message -> Model -> ( Model, Cmd Message )
 update message model =
     case message of
-        Update message ->
-            ( { model | message = Just message }, Cmd.none )
+        Update update ->
+            let
+                next_model =
+                    case decodeString decodeTeams update of
+                        Ok teams ->
+                            { model | team_repository = teams }
+
+                        Err error ->
+                            { model | error_message = Just (toString error) }
+            in
+                ( next_model, Cmd.none )
 
 
 view : Model -> Html.Html Message
@@ -64,11 +74,11 @@ view model =
                 |> Dict.values
                 |> List.map viewTeam
 
-        message =
-            Maybe.withDefault "no message" model.message
+        error_message =
+            Maybe.withDefault "" model.error_message
     in
         Html.div []
-            [ Html.span [] [ Html.text message ]
+            [ Html.span [ Attribute.class "error" ] [ Html.text error_message ]
             , Html.div [ Attribute.class "teams" ] teams
             ]
 
