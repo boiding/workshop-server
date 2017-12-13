@@ -41,7 +41,7 @@ impl Simulation {
                                     error!("problem registering a server: \"{:?}\"", reason)
                                 }
                             }
-                        }
+                        },
                         Message::Unregister(unregistration) => {
                             let attempt = self.team_repository.unregister(unregistration);
                             match attempt {
@@ -52,7 +52,7 @@ impl Simulation {
                                     error!("problem unregistering a server: \"{:?}\"", reason)
                                 }
                             }
-                        }
+                        },
                         Message::Heartbeat => {
                             let servers = self.team_repository
                                 .teams
@@ -63,7 +63,7 @@ impl Simulation {
                             if let Err(error) = heartbeat_tx.send(HeartbeatMessage::Check(servers)) {
                                 error!("could not send heartbeat check message: {}", error);
                             }
-                        }
+                        },
                         Message::HeartbeatStatus((name, connected)) => {
                             match self.team_repository.teams.get_mut(&name) {
                                 Some(team) => team.set_connection_status(connected),
@@ -74,6 +74,9 @@ impl Simulation {
                                     )
                                 }
                             }
+                        },
+                        Message::Tick => {
+                            /* Process tick */
                         }
                     }
                 }

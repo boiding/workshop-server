@@ -6,4 +6,5 @@ pub enum Message {
     Unregister(Unregistration),
     Heartbeat,
     HeartbeatStatus((String, bool)),
+    Tick,
 }

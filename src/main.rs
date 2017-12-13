@@ -11,6 +11,7 @@ extern crate ws;
 use std::env;
 use std::sync::mpsc::{channel, Sender, Receiver};
 use std::thread;
+use std::time::Duration;
 
 use dotenv::dotenv;
 use iron::Iron;
@@ -70,6 +71,21 @@ fn main() {
         ws_update.dispatch(ws_rx)
     }).unwrap();
 
+    let clock_simulation_tx = simulation_tx.clone();
+    let clock_thread = thread::Builder::new().name("clock".to_string()).spawn(move||{
+        let tick_representation = env::var("tick").expect("\"tick\" in environment variables");
+        let tick_duration_value = u64::from_str_radix(&tick_representation, 10).expect("\"tick\" to be u64");
+        let tick_duration = Duration::from_millis(tick_duration_value);
+
+        loop {
+            thread::sleep(tick_duration);
+            if let Err(error) = clock_simulation_tx.send(TeamsMessage::Tick) {
+                error!("Could not send tick message: {}", error);
+            }
+        }
+    }).unwrap();
+
+    clock_thread.join().unwrap();
     iron_thread.join().unwrap();
     heartbeat_thread.join().unwrap();
     ws_thread.join().unwrap();
