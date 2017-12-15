@@ -124,6 +124,7 @@ pub struct Team {
     ip_address: String,
     port: u16,
     connected: bool,
+    flock: Flock,
 }
 
 impl Team {
@@ -131,11 +132,13 @@ impl Team {
     where
         S: Into<String>,
     {
+        let flock = Flock::new();
         Team {
             name: name.into(),
             ip_address: ip_address.into(),
             port,
             connected: false,
+            flock,
         }
     }
 
@@ -154,4 +157,24 @@ impl Display for Team {
     fn fmt(&self, f: &mut Formatter) -> Result<(), Error> {
         write!(f, "{} {}", self.name, self.ip_address)
     }
+}
+
+#[derive(Serialize)]
+pub struct Flock {
+    pub boids: HashMap<String, Boid>,
+}
+
+impl Flock {
+    pub fn new() -> Flock {
+        let boids = HashMap::new();
+        Flock { boids }
+    }
+}
+
+#[derive(Serialize)]
+pub struct Boid {
+    x: f64,
+    y: f64,
+    heading: f64,
+    speed: f64,
 }
