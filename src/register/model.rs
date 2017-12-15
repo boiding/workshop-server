@@ -1,6 +1,6 @@
 use std::convert::Into;
 
-use super::super::model::{Teams, Team};
+use super::super::simulation::{Teams, Team};
 
 pub trait TeamRepository {
     fn register(&mut self, registration: Registration) -> RegistrationAttempt;

@@ -19,8 +19,8 @@ use simplelog::{Config, LogLevelFilter, TermLogger, CombinedLogger};
 
 use bws::heartbeat::Heartbeat;
 use bws::heartbeat::communication::Message as HeartbeatMessage;
-use bws::model::Simulation;
-use bws::model::communication::Message as TeamsMessage;
+use bws::simulation::Simulation;
+use bws::simulation::communication::Message as TeamsMessage;
 use bws::server;
 use bws::websocket::WebSocketUpdate;
 use bws::websocket::communication::Message as WsMessage;

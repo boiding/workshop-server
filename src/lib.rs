@@ -13,7 +13,7 @@ extern crate tokio_core;
 extern crate ws;
 
 pub mod heartbeat;
-pub mod model;
+pub mod simulation;
 pub mod register;
 pub mod server;
 pub mod websocket;

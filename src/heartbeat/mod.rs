@@ -10,7 +10,7 @@ use futures::Future;
 use hyper::{Client, Method, Request};
 use tokio_core::reactor::Core;
 
-use super::model::communication::Message as TeamsMessage;
+use super::simulation::communication::Message as TeamsMessage;
 use self::communication::Message as HeartbeatMessage;
 
 pub struct Heartbeat {

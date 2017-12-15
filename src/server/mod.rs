@@ -6,7 +6,7 @@ use logger::Logger;
 use mount::Mount;
 use staticfile::Static;
 
-use super::model::communication::Message;
+use super::simulation::communication::Message;
 use super::register;
 
 pub fn chain(tx: &Sender<Message>) -> Chain {

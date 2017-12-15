@@ -8,7 +8,7 @@ use serde_json;
 use serde_json::Error;
 
 use super::model::*;
-use super::super::model::communication::Message;
+use super::super::simulation::communication::Message;
 
 pub fn router(tx: &Sender<Message>) -> Router {
     let mut router = Router::new();
