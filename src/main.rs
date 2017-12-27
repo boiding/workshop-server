@@ -42,7 +42,7 @@ fn main() {
     let simulation_heartbeat_tx = heartbeat_tx.clone();
     let simulation_ws_tx = ws_tx.clone();
     let simulation_thread = thread::Builder::new().name("simulation".to_string()).spawn(move ||{
-        info!("simulation thread started");
+        info!("starting simulation");
         let mut simulation = Simulation::new();
 
         simulation.start(simulation_rx, simulation_heartbeat_tx, simulation_ws_tx);
@@ -65,6 +65,7 @@ fn main() {
     }).unwrap();
 
     let ws_thread = thread::Builder::new().name("socket".to_string()).spawn(move ||{
+        info!("starting websocket communication");
         let socket_address = env::var("socket").expect("\"socket\" in environment variables");
         let ws_update = WebSocketUpdate::new(socket_address);
 
@@ -73,6 +74,7 @@ fn main() {
 
     let clock_simulation_tx = simulation_tx.clone();
     let clock_thread = thread::Builder::new().name("clock".to_string()).spawn(move||{
+        info!("starting clock");
         let tick_representation = env::var("tick").expect("\"tick\" in environment variables");
         let tick_duration_value = u64::from_str_radix(&tick_representation, 10).expect("\"tick\" to be u64");
         let tick_duration = Duration::from_millis(tick_duration_value);
