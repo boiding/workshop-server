@@ -159,6 +159,10 @@ impl Display for Team {
     }
 }
 
+pub trait Simulate {
+    fn step(&mut self, dt: f64);
+}
+
 #[derive(Serialize)]
 pub struct Flock {
     pub boids: HashMap<String, Boid>,
@@ -171,10 +175,29 @@ impl Flock {
     }
 }
 
+impl Simulate for Flock {
+    fn step(&mut self, dt: f64) {
+        self.boids
+            .iter_mut()
+            .for_each(|(_, boid)| boid.step(dt))
+    }
+}
+
 #[derive(Serialize)]
 pub struct Boid {
     x: f64,
     y: f64,
     heading: f64,
     speed: f64,
+}
+
+impl Simulate for Boid {
+    fn step(&mut self, dt: f64) {
+        let d = self.speed * dt;
+        let dx = d * self.heading.cos();
+        let dy = d * self.heading.sin();
+
+        self.x += dx;
+        self.y += dy;
+    }
 }
