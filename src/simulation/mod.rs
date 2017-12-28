@@ -16,6 +16,10 @@ pub struct Simulation {
     team_repository: Teams,
 }
 
+pub trait Simulate {
+    fn step(&mut self, dt: f64);
+}
+
 impl Simulation {
     pub fn new() -> Simulation {
         Simulation { team_repository: Teams::new() }
@@ -98,6 +102,12 @@ impl Simulation {
     }
 }
 
+impl Simulate for Simulation {
+    fn step(&mut self, dt: f64) {
+        self.team_repository.step(dt);
+    }
+}
+
 #[derive(Serialize)]
 pub struct Teams {
     pub teams: HashMap<String, Team>,
@@ -115,6 +125,14 @@ impl Teams {
                 team.ip_address == ip_address && team.port == port
             })
             .count() == 0
+    }
+}
+
+impl Simulate for Teams {
+    fn step(&mut self, dt: f64) {
+        self.teams
+            .iter_mut()
+            .for_each(|(_, team)| team.step(dt))
     }
 }
 
@@ -153,14 +171,16 @@ impl Team {
     }
 }
 
+impl Simulate for Team {
+    fn step(&mut self, dt: f64) {
+        self.flock.step(dt);
+    }
+}
+
 impl Display for Team {
     fn fmt(&self, f: &mut Formatter) -> Result<(), Error> {
         write!(f, "{} {}", self.name, self.ip_address)
     }
-}
-
-pub trait Simulate {
-    fn step(&mut self, dt: f64);
 }
 
 #[derive(Serialize)]
