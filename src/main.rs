@@ -15,7 +15,7 @@ use std::time::Duration;
 
 use dotenv::dotenv;
 use iron::Iron;
-use simplelog::{Config, LogLevelFilter, TermLogger, CombinedLogger};
+use simplelog::{Config, LevelFilter, TermLogger, CombinedLogger, TerminalMode};
 
 use bws::heartbeat::Heartbeat;
 use bws::heartbeat::communication::Message as HeartbeatMessage;
@@ -29,7 +29,7 @@ fn main() {
     dotenv().ok();
     CombinedLogger::init(
         vec![
-            TermLogger::new(LogLevelFilter::Info, Config::default()).unwrap(),
+            TermLogger::new(LevelFilter::Info, Config::default(), TerminalMode::Mixed).unwrap(),
         ]
     ).unwrap();
 
