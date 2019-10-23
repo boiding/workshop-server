@@ -1,15 +1,16 @@
-module Boiding exposing (..)
+port module Boiding exposing (..)
 
-import Json.Decode exposing (decodeString)
+import Browser
+import Dict
+import Domain exposing (Team, Teams, decodeTeams, viewTeam)
 import Html
 import Html.Attributes as Attribute
-import Dict
-import WebSocket
-import Domain exposing (Teams, Team, viewTeam, decodeTeams)
+import Json.Encode exposing (Value)
+import Json.Decode exposing (decodeString, decodeValue, errorToString)
 
 
 main =
-    Html.programWithFlags
+    Browser.element
         { init = init
         , view = view
         , update = update
@@ -17,30 +18,23 @@ main =
         }
 
 
-type alias Flags =
-    { socket_address : String
-    }
-
-
-init : Flags -> ( Model, Cmd Message )
-init flags =
+init : () -> ( Model, Cmd Message )
+init _ =
     let
         teams =
             Dict.empty
                 |> Dict.insert "red-bergen-crab" { name = "red-bergen-crab", connected = True }
                 |> Dict.insert "yellow-nijmegen-whale" { name = "yellow-nijmegen-whale", connected = False }
     in
-        ( { socket_address = flags.socket_address
-          , team_repository = { teams = teams }
-          , error_message = Nothing
-          }
-        , Cmd.none
-        )
+    ( { team_repository = { teams = teams }
+      , error_message = Nothing
+      }
+    , Cmd.none
+    )
 
 
 type alias Model =
     { team_repository : Teams
-    , socket_address : String
     , error_message : Maybe String
     }
 
@@ -52,17 +46,17 @@ type Message
 update : Message -> Model -> ( Model, Cmd Message )
 update message model =
     case message of
-        Update update ->
+        Update updateMessage ->
             let
                 next_model =
-                    case decodeString decodeTeams update of
+                    case decodeString decodeTeams updateMessage of
                         Ok teams ->
                             { model | team_repository = teams }
 
                         Err error ->
-                            { model | error_message = Just (toString error) }
+                            { model | error_message = Just (errorToString error) }
             in
-                ( next_model, Cmd.none )
+            ( next_model, Cmd.none )
 
 
 view : Model -> Html.Html Message
@@ -77,12 +71,14 @@ view model =
         error_message =
             Maybe.withDefault "" model.error_message
     in
-        Html.div []
-            [ Html.span [ Attribute.class "error" ] [ Html.text error_message ]
-            , Html.div [ Attribute.class "teams" ] teams
-            ]
+    Html.div []
+        [ Html.span [ Attribute.class "error" ] [ Html.text error_message ]
+        , Html.div [ Attribute.class "teams" ] teams
+        ]
 
+
+port updateTeams : (String -> msg) -> Sub msg
 
 subscriptions : Model -> Sub Message
 subscriptions model =
-    WebSocket.listen model.socket_address Update
+    updateTeams Update 
