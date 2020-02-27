@@ -25,6 +25,7 @@ use bws::simulation::communication::Message as TeamsMessage;
 use bws::simulation::Simulation;
 use bws::websocket::communication::Message as WsMessage;
 use bws::websocket::WebSocketUpdate;
+use bws::clock::Clock;
 
 fn main() {
     dotenv().ok();
@@ -108,13 +109,9 @@ fn main() {
                 u64::from_str_radix(&tick_representation, 10).expect("\"tick\" to be u64");
             let tick_duration = Duration::from_millis(tick_duration_value);
 
-            loop {
-                thread::sleep(tick_duration);
-                if let Err(error) = clock_simulation_tx.send(TeamsMessage::Tick) {
-                    error!("Could not send tick message: {}", error);
-                }
-            }
-        })
+            let mut clock = Clock::new(tick_duration, clock_simulation_tx);
+            clock.start();
+       })
         .unwrap();
 
     clock_thread.join().unwrap();
