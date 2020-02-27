@@ -1,18 +1,23 @@
 pub mod communication;
 
-use std::sync::mpsc::{Receiver};
+use std::sync::mpsc::Receiver;
 use std::thread;
 
 use self::communication::Message as WsMessage;
-use ws::{self, WebSocket, Message};
+use ws::{self, Message, WebSocket};
 
 pub struct WebSocketUpdate {
-    socket_address: String
+    socket_address: String,
 }
 
 impl WebSocketUpdate {
-    pub fn new<S>(socket_address: S) -> WebSocketUpdate where S: Into<String> {
-        WebSocketUpdate { socket_address: socket_address.into() }
+    pub fn new<S>(socket_address: S) -> WebSocketUpdate
+    where
+        S: Into<String>,
+    {
+        WebSocketUpdate {
+            socket_address: socket_address.into(),
+        }
     }
 
     pub fn dispatch(&self, rx: Receiver<WsMessage>) {
@@ -23,14 +28,13 @@ impl WebSocketUpdate {
             }
         }) {
             let sender = web_socket.broadcaster();
-            let send_thread = thread::Builder::new().name("repeater".to_string()).spawn(move||{
-                loop {
+            let send_thread = thread::Builder::new()
+                .name("repeater".to_string())
+                .spawn(move || loop {
                     match rx.recv() {
-                        Ok(message) => {
-                            match message {
-                                WsMessage::Update(payload) => {
-                                    sender.send(payload).unwrap();
-                                }
+                        Ok(message) => match message {
+                            WsMessage::Update(payload) => {
+                                sender.send(payload).unwrap();
                             }
                         },
 
@@ -38,8 +42,8 @@ impl WebSocketUpdate {
                             error!("could not receive message: {}", error);
                         }
                     }
-                }
-            }).unwrap();
+                })
+                .unwrap();
             if let Err(error) = web_socket.listen(&self.socket_address) {
                 error!("Websocket could not listen {:?}", error);
             }

@@ -1,3 +1,3 @@
 pub enum Message {
-    Update(String)
+    Update(String),
 }

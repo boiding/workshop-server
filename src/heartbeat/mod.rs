@@ -1,8 +1,8 @@
 pub mod communication;
 
 use std::env;
-use std::sync::{Arc, Mutex};
 use std::sync::mpsc::{Receiver, Sender};
+use std::sync::{Arc, Mutex};
 use std::thread;
 use std::time::Duration;
 
@@ -10,8 +10,8 @@ use futures::Future;
 use hyper::{Client, Method, Request};
 use tokio_core::reactor::Core;
 
-use super::simulation::communication::Message as TeamsMessage;
 use self::communication::Message as HeartbeatMessage;
+use super::simulation::communication::Message as TeamsMessage;
 
 pub struct Heartbeat {
     rx: Receiver<HeartbeatMessage>,
@@ -28,11 +28,11 @@ impl Heartbeat {
         let client = Client::new(&core.handle());
 
         let sleep_duration_value = u64::from_str_radix(
-            &env::var("heartbeat_sleep_duration").expect(
-                "\"heartbeat_sleep_duration\" in environment variables",
-            ),
+            &env::var("heartbeat_sleep_duration")
+                .expect("\"heartbeat_sleep_duration\" in environment variables"),
             10,
-        ).expect("\"heartbeat_sleep_duration\" to be u64");
+        )
+        .expect("\"heartbeat_sleep_duration\" to be u64");
         let sleep_duration = Duration::from_secs(sleep_duration_value);
 
         let team_rx_mutex = Arc::new(Mutex::new(self.tx.clone()));
@@ -51,29 +51,30 @@ impl Heartbeat {
                                 let (failure_team_rx_mutex, failure_team_name) =
                                     (team_rx_mutex.clone(), team_name.clone());
                                 let request = Request::new(Method::Head, uri);
-                                let work =
-                                    client
-                                        .request(request)
-                                        .map(move |response| {
-                                            info!("{} {}", success_team_name, response.status());
-                                            success_team_rx_mutex
-                                                .lock()
-                                                .unwrap()
-                                                .send(TeamsMessage::HeartbeatStatus(
-                                                    (success_team_name, true),
-                                                ))
-                                                .unwrap();
-                                        })
-                                        .map_err(move |_| {
-                                            error!("{} disconnected", failure_team_name);
-                                            failure_team_rx_mutex
-                                                .lock()
-                                                .unwrap()
-                                                .send(TeamsMessage::HeartbeatStatus(
-                                                    (failure_team_name, false),
-                                                ))
-                                                .unwrap();
-                                        });
+                                let work = client
+                                    .request(request)
+                                    .map(move |response| {
+                                        info!("{} {}", success_team_name, response.status());
+                                        success_team_rx_mutex
+                                            .lock()
+                                            .unwrap()
+                                            .send(TeamsMessage::HeartbeatStatus((
+                                                success_team_name,
+                                                true,
+                                            )))
+                                            .unwrap();
+                                    })
+                                    .map_err(move |_| {
+                                        error!("{} disconnected", failure_team_name);
+                                        failure_team_rx_mutex
+                                            .lock()
+                                            .unwrap()
+                                            .send(TeamsMessage::HeartbeatStatus((
+                                                failure_team_name,
+                                                false,
+                                            )))
+                                            .unwrap();
+                                    });
 
                                 match core.run(work) {
                                     _ => (), /* Everything is fine */

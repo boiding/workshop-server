@@ -8,8 +8,8 @@ use hyper::{self, Uri};
 use serde_json;
 
 use self::communication::Message;
-use super::register::model::{TeamRepository, RegistrationAttempt, UnregistrationAttempt};
 use super::heartbeat::communication::Message as HeartbeatMessage;
+use super::register::model::{RegistrationAttempt, TeamRepository, UnregistrationAttempt};
 use super::websocket::communication::Message as WsMessage;
 
 pub struct Simulation {
@@ -22,7 +22,9 @@ pub trait Simulate {
 
 impl Simulation {
     pub fn new() -> Simulation {
-        Simulation { team_repository: Teams::new() }
+        Simulation {
+            team_repository: Teams::new(),
+        }
     }
 
     pub fn start(
@@ -45,7 +47,7 @@ impl Simulation {
                                     error!("problem registering a server: \"{:?}\"", reason)
                                 }
                             }
-                        },
+                        }
                         Message::Unregister(unregistration) => {
                             let attempt = self.team_repository.unregister(unregistration);
                             match attempt {
@@ -56,32 +58,30 @@ impl Simulation {
                                     error!("problem unregistering a server: \"{:?}\"", reason)
                                 }
                             }
-                        },
+                        }
                         Message::Heartbeat => {
-                            let servers = self.team_repository
+                            let servers = self
+                                .team_repository
                                 .teams
                                 .iter()
                                 .map(|(name, team)| (name.clone(), team.heartbeat_uri().unwrap()))
                                 .collect();
 
-                            if let Err(error) = heartbeat_tx.send(HeartbeatMessage::Check(servers)) {
+                            if let Err(error) = heartbeat_tx.send(HeartbeatMessage::Check(servers))
+                            {
                                 error!("could not send heartbeat check message: {}", error);
                             }
-                        },
+                        }
                         Message::HeartbeatStatus((name, connected)) => {
                             match self.team_repository.teams.get_mut(&name) {
                                 Some(team) => team.set_connection_status(connected),
-                                None => {
-                                    info!(
-                                        "received heartbeat status for {} while unregistered",
-                                        name
-                                    )
-                                }
+                                None => info!(
+                                    "received heartbeat status for {} while unregistered",
+                                    name
+                                ),
                             }
-                        },
-                        Message::Tick => {
-                            /* Process tick */
                         }
+                        Message::Tick => { /* Process tick */ }
                     }
                 }
 
@@ -89,7 +89,6 @@ impl Simulation {
                     error!("could not receive message: {}", error);
                 }
             }
-
 
             if let Ok(json) = serde_json::to_string(&self.team_repository) {
                 if let Err(error) = ws_tx.send(WsMessage::Update(json)) {
@@ -115,24 +114,23 @@ pub struct Teams {
 
 impl Teams {
     pub fn new() -> Teams {
-        Teams { teams: HashMap::new() }
+        Teams {
+            teams: HashMap::new(),
+        }
     }
 
     pub fn available(&self, ip_address: &str, port: u16) -> bool {
         self.teams
             .iter()
-            .filter(|&(_name, team)| {
-                team.ip_address == ip_address && team.port == port
-            })
-            .count() == 0
+            .filter(|&(_name, team)| team.ip_address == ip_address && team.port == port)
+            .count()
+            == 0
     }
 }
 
 impl Simulate for Teams {
     fn step(&mut self, dt: f64) {
-        self.teams
-            .iter_mut()
-            .for_each(|(_, team)| team.step(dt))
+        self.teams.iter_mut().for_each(|(_, team)| team.step(dt))
     }
 }
 
@@ -197,9 +195,7 @@ impl Flock {
 
 impl Simulate for Flock {
     fn step(&mut self, dt: f64) {
-        self.boids
-            .iter_mut()
-            .for_each(|(_, boid)| boid.step(dt))
+        self.boids.iter_mut().for_each(|(_, boid)| boid.step(dt))
     }
 }
 

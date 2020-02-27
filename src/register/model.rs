@@ -1,6 +1,6 @@
 use std::convert::Into;
 
-use super::super::simulation::{Teams, Team};
+use super::super::simulation::{Team, Teams};
 
 pub trait TeamRepository {
     fn register(&mut self, registration: Registration) -> RegistrationAttempt;
@@ -17,10 +17,8 @@ impl TeamRepository for Teams {
             return RegistrationAttempt::Failure(RegistrationFailureReason::IPAddressWithPortTaken);
         }
 
-        self.teams.insert(
-            registration.name.clone(),
-            registration.into(),
-        );
+        self.teams
+            .insert(registration.name.clone(), registration.into());
         RegistrationAttempt::Success
     }
 
@@ -51,8 +49,11 @@ impl Into<String> for RegistrationFailureReason {
         (match self {
             RegistrationFailureReason::NameTaken => "name already taken",
 
-            RegistrationFailureReason::IPAddressWithPortTaken => "ip address with port already taken",
-        }).to_string()
+            RegistrationFailureReason::IPAddressWithPortTaken => {
+                "ip address with port already taken"
+            }
+        })
+        .to_string()
     }
 }
 
@@ -79,7 +80,9 @@ impl RegistrationFailure {
     where
         S: Into<String>,
     {
-        RegistrationFailure { reason: reason.into() }
+        RegistrationFailure {
+            reason: reason.into(),
+        }
     }
 }
 
@@ -109,10 +112,11 @@ impl UnregistrationFailure {
     where
         S: Into<String>,
     {
-        UnregistrationFailure { reason: reason.into() }
+        UnregistrationFailure {
+            reason: reason.into(),
+        }
     }
 }
-
 
 #[cfg(test)]
 mod tests {
@@ -149,7 +153,10 @@ mod tests {
         };
         let result = teams.register(second);
 
-        assert_eq!(result, RegistrationAttempt::Failure(RegistrationFailureReason::NameTaken));
+        assert_eq!(
+            result,
+            RegistrationAttempt::Failure(RegistrationFailureReason::NameTaken)
+        );
     }
 
     #[test]
@@ -169,6 +176,9 @@ mod tests {
         };
         let result = teams.register(second);
 
-        assert_eq!(result, RegistrationAttempt::Failure(RegistrationFailureReason::IPAddressWithPortTaken));
+        assert_eq!(
+            result,
+            RegistrationAttempt::Failure(RegistrationFailureReason::IPAddressWithPortTaken)
+        );
     }
 }
