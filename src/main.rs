@@ -72,7 +72,15 @@ fn main() {
     let heartbeat_thread = thread::Builder::new()
         .name("heartbeat".to_string())
         .spawn(move || {
-            let mut heartbeat = Heartbeat::new(heartbeat_rx, heartbeat_simulation_tx);
+            let sleep_duration_value = u64::from_str_radix(
+                &env::var("heartbeat_sleep_duration")
+                    .expect("\"heartbeat_sleep_duration\" in environment variables"),
+                10,
+            )
+            .expect("\"heartbeat_sleep_duration\" to be u64");
+            let sleep_duration = Duration::from_secs(sleep_duration_value);
+
+            let mut heartbeat = Heartbeat::new(sleep_duration, heartbeat_rx, heartbeat_simulation_tx);
             info!("starting heartbeat monitor");
 
             heartbeat.monitor();

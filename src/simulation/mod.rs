@@ -12,6 +12,7 @@ use super::heartbeat::communication::Message as HeartbeatMessage;
 use super::register::model::{RegistrationAttempt, TeamRepository, UnregistrationAttempt};
 use super::websocket::communication::Message as WsMessage;
 
+#[derive(Default)]
 pub struct Simulation {
     team_repository: Teams,
 }
@@ -107,7 +108,7 @@ impl Simulate for Simulation {
     }
 }
 
-#[derive(Serialize)]
+#[derive(Serialize, Default)]
 pub struct Teams {
     pub teams: HashMap<String, Team>,
 }
@@ -181,7 +182,7 @@ impl Display for Team {
     }
 }
 
-#[derive(Serialize)]
+#[derive(Serialize, Default)]
 pub struct Flock {
     pub boids: HashMap<String, Boid>,
 }

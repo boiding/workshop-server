@@ -19,7 +19,7 @@ pub fn router(tx: &Sender<Message>) -> Router {
         "/",
         move |request: &mut Request| {
             let mut body: String = String::new();
-            if let Ok(_) = request.body.read_to_string(&mut body) {
+            if request.body.read_to_string(&mut body).is_ok() {
                 let registration_result: Result<Registration, Error> = serde_json::from_str(&body);
                 if let Ok(registration) = registration_result {
                     info!("received {:?}", registration);
@@ -58,7 +58,7 @@ pub fn router(tx: &Sender<Message>) -> Router {
         "/",
         move |request: &mut Request| {
             let mut body: String = String::new();
-            if let Ok(_) = request.body.read_to_string(&mut body) {
+            if request.body.read_to_string(&mut body).is_ok() {
                 let unregistration_result: Result<Unregistration, Error> =
                     serde_json::from_str(&body);
                 if let Ok(unregistration) = unregistration_result {
