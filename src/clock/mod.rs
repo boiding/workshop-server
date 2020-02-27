@@ -1,6 +1,6 @@
-use std::time::Duration;
-use std::sync::mpsc::{Sender};
+use std::sync::mpsc::Sender;
 use std::thread;
+use std::time::Duration;
 
 use super::simulation::communication::Message as TeamsMessage;
 
@@ -15,12 +15,11 @@ impl Clock {
     }
 
     pub fn start(&mut self) {
-            loop {
-                thread::sleep(self.tick_duration);
-                if let Err(error) = self.tx.send(TeamsMessage::Tick) {
-                    error!("Could not send tick message: {}", error);
-                }
+        loop {
+            thread::sleep(self.tick_duration);
+            if let Err(error) = self.tx.send(TeamsMessage::Tick) {
+                error!("Could not send tick message: {}", error);
             }
- 
+        }
     }
 }

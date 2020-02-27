@@ -18,6 +18,7 @@ use dotenv::dotenv;
 use iron::Iron;
 use simplelog::{CombinedLogger, Config, LevelFilter, TermLogger, TerminalMode};
 
+use bws::clock::Clock;
 use bws::heartbeat::communication::Message as HeartbeatMessage;
 use bws::heartbeat::Heartbeat;
 use bws::server;
@@ -25,7 +26,6 @@ use bws::simulation::communication::Message as TeamsMessage;
 use bws::simulation::Simulation;
 use bws::websocket::communication::Message as WsMessage;
 use bws::websocket::WebSocketUpdate;
-use bws::clock::Clock;
 
 fn main() {
     dotenv().ok();
@@ -50,8 +50,8 @@ fn main() {
         .name("simulation".to_string())
         .spawn(move || {
             info!("starting simulation");
-            let mut simulation = Simulation::new();
 
+            let mut simulation = Simulation::new();
             simulation.start(simulation_rx, simulation_heartbeat_tx, simulation_ws_tx);
         })
         .unwrap();
@@ -60,8 +60,8 @@ fn main() {
     let iron_thread = thread::Builder::new()
         .name("iron".to_string())
         .spawn(move || {
-            let server_address = env::var("address").expect("\"address\" in environment variables");
             info!("starting server at {}", server_address);
+            let server_address = env::var("address").expect("\"address\" in environment variables");
 
             Iron::new(server::chain(&iron_simulation_tx))
                 .http(server_address)
@@ -73,6 +73,7 @@ fn main() {
     let heartbeat_thread = thread::Builder::new()
         .name("heartbeat".to_string())
         .spawn(move || {
+            info!("starting heartbeat monitor");
             let sleep_duration_value = u64::from_str_radix(
                 &env::var("heartbeat_sleep_duration")
                     .expect("\"heartbeat_sleep_duration\" in environment variables"),
@@ -81,9 +82,8 @@ fn main() {
             .expect("\"heartbeat_sleep_duration\" to be u64");
             let sleep_duration = Duration::from_secs(sleep_duration_value);
 
-            let mut heartbeat = Heartbeat::new(sleep_duration, heartbeat_rx, heartbeat_simulation_tx);
-            info!("starting heartbeat monitor");
-
+            let mut heartbeat =
+                Heartbeat::new(sleep_duration, heartbeat_rx, heartbeat_simulation_tx);
             heartbeat.monitor();
         })
         .unwrap();
@@ -93,8 +93,8 @@ fn main() {
         .spawn(move || {
             info!("starting websocket communication");
             let socket_address = env::var("socket").expect("\"socket\" in environment variables");
-            let ws_update = WebSocketUpdate::new(socket_address);
 
+            let ws_update = WebSocketUpdate::new(socket_address);
             ws_update.dispatch(ws_rx)
         })
         .unwrap();
@@ -111,7 +111,7 @@ fn main() {
 
             let mut clock = Clock::new(tick_duration, clock_simulation_tx);
             clock.start();
-       })
+        })
         .unwrap();
 
     clock_thread.join().unwrap();
