@@ -60,9 +60,10 @@ fn main() {
     let iron_thread = thread::Builder::new()
         .name("iron".to_string())
         .spawn(move || {
-            info!("starting server at {}", server_address);
+            info!("starting server");
             let server_address = env::var("address").expect("\"address\" in environment variables");
 
+            info!("server bound to address {}", server_address);
             Iron::new(server::chain(&iron_simulation_tx))
                 .http(server_address)
                 .unwrap();
