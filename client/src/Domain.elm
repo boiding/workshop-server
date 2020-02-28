@@ -1,10 +1,11 @@
-module Domain exposing (Teams, Team, viewTeam, decodeTeams)
+module Domain exposing (Team, Teams, decodeTeams, viewTeam)
 
-import Json.Decode exposing (Decoder, dict, string, bool, succeed)
-import Json.Decode.Pipeline exposing (required)
+import Dict
 import Html
 import Html.Attributes as Attribute
-import Dict
+import Html.Events as Event
+import Json.Decode exposing (Decoder, bool, dict, string, succeed)
+import Json.Decode.Pipeline exposing (required)
 
 
 type alias Teams =
@@ -18,8 +19,8 @@ type alias Team =
     }
 
 
-viewTeam : Team -> Html.Html msg
-viewTeam team =
+viewTeam : (String -> msg) -> Team -> Html.Html msg
+viewTeam messageFor team =
     Html.div
         [ Attribute.classList
             [ ( "team", True )
@@ -29,7 +30,7 @@ viewTeam team =
         ]
         [ Html.span [ Attribute.class "connection-status" ] []
         , Html.span [ Attribute.class "name" ] [ Html.text team.name ]
-        , Html.button [] [ Html.text "+" ]
+        , Html.button [ Event.onClick <| messageFor team.name ] [ Html.text "+" ]
         ]
 
 

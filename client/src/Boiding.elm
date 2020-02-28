@@ -5,8 +5,8 @@ import Dict
 import Domain exposing (Team, Teams, decodeTeams, viewTeam)
 import Html
 import Html.Attributes as Attribute
-import Json.Encode exposing (Value)
 import Json.Decode exposing (decodeString, decodeValue, errorToString)
+import Json.Encode exposing (Value)
 
 
 main =
@@ -41,6 +41,7 @@ type alias Model =
 
 type Message
     = Update String
+    | Spawn String
 
 
 update : Message -> Model -> ( Model, Cmd Message )
@@ -58,6 +59,9 @@ update message model =
             in
             ( next_model, Cmd.none )
 
+        Spawn team_name ->
+            ( model, spawn team_name )
+
 
 view : Model -> Html.Html Message
 view model =
@@ -66,7 +70,7 @@ view model =
             model.team_repository
                 |> .teams
                 |> Dict.values
-                |> List.map viewTeam
+                |> List.map (viewTeam Spawn)
 
         error_message =
             Maybe.withDefault "" model.error_message
@@ -79,6 +83,10 @@ view model =
 
 port updateTeams : (String -> msg) -> Sub msg
 
+
+port spawn : String -> Cmd msg
+
+
 subscriptions : Model -> Sub Message
 subscriptions model =
-    updateTeams Update 
+    updateTeams Update

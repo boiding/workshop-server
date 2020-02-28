@@ -10,5 +10,9 @@
     const socket = new WebSocket(socket_address);
     socket.addEventListener('message', function(event){
         app.ports.updateTeams.send(event.data);
-    });
+    })
+
+    app.ports.spawn.subscribe(function(team){
+        console.log(team);
+    })
 })(document, Elm, 3435);
