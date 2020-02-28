@@ -7,4 +7,6 @@ pub enum Message {
     Heartbeat,
     HeartbeatStatus((String, bool)),
     Tick,
+    SpawnAll(usize),
+    Spawn((String, usize)),
 }

@@ -85,6 +85,14 @@ impl Simulation {
                             }
                         }
                         Message::Tick => { /* Process tick */ }
+                        Message::SpawnAll(n) => {
+                            info!("spawning {} boids in all connected teams", n);
+                            self.team_repository.spawn(n);
+                        }
+                        Message::Spawn((team_name, n)) => {
+                            info!("spawning {} boids in team {}", n, team_name);
+                            self.team_repository.spawn_in_team(team_name, n);
+                        }
                     }
                 }
 
@@ -132,6 +140,13 @@ impl Teams {
             .filter(|&(_name, team)| team.ip_address == ip_address && team.port == port)
             .count()
             == 0
+    }
+
+    pub fn spawn_in_team(&mut self, name: String, n: usize) {
+        self.teams
+            .get_mut(&name)
+            .iter_mut()
+            .for_each(|team| team.spawn(n))
     }
 }
 
