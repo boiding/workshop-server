@@ -4,6 +4,7 @@ version = "0.1.0"
 authors = ["Daan van Berkel <daan.v.berkel.1980@gmail.com>"]
 
 [dependencies]
+random = "0.12.2"
 log = "0.4.8"
 simplelog = "0.7.4"
 dotenv = "0.15.0" 
