@@ -42,7 +42,7 @@ impl WebSocketUpdate {
                 } else {
                     error!("could not read '{}' as text", msg)
                 }
-                out.broadcast("")
+                out.ping(vec![])
             }
         }) {
             let sender = web_socket.broadcaster();
