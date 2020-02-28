@@ -23,8 +23,8 @@ impl Heartbeat {
         sleep_duration: Duration,
         rx: Receiver<HeartbeatMessage>,
         tx: Sender<TeamsMessage>,
-    ) -> Heartbeat {
-        Heartbeat {
+    ) -> Self {
+        Self {
             sleep_duration,
             rx,
             tx,

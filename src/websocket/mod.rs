@@ -11,11 +11,11 @@ pub struct WebSocketUpdate {
 }
 
 impl WebSocketUpdate {
-    pub fn new<S>(socket_address: S) -> WebSocketUpdate
+    pub fn new<S>(socket_address: S) -> Self
     where
         S: Into<String>,
     {
-        WebSocketUpdate {
+        Self {
             socket_address: socket_address.into(),
         }
     }

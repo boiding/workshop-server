@@ -24,8 +24,8 @@ pub trait Simulate {
 }
 
 impl Simulation {
-    pub fn new() -> Simulation {
-        Simulation {
+    pub fn new() -> Self {
+        Self {
             team_repository: Teams::new(),
         }
     }
