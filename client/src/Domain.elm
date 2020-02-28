@@ -29,6 +29,7 @@ viewTeam team =
         ]
         [ Html.span [ Attribute.class "connection-status" ] []
         , Html.span [ Attribute.class "name" ] [ Html.text team.name ]
+        , Html.button [] [ Html.text "+" ]
         ]
 
 
