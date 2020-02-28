@@ -89,6 +89,7 @@ fn main() {
         })
         .unwrap();
 
+    let ws_simulation_tx = simulation_tx.clone();
     let ws_thread = thread::Builder::new()
         .name("socket".to_string())
         .spawn(move || {
@@ -96,7 +97,7 @@ fn main() {
             let socket_address = env::var("socket").expect("\"socket\" in environment variables");
 
             let ws_update = WebSocketUpdate::new(socket_address);
-            ws_update.dispatch(ws_rx)
+            ws_update.dispatch(ws_simulation_tx, ws_rx);
         })
         .unwrap();
 

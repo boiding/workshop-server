@@ -1,10 +1,11 @@
 pub mod communication;
 
-use std::sync::mpsc::Receiver;
+use std::sync::mpsc::{Receiver, Sender};
 use std::thread;
+use ws::{self, Message, WebSocket};
 
 use self::communication::Message as WsMessage;
-use ws::{self, Message, WebSocket};
+use super::simulation::communication::Message as TeamsMessage;
 
 pub struct WebSocketUpdate {
     socket_address: String,
@@ -20,10 +21,14 @@ impl WebSocketUpdate {
         }
     }
 
-    pub fn dispatch(&self, rx: Receiver<WsMessage>) {
+    pub fn dispatch(&self, tx: Sender<TeamsMessage>, rx: Receiver<WsMessage>) {
         if let Ok(web_socket) = WebSocket::new(|out: ws::Sender| {
+            let simulation_tx = tx.clone();
             move |msg: Message| {
                 info!("Server got message '{}'. ", msg);
+                if simulation_tx.send(TeamsMessage::SpawnAll(5)).is_err() {
+                    error!("could not send a spawn message");
+                }
                 out.broadcast("")
             }
         }) {

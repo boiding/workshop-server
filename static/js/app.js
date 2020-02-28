@@ -13,6 +13,6 @@
     })
 
     app.ports.spawn.subscribe(function(team){
-        console.log(team);
+        socket.send(JSON.stringify({'command': 'spawn', 'team': team}));
     })
 })(document, Elm, 3435);
