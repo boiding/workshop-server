@@ -1,5 +1,6 @@
 pub mod communication;
 
+use serde_json::{self};
 use std::sync::mpsc::{Receiver, Sender};
 use std::thread;
 use ws::{self, Message, WebSocket};
@@ -26,8 +27,20 @@ impl WebSocketUpdate {
             let simulation_tx = tx.clone();
             move |msg: Message| {
                 info!("Server got message '{}'. ", msg);
-                if simulation_tx.send(TeamsMessage::SpawnAll(5)).is_err() {
-                    error!("could not send a spawn message");
+                if let Ok(command_text) = msg.as_text() {
+                    if let Ok(command) = serde_json::from_str::<Command>(command_text) {
+                        match command {
+                            Command::Spawn { team } => {
+                                if simulation_tx.send(TeamsMessage::Spawn((team, 5))).is_err() {
+                                    error!("could not send a spawn message");
+                                }
+                            }
+                        }
+                    } else {
+                        error!("could not serialize {}", msg);
+                    }
+                } else {
+                    error!("could not read '{}' as text", msg)
                 }
                 out.broadcast("")
             }
@@ -57,4 +70,9 @@ impl WebSocketUpdate {
             error!("Failed to create WebSocket");
         }
     }
+}
+
+#[derive(Deserialize, Debug)]
+pub enum Command {
+    Spawn { team: String },
 }

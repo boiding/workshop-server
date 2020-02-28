@@ -4,8 +4,7 @@ use std::sync::{Arc, Mutex};
 
 use iron::{status, Request, Response};
 use router::Router;
-use serde_json;
-use serde_json::Error;
+use serde_json::{self, Error};
 
 use super::super::simulation::communication::Message;
 use super::model::*;
