@@ -186,7 +186,7 @@ impl Display for Team {
 
 #[derive(Serialize, Default)]
 pub struct Flock {
-    pub boids: HashMap<String, Boid>,
+    pub boids: HashMap<FlockId, Boid>,
 }
 
 impl Flock {
@@ -199,6 +199,23 @@ impl Flock {
 impl Simulate for Flock {
     fn step(&mut self, dt: f64) {
         self.boids.iter_mut().for_each(|(_, boid)| boid.step(dt))
+    }
+}
+
+#[derive(Serialize, Hash, PartialEq, Eq)]
+pub struct FlockId(u64);
+
+impl From<u64> for FlockId {
+    fn from(id: u64) -> Self {
+        Self(id)
+    }
+}
+
+impl Value for FlockId {
+    fn read<S>(source: &mut S) -> Self where S: Source {
+        let id = source.read_u64();
+
+        Self::from(id)
     }
 }
 
