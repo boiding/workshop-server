@@ -5216,11 +5216,19 @@ var $author$project$Boiding$init = function (_v0) {
 	var teams = A3(
 		$elm$core$Dict$insert,
 		'yellow-nijmegen-whale',
-		{connected: false, name: 'yellow-nijmegen-whale'},
+		{
+			connected: false,
+			flock: {boids: $elm$core$Dict$empty},
+			name: 'yellow-nijmegen-whale'
+		},
 		A3(
 			$elm$core$Dict$insert,
 			'red-bergen-crab',
-			{connected: true, name: 'red-bergen-crab'},
+			{
+				connected: true,
+				flock: {boids: $elm$core$Dict$empty},
+				name: 'red-bergen-crab'
+			},
 			$elm$core$Dict$empty));
 	return _Utils_Tuple2(
 		{
@@ -5241,11 +5249,19 @@ var $elm$json$Json$Decode$decodeString = _Json_runOnString;
 var $author$project$Domain$Teams = function (teams) {
 	return {teams: teams};
 };
-var $author$project$Domain$Team = F2(
-	function (name, connected) {
-		return {connected: connected, name: name};
+var $author$project$Domain$Team = F3(
+	function (name, connected, flock) {
+		return {connected: connected, flock: flock, name: name};
 	});
 var $elm$json$Json$Decode$bool = _Json_decodeBool;
+var $author$project$Domain$Flock = function (boids) {
+	return {boids: boids};
+};
+var $author$project$Domain$Boid = F4(
+	function (x, y, heading, speed) {
+		return {heading: heading, speed: speed, x: x, y: y};
+	});
+var $elm$json$Json$Decode$float = _Json_decodeFloat;
 var $NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$custom = $elm$json$Json$Decode$map2($elm$core$Basics$apR);
 var $elm$json$Json$Decode$field = _Json_decodeField;
 var $NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required = F3(
@@ -5255,15 +5271,23 @@ var $NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required = F3(
 			A2($elm$json$Json$Decode$field, key, valDecoder),
 			decoder);
 	});
-var $author$project$Domain$decodeTeam = A3(
+var $author$project$Domain$decodeBoid = A3(
 	$NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
-	'connected',
-	$elm$json$Json$Decode$bool,
+	'speed',
+	$elm$json$Json$Decode$float,
 	A3(
 		$NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
-		'name',
-		$elm$json$Json$Decode$string,
-		$elm$json$Json$Decode$succeed($author$project$Domain$Team)));
+		'heading',
+		$elm$json$Json$Decode$float,
+		A3(
+			$NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
+			'y',
+			$elm$json$Json$Decode$float,
+			A3(
+				$NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
+				'x',
+				$elm$json$Json$Decode$float,
+				$elm$json$Json$Decode$succeed($author$project$Domain$Boid)))));
 var $elm$core$Dict$fromList = function (assocs) {
 	return A3(
 		$elm$core$List$foldl,
@@ -5283,6 +5307,24 @@ var $elm$json$Json$Decode$dict = function (decoder) {
 		$elm$core$Dict$fromList,
 		$elm$json$Json$Decode$keyValuePairs(decoder));
 };
+var $author$project$Domain$decodeFlock = A3(
+	$NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
+	'boids',
+	$elm$json$Json$Decode$dict($author$project$Domain$decodeBoid),
+	$elm$json$Json$Decode$succeed($author$project$Domain$Flock));
+var $author$project$Domain$decodeTeam = A3(
+	$NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
+	'flock',
+	$author$project$Domain$decodeFlock,
+	A3(
+		$NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
+		'connected',
+		$elm$json$Json$Decode$bool,
+		A3(
+			$NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
+			'name',
+			$elm$json$Json$Decode$string,
+			$elm$json$Json$Decode$succeed($author$project$Domain$Team))));
 var $author$project$Domain$decodeTeams = A3(
 	$NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
 	'teams',

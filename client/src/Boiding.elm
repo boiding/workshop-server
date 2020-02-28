@@ -23,8 +23,8 @@ init _ =
     let
         teams =
             Dict.empty
-                |> Dict.insert "red-bergen-crab" { name = "red-bergen-crab", connected = True }
-                |> Dict.insert "yellow-nijmegen-whale" { name = "yellow-nijmegen-whale", connected = False }
+                |> Dict.insert "red-bergen-crab" { name = "red-bergen-crab", connected = True, flock = { boids = Dict.empty } }
+                |> Dict.insert "yellow-nijmegen-whale" { name = "yellow-nijmegen-whale", connected = False, flock = { boids = Dict.empty } }
     in
     ( { team_repository = { teams = teams }
       , error_message = Nothing
