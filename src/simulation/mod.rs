@@ -3,9 +3,11 @@ pub mod communication;
 use std::collections::HashMap;
 use std::fmt::{Display, Error, Formatter};
 use std::sync::mpsc::{Receiver, Sender};
+use std::f64::consts::PI;
 
 use hyper::{self, Uri};
 use serde_json;
+use random::{Value, Source};
 
 use self::communication::Message;
 use super::heartbeat::communication::Message as HeartbeatMessage;
@@ -208,13 +210,29 @@ pub struct Boid {
     speed: f64,
 }
 
+impl Boid {
+    fn new(x: f64, y: f64, heading: f64, speed: f64) -> Self {
+        Self { x, y, heading, speed }
+    }
+}
+
 impl Simulate for Boid {
-    fn step(&mut self, dt: f64) {
+   fn step(&mut self, dt: f64) {
         let d = self.speed * dt;
         let dx = d * self.heading.cos();
         let dy = d * self.heading.sin();
 
         self.x += dx;
         self.y += dy;
+    }
+}
+
+impl Value for Boid {
+    fn read<S>(source: &mut S) -> Self where S: Source {
+        let x = source.read_f64();
+        let y = source.read_f64();
+        let heading = 2f64*PI*(source.read_f64() - 0.5);
+        let speed = 0.01 * source.read_f64(); // TOOD determine maximum speed
+        Self::new(x, y, heading, speed)
     }
 }
