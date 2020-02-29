@@ -1,4 +1,4 @@
-.PHONY: all
+.PHONY: all, clean
 
 SOURCE_DIR=src
 BUILD_DIR=../static
@@ -14,3 +14,6 @@ ${MINIFIED_TARGET}: ${TARGET}
 
 ${TARGET}: ${SOURCE} ${SOURCE_DIR}/*.elm
 	elm make $< --optimize --output $@
+
+clean:
+	rm -f ${TARGET} ${MINIFIED_TARGET}
