@@ -1,7 +1,7 @@
 .PHONY: all, clean
 
 SOURCE_DIR=src
-BUILD_DIR=../static
+BUILD_DIR=../static/js
 SOURCE=${SOURCE_DIR}/Boiding.elm
 TARGET=${BUILD_DIR}/client.js
 MINIFIED_TARGET=${BUILD_DIR}/client.min.js
