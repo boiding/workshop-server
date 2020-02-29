@@ -1,4 +1,4 @@
-module Domain exposing (Team, Teams, decodeTeams, viewTeam)
+module Domain exposing (Team, Teams, decodeTeams, viewTeam, viewFlocks)
 
 import Dict
 import Html
@@ -6,6 +6,8 @@ import Html.Attributes as Attribute
 import Html.Events as Event
 import Json.Decode exposing (Decoder, bool, dict, float, string, succeed)
 import Json.Decode.Pipeline exposing (required)
+import Svg
+import Svg.Attributes exposing (width, height) 
 
 
 type alias Teams =
@@ -41,6 +43,10 @@ viewTeam messageFor team =
         , Html.span [ Attribute.class "name" ] [ Html.text team.name ]
         , Html.button [ Event.onClick <| messageFor team.name ] [ Html.text "+" ]
         ]
+
+viewFlocks : Teams -> Svg.Svg msg
+viewFlocks teams =
+    Svg.svg [ width "640", height "640" ] []
 
 
 decodeTeams : Decoder Teams

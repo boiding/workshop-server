@@ -5386,6 +5386,20 @@ var $elm$core$Dict$values = function (dict) {
 		_List_Nil,
 		dict);
 };
+var $elm$svg$Svg$Attributes$height = _VirtualDom_attribute('height');
+var $elm$svg$Svg$trustedNode = _VirtualDom_nodeNS('http://www.w3.org/2000/svg');
+var $elm$svg$Svg$svg = $elm$svg$Svg$trustedNode('svg');
+var $elm$svg$Svg$Attributes$width = _VirtualDom_attribute('width');
+var $author$project$Domain$viewFlocks = function (teams) {
+	return A2(
+		$elm$svg$Svg$svg,
+		_List_fromArray(
+			[
+				$elm$svg$Svg$Attributes$width('640'),
+				$elm$svg$Svg$Attributes$height('640')
+			]),
+		_List_Nil);
+};
 var $elm$html$Html$button = _VirtualDom_node('button');
 var $elm$core$List$filter = F2(
 	function (isGood, list) {
@@ -5512,7 +5526,17 @@ var $author$project$Boiding$view = function (model) {
 					[
 						$elm$html$Html$Attributes$class('teams')
 					]),
-				teams)
+				teams),
+				A2(
+				$elm$html$Html$div,
+				_List_fromArray(
+					[
+						$elm$html$Html$Attributes$class('flocks')
+					]),
+				_List_fromArray(
+					[
+						$author$project$Domain$viewFlocks(model.team_repository)
+					]))
 			]));
 };
 var $author$project$Boiding$main = $elm$browser$Browser$element(
