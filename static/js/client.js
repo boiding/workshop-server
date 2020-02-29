@@ -1857,9 +1857,9 @@ var _Platform_worker = F4(function(impl, flagDecoder, debugMetadata, args)
 	return _Platform_initialize(
 		flagDecoder,
 		args,
-		impl.aw,
+		impl.ay,
+		impl.aG,
 		impl.aE,
-		impl.aC,
 		function() { return function() {} }
 	);
 });
@@ -3883,11 +3883,11 @@ var _Browser_element = _Debugger_element || F4(function(impl, flagDecoder, debug
 	return _Platform_initialize(
 		flagDecoder,
 		args,
-		impl.aw,
+		impl.ay,
+		impl.aG,
 		impl.aE,
-		impl.aC,
 		function(sendToApp, initialModel) {
-			var view = impl.aF;
+			var view = impl.aH;
 			/**/
 			var domNode = args['node'];
 			//*/
@@ -3919,12 +3919,12 @@ var _Browser_document = _Debugger_document || F4(function(impl, flagDecoder, deb
 	return _Platform_initialize(
 		flagDecoder,
 		args,
-		impl.aw,
+		impl.ay,
+		impl.aG,
 		impl.aE,
-		impl.aC,
 		function(sendToApp, initialModel) {
 			var divertHrefToApp = impl.J && impl.J(sendToApp)
-			var view = impl.aF;
+			var view = impl.aH;
 			var title = _VirtualDom_doc.title;
 			var bodyNode = _VirtualDom_doc.body;
 			var currNode = _VirtualDom_virtualize(bodyNode);
@@ -3932,12 +3932,12 @@ var _Browser_document = _Debugger_document || F4(function(impl, flagDecoder, deb
 			{
 				_VirtualDom_divertHrefToApp = divertHrefToApp;
 				var doc = view(model);
-				var nextNode = _VirtualDom_node('body')(_List_Nil)(doc.ap);
+				var nextNode = _VirtualDom_node('body')(_List_Nil)(doc.ar);
 				var patches = _VirtualDom_diff(currNode, nextNode);
 				bodyNode = _VirtualDom_applyPatches(bodyNode, currNode, patches, sendToApp);
 				currNode = nextNode;
 				_VirtualDom_divertHrefToApp = 0;
-				(title !== doc.aD) && (_VirtualDom_doc.title = title = doc.aD);
+				(title !== doc.aF) && (_VirtualDom_doc.title = title = doc.aF);
 			});
 		}
 	);
@@ -3993,8 +3993,8 @@ function _Browser_makeAnimator(model, draw)
 
 function _Browser_application(impl)
 {
-	var onUrlChange = impl.ax;
-	var onUrlRequest = impl.ay;
+	var onUrlChange = impl.az;
+	var onUrlRequest = impl.aA;
 	var key = function() { key.a(onUrlChange(_Browser_getUrl())); };
 
 	return _Browser_document({
@@ -4024,13 +4024,13 @@ function _Browser_application(impl)
 				}
 			});
 		},
-		aw: function(flags)
+		ay: function(flags)
 		{
-			return A3(impl.aw, flags, _Browser_getUrl(), key);
+			return A3(impl.ay, flags, _Browser_getUrl(), key);
 		},
-		aF: impl.aF,
-		aE: impl.aE,
-		aC: impl.aC
+		aH: impl.aH,
+		aG: impl.aG,
+		aE: impl.aE
 	});
 }
 
@@ -4096,17 +4096,17 @@ var _Browser_decodeEvent = F2(function(decoder, event)
 function _Browser_visibilityInfo()
 {
 	return (typeof _VirtualDom_doc.hidden !== 'undefined')
-		? { au: 'hidden', aq: 'visibilitychange' }
+		? { aw: 'hidden', as: 'visibilitychange' }
 		:
 	(typeof _VirtualDom_doc.mozHidden !== 'undefined')
-		? { au: 'mozHidden', aq: 'mozvisibilitychange' }
+		? { aw: 'mozHidden', as: 'mozvisibilitychange' }
 		:
 	(typeof _VirtualDom_doc.msHidden !== 'undefined')
-		? { au: 'msHidden', aq: 'msvisibilitychange' }
+		? { aw: 'msHidden', as: 'msvisibilitychange' }
 		:
 	(typeof _VirtualDom_doc.webkitHidden !== 'undefined')
-		? { au: 'webkitHidden', aq: 'webkitvisibilitychange' }
-		: { au: 'hidden', aq: 'visibilitychange' };
+		? { aw: 'webkitHidden', as: 'webkitvisibilitychange' }
+		: { aw: 'hidden', as: 'visibilitychange' };
 }
 
 
@@ -4189,8 +4189,8 @@ function _Browser_getViewport()
 	return {
 		ai: _Browser_getScene(),
 		am: {
-			aH: _Browser_window.pageXOffset,
-			aI: _Browser_window.pageYOffset,
+			an: _Browser_window.pageXOffset,
+			ao: _Browser_window.pageYOffset,
 			x: _Browser_doc.documentElement.clientWidth,
 			s: _Browser_doc.documentElement.clientHeight
 		}
@@ -4231,8 +4231,8 @@ function _Browser_getViewportOf(id)
 				s: node.scrollHeight
 			},
 			am: {
-				aH: node.scrollLeft,
-				aI: node.scrollTop,
+				an: node.scrollLeft,
+				ao: node.scrollTop,
 				x: node.clientWidth,
 				s: node.clientHeight
 			}
@@ -4266,14 +4266,14 @@ function _Browser_getElement(id)
 		return {
 			ai: _Browser_getScene(),
 			am: {
-				aH: x,
-				aI: y,
+				an: x,
+				ao: y,
 				x: _Browser_doc.documentElement.clientWidth,
 				s: _Browser_doc.documentElement.clientHeight
 			},
-			ar: {
-				aH: x + rect.left,
-				aI: y + rect.top,
+			at: {
+				an: x + rect.left,
+				ao: y + rect.top,
 				x: rect.width,
 				s: rect.height
 			}
@@ -5253,7 +5253,7 @@ var $author$project$Domain$Flock = function (boids) {
 };
 var $author$project$Domain$Boid = F4(
 	function (x, y, heading, speed) {
-		return {at: heading, aB: speed, aH: x, aI: y};
+		return {av: heading, aD: speed, an: x, ao: y};
 	});
 var $elm$json$Json$Decode$float = _Json_decodeFloat;
 var $NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$custom = $elm$json$Json$Decode$map2($elm$core$Basics$apR);
@@ -5380,19 +5380,65 @@ var $elm$core$Dict$values = function (dict) {
 		_List_Nil,
 		dict);
 };
-var $elm$svg$Svg$Attributes$height = _VirtualDom_attribute('height');
+var $elm$svg$Svg$Attributes$fill = _VirtualDom_attribute('fill');
 var $elm$svg$Svg$trustedNode = _VirtualDom_nodeNS('http://www.w3.org/2000/svg');
+var $elm$svg$Svg$g = $elm$svg$Svg$trustedNode('g');
+var $elm$svg$Svg$Attributes$height = _VirtualDom_attribute('height');
+var $elm$svg$Svg$Attributes$stroke = _VirtualDom_attribute('stroke');
+var $elm$svg$Svg$Attributes$strokeWidth = _VirtualDom_attribute('stroke-width');
 var $elm$svg$Svg$svg = $elm$svg$Svg$trustedNode('svg');
+var $elm$svg$Svg$Attributes$viewBox = _VirtualDom_attribute('viewBox');
+var $elm$svg$Svg$circle = $elm$svg$Svg$trustedNode('circle');
+var $elm$svg$Svg$Attributes$cx = _VirtualDom_attribute('cx');
+var $elm$svg$Svg$Attributes$cy = _VirtualDom_attribute('cy');
+var $elm$core$String$fromFloat = _String_fromNumber;
+var $elm$svg$Svg$Attributes$r = _VirtualDom_attribute('r');
+var $author$project$Domain$viewBoid = function (boid) {
+	return A2(
+		$elm$svg$Svg$circle,
+		_List_fromArray(
+			[
+				$elm$svg$Svg$Attributes$cx(
+				$elm$core$String$fromFloat(boid.an)),
+				$elm$svg$Svg$Attributes$cy(
+				$elm$core$String$fromFloat(boid.ao)),
+				$elm$svg$Svg$Attributes$r('0.01')
+			]),
+		_List_Nil);
+};
+var $author$project$Domain$viewFlockOf = function (team) {
+	var boids = A2(
+		$elm$core$List$map,
+		$author$project$Domain$viewBoid,
+		$elm$core$Dict$values(team.T.N));
+	return A2($elm$svg$Svg$g, _List_Nil, boids);
+};
 var $elm$svg$Svg$Attributes$width = _VirtualDom_attribute('width');
 var $author$project$Domain$viewFlocks = function (teams) {
+	var flocks = A2(
+		$elm$core$List$map,
+		$author$project$Domain$viewFlockOf,
+		$elm$core$Dict$values(teams.al));
 	return A2(
 		$elm$svg$Svg$svg,
 		_List_fromArray(
 			[
 				$elm$svg$Svg$Attributes$width('640'),
-				$elm$svg$Svg$Attributes$height('640')
+				$elm$svg$Svg$Attributes$height('640'),
+				$elm$svg$Svg$Attributes$viewBox('0 0 1 1')
 			]),
-		_List_Nil);
+		_List_fromArray(
+			[
+				A2(
+				$elm$svg$Svg$g,
+				_List_fromArray(
+					[
+						$elm$svg$Svg$Attributes$fill('white'),
+						$elm$svg$Svg$Attributes$stroke('black'),
+						$elm$svg$Svg$Attributes$strokeWidth('0.001')
+					]),
+				flocks)
+			]));
 };
 var $elm$html$Html$button = _VirtualDom_node('button');
 var $elm$core$List$filter = F2(
@@ -5534,6 +5580,6 @@ var $author$project$Boiding$view = function (model) {
 			]));
 };
 var $author$project$Boiding$main = $elm$browser$Browser$element(
-	{aw: $author$project$Boiding$init, aC: $author$project$Boiding$subscriptions, aE: $author$project$Boiding$update, aF: $author$project$Boiding$view});
+	{ay: $author$project$Boiding$init, aE: $author$project$Boiding$subscriptions, aG: $author$project$Boiding$update, aH: $author$project$Boiding$view});
 _Platform_export({'Boiding':{'init':$author$project$Boiding$main(
 	$elm$json$Json$Decode$succeed(0))(0)}});}(this));

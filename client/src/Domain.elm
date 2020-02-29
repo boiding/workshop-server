@@ -7,7 +7,7 @@ import Html.Events as Event
 import Json.Decode exposing (Decoder, bool, dict, float, string, succeed)
 import Json.Decode.Pipeline exposing (required)
 import Svg
-import Svg.Attributes exposing (width, height) 
+import Svg.Attributes exposing (width, height, viewBox, cx, cy, r, fill, stroke, strokeWidth) 
 
 
 type alias Teams =
@@ -46,7 +46,32 @@ viewTeam messageFor team =
 
 viewFlocks : Teams -> Svg.Svg msg
 viewFlocks teams =
-    Svg.svg [ width "640", height "640" ] []
+    let
+        flocks =
+            teams
+            |> .teams
+            |> Dict.values
+            |> List.map viewFlockOf
+    in
+    Svg.svg [ width "640", height "640", viewBox "0 0 1 1" ] [
+        Svg.g [ fill "white", stroke "black", strokeWidth "0.001"] flocks
+    ]
+
+viewFlockOf : Team -> Svg.Svg msg
+viewFlockOf team =
+    let
+        boids =
+            team
+            |> .flock
+            |> .boids
+            |> Dict.values
+            |> List.map viewBoid
+    in
+    Svg.g [] boids
+
+viewBoid : Boid -> Svg.Svg msg
+viewBoid boid =
+    Svg.circle [ cx <| String.fromFloat boid.x, cy <| String.fromFloat boid.y, r "0.01"] []
 
 
 decodeTeams : Decoder Teams
