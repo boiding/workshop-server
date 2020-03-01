@@ -84,7 +84,9 @@ impl Simulation {
                                 ),
                             }
                         }
-                        Message::Tick => { /* Process tick */ }
+                        Message::Tick => { /* Process tick */
+                            self.step(1f64);
+                        }
                         Message::SpawnAll(n) => {
                             info!("spawning {} boids in all connected teams", n);
                             self.team_repository.spawn(n);
@@ -292,6 +294,11 @@ impl Simulate for Boid {
 
         self.x += dx;
         self.y += dy;
+
+        while self.x < 0f64 { self.x += 1f64 }
+        while self.x > 1f64 { self.x -= 1f64 }
+        while self.y < 0f64 { self.y += 1f64 }
+        while self.y > 1f64 { self.y -= 1f64 }
     }
 }
 
