@@ -2,7 +2,7 @@ port module Boiding exposing (..)
 
 import Browser
 import Dict
-import Domain exposing (Team, Teams, decodeTeams, viewTeam, viewFlocks)
+import Domain exposing (Team, Teams, decodeTeams, viewFlocks, viewTeam)
 import Html
 import Html.Attributes as Attribute
 import Json.Decode exposing (decodeString, decodeValue, errorToString)
@@ -78,7 +78,7 @@ view model =
     Html.div []
         [ Html.span [ Attribute.class "error" ] [ Html.text error_message ]
         , Html.div [ Attribute.class "teams" ] teams
-        , Html.div [ Attribute.class "flocks"] [viewFlocks model.team_repository]
+        , Html.div [ Attribute.class "flocks" ] [ viewFlocks model.team_repository ]
         ]
 
 

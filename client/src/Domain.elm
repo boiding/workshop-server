@@ -1,4 +1,4 @@
-module Domain exposing (Team, Teams, decodeTeams, viewTeam, viewFlocks)
+module Domain exposing (Team, Teams, decodeTeams, viewFlocks, viewTeam)
 
 import Dict
 import Html
@@ -7,7 +7,7 @@ import Html.Events as Event
 import Json.Decode exposing (Decoder, bool, dict, float, string, succeed)
 import Json.Decode.Pipeline exposing (required)
 import Svg
-import Svg.Attributes exposing (width, height, viewBox, cx, cy, r, fill, stroke, strokeWidth) 
+import Svg.Attributes exposing (cx, cy, fill, height, points, r, stroke, strokeWidth, viewBox, width)
 
 
 type alias Teams =
@@ -21,14 +21,18 @@ type alias Team =
     , flock : Flock
     }
 
+
 type alias Flock =
     { boids : Dict.Dict String Boid }
 
+
 type alias Boid =
-    { x: Float
-    , y: Float
-    , heading: Float
-    , speed: Float}
+    { x : Float
+    , y : Float
+    , heading : Float
+    , speed : Float
+    }
+
 
 viewTeam : (String -> msg) -> Team -> Html.Html msg
 viewTeam messageFor team =
@@ -44,34 +48,52 @@ viewTeam messageFor team =
         , Html.button [ Event.onClick <| messageFor team.name ] [ Html.text "+" ]
         ]
 
+
 viewFlocks : Teams -> Svg.Svg msg
 viewFlocks teams =
     let
         flocks =
             teams
-            |> .teams
-            |> Dict.values
-            |> List.map viewFlockOf
+                |> .teams
+                |> Dict.values
+                |> List.map viewFlockOf
     in
-    Svg.svg [ width "640", height "640", viewBox "0 0 1 1" ] [
-        Svg.g [ fill "white", stroke "black", strokeWidth "0.001"] flocks
-    ]
+    Svg.svg [ width "640", height "640", viewBox "0 0 1 1" ]
+        [ Svg.g [ fill "white", stroke "black", strokeWidth "0.001" ] flocks
+        ]
+
 
 viewFlockOf : Team -> Svg.Svg msg
 viewFlockOf team =
     let
         boids =
             team
-            |> .flock
-            |> .boids
-            |> Dict.values
-            |> List.map viewBoid
+                |> .flock
+                |> .boids
+                |> Dict.values
+                |> List.map viewBoid
     in
     Svg.g [] boids
 
+
 viewBoid : Boid -> Svg.Svg msg
 viewBoid boid =
-    Svg.circle [ cx <| String.fromFloat boid.x, cy <| String.fromFloat boid.y, r "0.01"] []
+    let
+        r =
+            0.01
+
+        a =
+            2 * pi / 3
+
+        circlePoint angle =
+            ( r * cos angle + boid.x, r * sin angle + boid.y )
+
+        path =
+            [ circlePoint boid.heading, circlePoint (boid.heading + a), ( boid.x, boid.y ), circlePoint (boid.heading - a) ]
+                |> List.map (\( x, y ) -> String.fromFloat x ++ "," ++ String.fromFloat y)
+                |> String.join " "
+    in
+    Svg.polygon [ points path ] []
 
 
 decodeTeams : Decoder Teams
@@ -87,13 +109,15 @@ decodeTeam =
         |> required "connected" bool
         |> required "flock" decodeFlock
 
+
 decodeFlock : Decoder Flock
 decodeFlock =
     succeed Flock
         |> required "boids" (dict decodeBoid)
 
+
 decodeBoid : Decoder Boid
-decodeBoid = 
+decodeBoid =
     succeed Boid
         |> required "x" float
         |> required "y" float
