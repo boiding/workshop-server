@@ -3,7 +3,7 @@ pub mod communication;
 use std::sync::mpsc::{Receiver, Sender};
 
 use futures::Future;
-use hyper::{Client, Method, Request};
+use hyper::{header::ContentType, Client, Method, Request};
 use tokio_core::reactor::Core;
 
 use self::communication::Message as BrainMessage;
@@ -27,10 +27,12 @@ impl Brain {
             if let Ok(message) = self.rx.recv() {
                 match message {
                     BrainMessage::Pick(servers) => {
-                        for (team_name, uri, _payload) in servers {
+                        for (team_name, uri, payload) in servers {
                             info!("picking brain of {} at {}", team_name, uri);
                             let (team_tx, success_team_name) = (self.tx.clone(), team_name.clone());
-                            let request = Request::new(Method::Post, uri);
+                            let mut request = Request::new(Method::Post, uri);
+                            request.headers_mut().set(ContentType::json());
+                            request.set_body(payload);
                             let work = client
                                 .request(request)
                                 .map(move |_response| {
@@ -40,7 +42,10 @@ impl Brain {
                                         .unwrap();
                                 })
                                 .map_err(move |error| {
-                                    error!("did not receive brain update from {}: {}", team_name, error);
+                                    error!(
+                                        "did not receive brain update from {}: {}",
+                                        team_name, error
+                                    );
                                 });
 
                             match core.run(work) {
