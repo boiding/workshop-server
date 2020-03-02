@@ -9,4 +9,5 @@ pub enum Message {
     Tick,
     SpawnAll(usize),
     Spawn((String, usize)),
+    BrainUpdate(String),
 }

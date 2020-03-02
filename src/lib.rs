@@ -15,6 +15,7 @@ extern crate staticfile;
 extern crate tokio_core;
 extern crate ws;
 
+pub mod brain;
 pub mod clock;
 pub mod heartbeat;
 pub mod register;

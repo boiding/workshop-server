@@ -10,6 +10,7 @@ use random::{self, Source, Value};
 use serde_json;
 
 use self::communication::Message;
+use super::brain::communication::Message as BrainMessage;
 use super::heartbeat::communication::Message as HeartbeatMessage;
 use super::register::model::{RegistrationAttempt, TeamRepository, UnregistrationAttempt};
 use super::websocket::communication::Message as WsMessage;
@@ -33,6 +34,7 @@ impl Simulation {
     pub fn start(
         &mut self,
         rx: Receiver<Message>,
+        _brain_tx: Sender<BrainMessage>,
         heartbeat_tx: Sender<HeartbeatMessage>,
         ws_tx: Sender<WsMessage>,
     ) {
@@ -84,8 +86,10 @@ impl Simulation {
                                 ),
                             }
                         }
-                        Message::Tick => { /* Process tick */
+                        Message::Tick => {
                             self.step(1f64);
+                            // Reques brain update
+
                         }
                         Message::SpawnAll(n) => {
                             info!("spawning {} boids in all connected teams", n);
@@ -94,6 +98,9 @@ impl Simulation {
                         Message::Spawn((team_name, n)) => {
                             info!("spawning {} boids in team {}", n, team_name);
                             self.team_repository.spawn_in_team(team_name, n);
+                        }
+                        Message::BrainUpdate(team_name) => {
+                            info!("processing brain update for {}", team_name);
                         }
                     }
                 }
@@ -295,10 +302,18 @@ impl Simulate for Boid {
         self.x += dx;
         self.y += dy;
 
-        while self.x < 0f64 { self.x += 1f64 }
-        while self.x > 1f64 { self.x -= 1f64 }
-        while self.y < 0f64 { self.y += 1f64 }
-        while self.y > 1f64 { self.y -= 1f64 }
+        while self.x < 0f64 {
+            self.x += 1f64
+        }
+        while self.x > 1f64 {
+            self.x -= 1f64
+        }
+        while self.y < 0f64 {
+            self.y += 1f64
+        }
+        while self.y > 1f64 {
+            self.y -= 1f64
+        }
     }
 }
 
