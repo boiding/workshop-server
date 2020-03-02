@@ -43,8 +43,10 @@ impl Heartbeat {
                     HeartbeatMessage::Check(servers) => {
                         for (team_name, uri) in servers {
                             info!("heartbeat for {} at {}", team_name, uri);
-                           let (success_team_tx, success_team_name) = (self.tx.clone(), team_name.clone());
-                           let (failure_team_tx, failure_team_name) = (self.tx.clone(), team_name.clone());
+                            let (success_team_tx, success_team_name) =
+                                (self.tx.clone(), team_name.clone());
+                            let (failure_team_tx, failure_team_name) =
+                                (self.tx.clone(), team_name.clone());
                             let request = Request::new(Method::Head, uri);
                             let work = client
                                 .request(request)

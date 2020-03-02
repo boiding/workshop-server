@@ -40,10 +40,7 @@ impl Brain {
                                         .unwrap();
                                 })
                                 .map_err(move |_| {
-                                    error!(
-                                        "did not receive brain update from {}",
-                                        team_name
-                                    );
+                                    error!("did not receive brain update from {}", team_name);
                                 });
 
                             match core.run(work) {

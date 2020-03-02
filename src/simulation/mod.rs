@@ -34,76 +34,71 @@ impl Simulation {
     pub fn start(
         &mut self,
         rx: Receiver<Message>,
-        _brain_tx: Sender<BrainMessage>,
+        brain_tx: Sender<BrainMessage>,
         heartbeat_tx: Sender<HeartbeatMessage>,
         ws_tx: Sender<WsMessage>,
     ) {
         loop {
             match rx.recv() {
-                Ok(message) => {
-                    match message {
-                        Message::Register(registration) => {
-                            let attempt = self.team_repository.register(registration);
-                            match attempt {
-                                RegistrationAttempt::Success => {
-                                    info!("successfully registered a server")
-                                }
-                                RegistrationAttempt::Failure(reason) => {
-                                    error!("problem registering a server: \"{:?}\"", reason)
-                                }
+                Ok(message) => match message {
+                    Message::Register(registration) => {
+                        let attempt = self.team_repository.register(registration);
+                        match attempt {
+                            RegistrationAttempt::Success => {
+                                info!("successfully registered a server")
                             }
-                        }
-                        Message::Unregister(unregistration) => {
-                            let attempt = self.team_repository.unregister(unregistration);
-                            match attempt {
-                                UnregistrationAttempt::Success => {
-                                    info!("successfully unregistered a server")
-                                }
-                                UnregistrationAttempt::Failure(reason) => {
-                                    error!("problem unregistering a server: \"{:?}\"", reason)
-                                }
+                            RegistrationAttempt::Failure(reason) => {
+                                error!("problem registering a server: \"{:?}\"", reason)
                             }
-                        }
-                        Message::Heartbeat => {
-                            let servers = self
-                                .team_repository
-                                .teams
-                                .iter()
-                                .map(|(name, team)| (name.clone(), team.heartbeat_uri().unwrap()))
-                                .collect();
-
-                            if let Err(error) = heartbeat_tx.send(HeartbeatMessage::Check(servers))
-                            {
-                                error!("could not send heartbeat check message: {}", error);
-                            }
-                        }
-                        Message::HeartbeatStatus((name, connected)) => {
-                            match self.team_repository.teams.get_mut(&name) {
-                                Some(team) => team.set_connection_status(connected),
-                                None => info!(
-                                    "received heartbeat status for {} while unregistered",
-                                    name
-                                ),
-                            }
-                        }
-                        Message::Tick => {
-                            self.step(1f64);
-                            // Reques brain update
-
-                        }
-                        Message::SpawnAll(n) => {
-                            info!("spawning {} boids in all connected teams", n);
-                            self.team_repository.spawn(n);
-                        }
-                        Message::Spawn((team_name, n)) => {
-                            info!("spawning {} boids in team {}", n, team_name);
-                            self.team_repository.spawn_in_team(team_name, n);
-                        }
-                        Message::BrainUpdate(team_name) => {
-                            info!("processing brain update for {}", team_name);
                         }
                     }
-                }
+                    Message::Unregister(unregistration) => {
+                        let attempt = self.team_repository.unregister(unregistration);
+                        match attempt {
+                            UnregistrationAttempt::Success => {
+                                info!("successfully unregistered a server")
+                            }
+                            UnregistrationAttempt::Failure(reason) => {
+                                error!("problem unregistering a server: \"{:?}\"", reason)
+                            }
+                        }
+                    }
+                    Message::Heartbeat => {
+                        let servers = self
+                            .team_repository
+                            .teams
+                            .iter()
+                            .map(|(name, team)| (name.clone(), team.heartbeat_uri().unwrap()))
+                            .collect();
+
+                        if let Err(error) = heartbeat_tx.send(HeartbeatMessage::Check(servers)) {
+                            error!("could not send heartbeat check message: {}", error);
+                        }
+                    }
+                    Message::HeartbeatStatus((name, connected)) => {
+                        match self.team_repository.teams.get_mut(&name) {
+                            Some(team) => team.set_connection_status(connected),
+                            None => {
+                                info!("received heartbeat status for {} while unregistered", name)
+                            }
+                        }
+                    }
+                    Message::Tick => {
+                        self.step(1f64);
+                        self.control(brain_tx.clone());
+                    }
+                    Message::SpawnAll(n) => {
+                        info!("spawning {} boids in all connected teams", n);
+                        self.team_repository.spawn(n);
+                    }
+                    Message::Spawn((team_name, n)) => {
+                        info!("spawning {} boids in team {}", n, team_name);
+                        self.team_repository.spawn_in_team(team_name, n);
+                    }
+                    Message::BrainUpdate(team_name) => {
+                        info!("processing brain update for {}", team_name);
+                    }
+                },
 
                 Err(error) => {
                     error!("could not receive message: {}", error);
@@ -117,6 +112,28 @@ impl Simulation {
             } else {
                 error!("could not serialize team_repository");
             }
+        }
+    }
+
+    fn control(&self, tx: Sender<BrainMessage>) {
+        let servers: Vec<(String, Uri, String)> = self
+            .team_repository
+            .teams
+            .iter()
+            .filter(|(_, team)| team.connected)
+            .map(|(name, team)| (name, team.brain_uri(), team.brain_payload()))
+            .filter(|(_, uri, _)| uri.is_ok())
+            .filter(|(_, _, payload)| payload.is_ok())
+            .map(|(name, uri, payload)| {
+                (
+                    name.clone(),
+                    uri.unwrap(/* safe because is_ok check*/),
+                    payload.unwrap(/* safe because is_ok check */),
+                )
+            })
+            .collect();
+        if tx.send(BrainMessage::Pick(servers)).is_err() {
+            error!("could not pick brain");
         }
     }
 }
@@ -199,6 +216,16 @@ impl Team {
         let address = format!("{}://{}:{}/heartbeat", "http", self.ip_address, self.port);
 
         address.parse()
+    }
+
+    pub fn brain_uri(&self) -> Result<Uri, hyper::error::UriError> {
+        let address = format!("{}:://{}:{}/brain", "http", self.ip_address, self.port);
+
+        address.parse()
+    }
+
+    pub fn brain_payload(&self) -> Result<String, serde_json::Error> {
+        serde_json::to_string(&self.flock)
     }
 
     pub fn set_connection_status(&mut self, connected: bool) {

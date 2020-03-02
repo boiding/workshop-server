@@ -56,7 +56,12 @@ fn main() {
             info!("starting simulation");
 
             let mut simulation = Simulation::new();
-            simulation.start(simulation_rx, simulation_brain_tx, simulation_heartbeat_tx, simulation_ws_tx);
+            simulation.start(
+                simulation_rx,
+                simulation_brain_tx,
+                simulation_heartbeat_tx,
+                simulation_ws_tx,
+            );
         })
         .unwrap();
 
