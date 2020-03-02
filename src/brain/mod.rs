@@ -39,8 +39,8 @@ impl Brain {
                                         .send(TeamsMessage::BrainUpdate(success_team_name))
                                         .unwrap();
                                 })
-                                .map_err(move |_| {
-                                    error!("did not receive brain update from {}", team_name);
+                                .map_err(move |error| {
+                                    error!("did not receive brain update from {}: {}", team_name, error);
                                 });
 
                             match core.run(work) {

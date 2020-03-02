@@ -121,6 +121,7 @@ impl Simulation {
             .teams
             .iter()
             .filter(|(_, team)| team.connected)
+            .filter(|(_, team)| !team.flock.is_empty())
             .map(|(name, team)| (name, team.brain_uri(), team.brain_payload()))
             .filter(|(_, uri, _)| uri.is_ok())
             .filter(|(_, _, payload)| payload.is_ok())
@@ -219,7 +220,7 @@ impl Team {
     }
 
     pub fn brain_uri(&self) -> Result<Uri, hyper::error::UriError> {
-        let address = format!("{}:://{}:{}/brain", "http", self.ip_address, self.port);
+        let address = format!("{}://{}:{}/brain", "http", self.ip_address, self.port);
 
         address.parse()
     }
@@ -260,6 +261,10 @@ impl Flock {
     pub fn new() -> Flock {
         let boids = HashMap::new();
         Flock { boids }
+    }
+
+    pub fn is_empty(&self) -> bool {
+        self.boids.is_empty()
     }
 }
 
