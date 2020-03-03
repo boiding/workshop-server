@@ -9,6 +9,7 @@ extern crate router;
 extern crate simplelog;
 extern crate ws;
 
+use futures::executor::block_on;
 use std::env;
 use std::sync::mpsc::{channel, Receiver, Sender};
 use std::thread;
@@ -94,7 +95,8 @@ fn main() {
 
             let mut heartbeat =
                 Heartbeat::new(sleep_duration, heartbeat_rx, heartbeat_simulation_tx);
-            heartbeat.monitor();
+            let future = heartbeat.monitor();
+            block_on(future);
         })
         .unwrap();
 
@@ -104,7 +106,8 @@ fn main() {
         .spawn(move || {
             info!("starting brain");
             let mut brain = Brain::new(brain_rx, brain_simulation_tx);
-            brain.think();
+            let future = brain.think();
+            block_on(future);
         })
         .unwrap();
 

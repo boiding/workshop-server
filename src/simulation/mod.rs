@@ -5,7 +5,7 @@ use std::f64::consts::PI;
 use std::fmt::{Display, Error, Formatter};
 use std::sync::mpsc::{Receiver, Sender};
 
-use hyper::{self, Uri};
+use hyper::{self, http::uri::InvalidUri, Uri};
 use random::{self, Source, Value};
 use serde_json;
 
@@ -213,13 +213,13 @@ impl Team {
         }
     }
 
-    pub fn heartbeat_uri(&self) -> Result<Uri, hyper::error::UriError> {
+    pub fn heartbeat_uri(&self) -> Result<Uri, InvalidUri> {
         let address = format!("{}://{}:{}/heartbeat", "http", self.ip_address, self.port);
 
         address.parse()
     }
 
-    pub fn brain_uri(&self) -> Result<Uri, hyper::error::UriError> {
+    pub fn brain_uri(&self) -> Result<Uri, InvalidUri> {
         let address = format!("{}://{}:{}/brain", "http", self.ip_address, self.port);
 
         address.parse()

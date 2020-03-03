@@ -3,9 +3,10 @@ pub mod model;
 
 use std::sync::mpsc::{Receiver, Sender};
 
-use futures::Future;
-use hyper::{header::ContentType, Client, Method, Request};
-use tokio_core::reactor::Core;
+use hyper::{
+    header::{HeaderName, CONTENT_TYPE},
+    Body, Client, Method, Request,
+};
 
 use self::communication::Message as BrainMessage;
 use super::simulation::communication::Message as TeamsMessage;
@@ -20,9 +21,8 @@ impl Brain {
         Self { rx, tx }
     }
 
-    pub fn think(&mut self) {
-        let mut core = Core::new().unwrap(); // TODO handle error
-        let client = Client::new(&core.handle());
+    pub async fn think(&mut self) {
+        let client = Client::new();
 
         loop {
             if let Ok(message) = self.rx.recv() {
@@ -30,27 +30,17 @@ impl Brain {
                     BrainMessage::Pick(servers) => {
                         for (team_name, uri, payload) in servers {
                             info!("picking brain of {} at {}", team_name, uri);
-                            let (team_tx, success_team_name) = (self.tx.clone(), team_name.clone());
-                            let mut request = Request::new(Method::Post, uri);
-                            request.headers_mut().set(ContentType::json());
-                            request.set_body(payload);
-                            let work = client
-                                .request(request)
-                                .map(move |_response| {
-                                    info!("picked brain of {}", success_team_name);
-                                    team_tx
-                                        .send(TeamsMessage::BrainUpdate(success_team_name))
-                                        .unwrap();
-                                })
-                                .map_err(move |error| {
-                                    error!(
-                                        "did not receive brain update from {}: {}",
-                                        team_name, error
-                                    );
-                                });
-
-                            match core.run(work) {
-                                _ => (), /* Everything is fine */
+                            let request = Request::builder()
+                                .method(Method::POST)
+                                .header(CONTENT_TYPE, HeaderName::from_static("application/json"))
+                                .uri(uri)
+                                .body(Body::from(payload))
+                                .unwrap();
+                            if let Ok(_response) = client.request(request).await {
+                                info!("picked brain of {}", team_name);
+                                self.tx.send(TeamsMessage::BrainUpdate(team_name)).unwrap();
+                            } else {
+                                error!("did not receive brain update from {}", team_name);
                             }
                         }
                     }

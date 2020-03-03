@@ -4,9 +4,7 @@ use std::sync::mpsc::{Receiver, Sender};
 use std::thread;
 use std::time::Duration;
 
-use futures::Future;
-use hyper::{Client, Method, Request};
-use tokio_core::reactor::Core;
+use hyper::{Body, Client, Method, Request};
 
 use self::communication::Message as HeartbeatMessage;
 use super::simulation::communication::Message as TeamsMessage;
@@ -30,9 +28,8 @@ impl Heartbeat {
         }
     }
 
-    pub fn monitor(&mut self) {
-        let mut core = Core::new().unwrap(); // TODO handle error?
-        let client = Client::new(&core.handle());
+    pub async fn monitor(&mut self) {
+        let client = Client::new();
 
         loop {
             thread::sleep(self.sleep_duration);
@@ -43,28 +40,31 @@ impl Heartbeat {
                     HeartbeatMessage::Check(servers) => {
                         for (team_name, uri) in servers {
                             info!("heartbeat for {} at {}", team_name, uri);
-                            let (success_team_tx, success_team_name) =
-                                (self.tx.clone(), team_name.clone());
-                            let (failure_team_tx, failure_team_name) =
-                                (self.tx.clone(), team_name.clone());
-                            let request = Request::new(Method::Head, uri);
-                            let work = client
-                                .request(request)
-                                .map(move |response| {
-                                    info!("{} {}", success_team_name, response.status());
-                                    if success_team_tx.send(TeamsMessage::HeartbeatStatus((success_team_name, true))).is_err() {
-                                        error!("recieved heartbeat but could not notify simulation")
-                                    }
-                               })
-                                .map_err(move |_| {
-                                    error!("{} disconnected", failure_team_name);
-                                    if failure_team_tx.send(TeamsMessage::HeartbeatStatus((failure_team_name, false))).is_err() {
-                                        error!("recieved disconnection but could not notify simulation");
-                                    }
-                                });
-
-                            match core.run(work) {
-                                _ => (), /* Everything is fine */
+                            let request = Request::builder()
+                                .method(Method::HEAD)
+                                .uri(uri)
+                                .body(Body::empty())
+                                .unwrap();
+                            if let Ok(response) = client.request(request).await {
+                                info!("{} {}", team_name, response.status());
+                                if self
+                                    .tx
+                                    .send(TeamsMessage::HeartbeatStatus((team_name, true)))
+                                    .is_err()
+                                {
+                                    error!("recieved heartbeat but could not notify simulation");
+                                }
+                            } else {
+                                error!("{} disconnected", team_name);
+                                if self
+                                    .tx
+                                    .send(TeamsMessage::HeartbeatStatus((team_name, false)))
+                                    .is_err()
+                                {
+                                    error!(
+                                        "recieved disconnection but could not notify simulation"
+                                    );
+                                }
                             }
                         }
                     }

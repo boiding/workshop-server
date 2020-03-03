@@ -12,7 +12,6 @@ extern crate serde;
 extern crate serde_derive;
 extern crate serde_json;
 extern crate staticfile;
-extern crate tokio_core;
 extern crate ws;
 
 pub mod brain;
