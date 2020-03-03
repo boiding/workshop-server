@@ -286,7 +286,7 @@ impl Spawn for Flock {
     }
 }
 
-#[derive(Serialize, Hash, PartialEq, Eq)]
+#[derive(Deserialize, Serialize, Hash, PartialEq, Eq)]
 pub struct FlockId(u64);
 
 impl From<u64> for FlockId {

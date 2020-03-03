@@ -1,4 +1,5 @@
 pub mod communication;
+pub mod model;
 
 use std::sync::mpsc::{Receiver, Sender};
 
