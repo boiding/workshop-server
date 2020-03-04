@@ -9,7 +9,6 @@ extern crate mount;
 extern crate router;
 extern crate ws;
 
-use futures::executor::block_on;
 use std::env;
 use std::sync::mpsc::{channel, Receiver, Sender};
 use std::thread;
@@ -77,35 +76,26 @@ async fn main() -> Result<()> {
         .unwrap();
 
     let heartbeat_simulation_tx = simulation_tx.clone();
-    let heartbeat_thread = thread::Builder::new()
-        .name("heartbeat".to_string())
-        .spawn(move || {
-            info!("starting heartbeat");
-            let sleep_duration_value = u64::from_str_radix(
-                &env::var("heartbeat_sleep_duration")
-                    .expect("\"heartbeat_sleep_duration\" in environment variables"),
-                10,
-            )
-            .expect("\"heartbeat_sleep_duration\" to be u64");
-            let sleep_duration = Duration::from_secs(sleep_duration_value);
+    tokio::spawn(async move {
+        info!("starting heartbeat");
+        let sleep_duration_value = u64::from_str_radix(
+            &env::var("heartbeat_sleep_duration")
+                .expect("\"heartbeat_sleep_duration\" in environment variables"),
+            10,
+        )
+        .expect("\"heartbeat_sleep_duration\" to be u64");
+        let sleep_duration = Duration::from_secs(sleep_duration_value);
 
-            let mut heartbeat =
-                Heartbeat::new(sleep_duration, heartbeat_rx, heartbeat_simulation_tx);
-            let future = heartbeat.monitor();
-            block_on(future);
-        })
-        .unwrap();
+        let mut heartbeat = Heartbeat::new(sleep_duration, heartbeat_rx, heartbeat_simulation_tx);
+        heartbeat.monitor().await;
+    });
 
     let brain_simulation_tx = simulation_tx.clone();
-    let brain_thread = thread::Builder::new()
-        .name("brain".to_string())
-        .spawn(move || {
-            info!("starting brain");
-            let mut brain = Brain::new(brain_rx, brain_simulation_tx);
-            let future = brain.think();
-            block_on(future);
-        })
-        .unwrap();
+    tokio::spawn(async move {
+        info!("starting brain");
+        let mut brain = Brain::new(brain_rx, brain_simulation_tx);
+        brain.think().await;
+    });
 
     let ws_simulation_tx = simulation_tx.clone();
     let ws_thread = thread::Builder::new()
@@ -134,10 +124,8 @@ async fn main() -> Result<()> {
         })
         .unwrap();
 
-    brain_thread.join().unwrap();
     clock_thread.join().unwrap();
     iron_thread.join().unwrap();
-    heartbeat_thread.join().unwrap();
     ws_thread.join().unwrap();
     simulation_thread.join().unwrap();
 
