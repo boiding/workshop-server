@@ -3,10 +3,10 @@ extern crate dotenv;
 extern crate iron;
 #[macro_use]
 extern crate log;
+extern crate env_logger;
 extern crate logger;
 extern crate mount;
 extern crate router;
-extern crate simplelog;
 extern crate ws;
 
 use futures::executor::block_on;
@@ -17,7 +17,6 @@ use std::time::Duration;
 
 use dotenv::dotenv;
 use iron::Iron;
-use simplelog::{CombinedLogger, Config, LevelFilter, TermLogger, TerminalMode};
 
 use bws::brain::communication::Message as BrainMessage;
 use bws::brain::Brain;
@@ -30,15 +29,12 @@ use bws::simulation::Simulation;
 use bws::websocket::communication::Message as WsMessage;
 use bws::websocket::WebSocketUpdate;
 
-fn main() {
+type Result<T> = std::result::Result<T, Box<dyn std::error::Error + Send + Sync>>;
+
+#[tokio::main]
+async fn main() -> Result<()> {
     dotenv().ok();
-    CombinedLogger::init(vec![TermLogger::new(
-        LevelFilter::Info,
-        Config::default(),
-        TerminalMode::Mixed,
-    )
-    .unwrap()])
-    .unwrap();
+    env_logger::init();
 
     info!("Logger configured");
 
@@ -144,4 +140,6 @@ fn main() {
     heartbeat_thread.join().unwrap();
     ws_thread.join().unwrap();
     simulation_thread.join().unwrap();
+
+    Ok(())
 }
