@@ -3,7 +3,7 @@ pub mod communication;
 use std::collections::HashMap;
 use std::f64::consts::PI;
 use std::fmt::{Display, Error, Formatter};
-use std::sync::mpsc::{Receiver, Sender};
+use tokio::sync::mpsc::{Receiver, Sender};
 
 use hyper::{self, http::uri::InvalidUri, Uri};
 use random::{self, Source, Value};
@@ -31,7 +31,7 @@ impl Simulation {
         }
     }
 
-    pub fn start(
+    pub async fn start(
         &mut self,
         rx: Receiver<Message>,
         brain_tx: Sender<BrainMessage>,
@@ -39,8 +39,8 @@ impl Simulation {
         ws_tx: Sender<WsMessage>,
     ) {
         loop {
-            match rx.recv() {
-                Ok(message) => match message {
+            match rx.recv().await {
+                Some(message) => match message {
                     Message::Register(registration) => {
                         let attempt = self.team_repository.register(registration);
                         match attempt {
@@ -71,7 +71,9 @@ impl Simulation {
                             .map(|(name, team)| (name.clone(), team.heartbeat_uri().unwrap()))
                             .collect();
 
-                        if let Err(error) = heartbeat_tx.send(HeartbeatMessage::Check(servers)) {
+                        if let Err(error) =
+                            heartbeat_tx.send(HeartbeatMessage::Check(servers)).await
+                        {
                             error!("could not send heartbeat check message: {}", error);
                         }
                     }
@@ -85,7 +87,7 @@ impl Simulation {
                     }
                     Message::Tick => {
                         self.step(1f64);
-                        self.control(brain_tx.clone());
+                        self.control(brain_tx.clone()).await;
                     }
                     Message::SpawnAll(n) => {
                         info!("spawning {} boids in all connected teams", n);
@@ -100,13 +102,13 @@ impl Simulation {
                     }
                 },
 
-                Err(error) => {
-                    error!("could not receive message: {}", error);
+                None => {
+                    error!("could not receive message");
                 }
             }
 
             if let Ok(json) = serde_json::to_string(&self.team_repository) {
-                if let Err(error) = ws_tx.send(WsMessage::Update(json)) {
+                if let Err(error) = ws_tx.send(WsMessage::Update(json)).await {
                     error!("could not send update message: {}", error);
                 }
             } else {
@@ -115,7 +117,7 @@ impl Simulation {
         }
     }
 
-    fn control(&self, tx: Sender<BrainMessage>) {
+    async fn control(&self, tx: Sender<BrainMessage>) {
         let servers: Vec<(String, Uri, String)> = self
             .team_repository
             .teams
@@ -133,7 +135,7 @@ impl Simulation {
                 )
             })
             .collect();
-        if tx.send(BrainMessage::Pick(servers)).is_err() {
+        if tx.send(BrainMessage::Pick(servers)).await.is_err() {
             error!("could not pick brain");
         }
     }

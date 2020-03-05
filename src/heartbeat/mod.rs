@@ -1,8 +1,8 @@
 pub mod communication;
 
-use std::sync::mpsc::{Receiver, Sender};
 use std::thread;
 use std::time::Duration;
+use tokio::sync::mpsc::{Receiver, Sender};
 
 use hyper::{Body, Client, Method, Request};
 
@@ -33,9 +33,9 @@ impl Heartbeat {
 
         loop {
             thread::sleep(self.sleep_duration);
-            if let Err(error) = self.tx.send(TeamsMessage::Heartbeat) {
+            if let Err(error) = self.tx.send(TeamsMessage::Heartbeat).await {
                 error!("could not send heartbeat: {:?}", error);
-            } else if let Ok(message) = self.rx.recv() {
+            } else if let Some(message) = self.rx.recv().await {
                 match message {
                     HeartbeatMessage::Check(servers) => {
                         for (team_name, uri) in servers {
@@ -50,6 +50,7 @@ impl Heartbeat {
                                 if self
                                     .tx
                                     .send(TeamsMessage::HeartbeatStatus((team_name, true)))
+                                    .await
                                     .is_err()
                                 {
                                     error!("recieved heartbeat but could not notify simulation");
@@ -59,6 +60,7 @@ impl Heartbeat {
                                 if self
                                     .tx
                                     .send(TeamsMessage::HeartbeatStatus((team_name, false)))
+                                    .await
                                     .is_err()
                                 {
                                     error!(

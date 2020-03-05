@@ -1,5 +1,5 @@
 use std::path::Path;
-use std::sync::mpsc::Sender;
+use tokio::sync::mpsc::Sender;
 
 use iron::Chain;
 use logger::Logger;

@@ -10,12 +10,13 @@ extern crate router;
 extern crate ws;
 
 use std::env;
-use std::sync::mpsc::{channel, Receiver, Sender};
 use std::thread;
 use std::time::Duration;
+//use std::sync::mpsc::{channel as std_channel, Receiver as StdReceiver, Sender as StdSender};
 
 use dotenv::dotenv;
 use iron::Iron;
+use tokio::sync::mpsc::{channel, Receiver, Sender};
 
 use bws::brain::communication::Message as BrainMessage;
 use bws::brain::Brain;
@@ -37,11 +38,12 @@ async fn main() -> Result<()> {
 
     info!("Logger configured");
 
-    let (simulation_tx, simulation_rx): (Sender<TeamsMessage>, Receiver<TeamsMessage>) = channel();
+    let (simulation_tx, simulation_rx): (Sender<TeamsMessage>, Receiver<TeamsMessage>) =
+        channel(1000);
     let (heartbeat_tx, heartbeat_rx): (Sender<HeartbeatMessage>, Receiver<HeartbeatMessage>) =
-        channel();
-    let (brain_tx, brain_rx): (Sender<BrainMessage>, Receiver<BrainMessage>) = channel();
-    let (ws_tx, ws_rx): (Sender<WsMessage>, Receiver<WsMessage>) = channel();
+        channel(1000);
+    let (brain_tx, brain_rx): (Sender<BrainMessage>, Receiver<BrainMessage>) = channel(1000);
+    let (ws_tx, ws_rx): (Sender<WsMessage>, Receiver<WsMessage>) = channel(1000);
 
     let simulation_heartbeat_tx = heartbeat_tx.clone();
     let simulation_brain_tx = brain_tx.clone();
@@ -110,21 +112,17 @@ async fn main() -> Result<()> {
         .unwrap();
 
     let clock_simulation_tx = simulation_tx.clone();
-    let clock_thread = thread::Builder::new()
-        .name("clock".to_string())
-        .spawn(move || {
-            info!("starting clock");
-            let tick_representation = env::var("tick").expect("\"tick\" in environment variables");
-            let tick_duration_value =
-                u64::from_str_radix(&tick_representation, 10).expect("\"tick\" to be u64");
-            let tick_duration = Duration::from_millis(tick_duration_value);
+    tokio::spawn(async move {
+        info!("starting clock");
+        let tick_representation = env::var("tick").expect("\"tick\" in environment variables");
+        let tick_duration_value =
+            u64::from_str_radix(&tick_representation, 10).expect("\"tick\" to be u64");
+        let tick_duration = Duration::from_millis(tick_duration_value);
 
-            let mut clock = Clock::new(tick_duration, clock_simulation_tx);
-            clock.start();
-        })
-        .unwrap();
+        let mut clock = Clock::new(tick_duration, clock_simulation_tx);
+        clock.start();
+    });
 
-    clock_thread.join().unwrap();
     iron_thread.join().unwrap();
     ws_thread.join().unwrap();
     simulation_thread.join().unwrap();

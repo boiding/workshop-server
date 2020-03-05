@@ -1,7 +1,7 @@
 pub mod communication;
 pub mod model;
 
-use std::sync::mpsc::{Receiver, Sender};
+use tokio::sync::mpsc::{Receiver, Sender};
 
 use hyper::{
     header::{HeaderName, CONTENT_TYPE},
@@ -25,7 +25,7 @@ impl Brain {
         let client = Client::new();
 
         loop {
-            if let Ok(message) = self.rx.recv() {
+            if let Some(message) = self.rx.recv().await {
                 match message {
                     BrainMessage::Pick(servers) => {
                         for (team_name, uri, payload) in servers {
@@ -38,7 +38,14 @@ impl Brain {
                                 .unwrap();
                             if let Ok(_response) = client.request(request).await {
                                 info!("picked brain of {}", team_name);
-                                self.tx.send(TeamsMessage::BrainUpdate(team_name)).unwrap();
+                                if self
+                                    .tx
+                                    .send(TeamsMessage::BrainUpdate(team_name))
+                                    .await
+                                    .is_err()
+                                {
+                                    error!("could not send brain update for {}", team_name);
+                                }
                             } else {
                                 error!("did not receive brain update from {}", team_name);
                             }
