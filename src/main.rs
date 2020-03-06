@@ -9,25 +9,25 @@ extern crate router;
 extern crate simplelog;
 extern crate ws;
 
-use std::env;
-use std::sync::mpsc::{channel, Receiver, Sender};
-use std::thread;
-use std::time::Duration;
+use std::{
+    env,
+    sync::mpsc::{channel, Receiver, Sender},
+    thread,
+    time::Duration,
+};
 
 use dotenv::dotenv;
 use iron::Iron;
 use simplelog::{CombinedLogger, Config, LevelFilter, TermLogger, TerminalMode};
 
-use bws::brain::communication::Message as BrainMessage;
-use bws::brain::Brain;
-use bws::clock::Clock;
-use bws::heartbeat::communication::Message as HeartbeatMessage;
-use bws::heartbeat::Heartbeat;
-use bws::server;
-use bws::simulation::communication::Message as TeamsMessage;
-use bws::simulation::Simulation;
-use bws::websocket::communication::Message as WsMessage;
-use bws::websocket::WebSocketUpdate;
+use bws::{
+    brain::{communication::Message as BrainMessage, Brain},
+    clock::Clock,
+    heartbeat::{communication::Message as HeartbeatMessage, Heartbeat},
+    server,
+    simulation::{communication::Message as TeamsMessage, Simulation},
+    websocket::{communication::Message as WsMessage, WebSocketUpdate},
+};
 
 fn main() {
     dotenv().ok();

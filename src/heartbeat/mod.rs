@@ -1,15 +1,17 @@
 pub mod communication;
 
-use std::sync::mpsc::{Receiver, Sender};
-use std::thread;
-use std::time::Duration;
+use std::{
+    sync::mpsc::{Receiver, Sender},
+    thread,
+    time::Duration,
+};
 
 use futures::Future;
 use hyper::{Client, Method, Request};
 use tokio_core::reactor::Core;
 
 use self::communication::Message as HeartbeatMessage;
-use super::simulation::communication::Message as TeamsMessage;
+use crate::simulation::communication::Message as TeamsMessage;
 
 pub struct Heartbeat {
     sleep_duration: Duration,

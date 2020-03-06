@@ -8,7 +8,7 @@ use hyper::{header::ContentType, Client, Method, Request};
 use tokio_core::reactor::Core;
 
 use self::communication::Message as BrainMessage;
-use super::simulation::communication::Message as TeamsMessage;
+use crate::simulation::communication::Message as TeamsMessage;
 
 pub struct Brain {
     rx: Receiver<BrainMessage>,

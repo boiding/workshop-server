@@ -1,14 +1,13 @@
 mod register;
 
-use std::path::Path;
-use std::sync::mpsc::Sender;
+use std::{path::Path, sync::mpsc::Sender};
 
 use iron::Chain;
 use logger::Logger;
 use mount::Mount;
 use staticfile::Static;
 
-use super::simulation::communication::Message;
+use crate::simulation::communication::Message;
 
 pub fn chain(tx: &Sender<Message>) -> Chain {
     let mut chain = Chain::new(mount(&tx));

@@ -1,12 +1,13 @@
-use std::io::Read;
-use std::sync::mpsc::Sender;
-use std::sync::{Arc, Mutex};
+use std::{
+    io::Read,
+    sync::{mpsc::Sender, Arc, Mutex},
+};
 
 use iron::{status, Request, Response};
 use router::Router;
 use serde_json::{self, Error};
 
-use super::super::simulation::{*, communication::Message};
+use crate::simulation::{communication::Message, *};
 
 pub fn router(tx: &Sender<Message>) -> Router {
     let mut router = Router::new();

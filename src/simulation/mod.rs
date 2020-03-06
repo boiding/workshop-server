@@ -1,19 +1,23 @@
 pub mod communication;
 
-use std::collections::HashMap;
-use std::f64::consts::PI;
-use std::fmt::{Display, Error, Formatter};
-use std::sync::mpsc::{Receiver, Sender};
-use std::convert::Into;
+use std::{
+    collections::HashMap,
+    convert::Into,
+    f64::consts::PI,
+    fmt::{Display, Error, Formatter},
+    sync::mpsc::{Receiver, Sender},
+};
 
 use hyper::{self, Uri};
 use random::{self, Source, Value};
 use serde_json;
 
 use self::communication::Message;
-use super::brain::communication::Message as BrainMessage;
-use super::heartbeat::communication::Message as HeartbeatMessage;
-use super::websocket::communication::Message as WsMessage;
+use crate::{
+    brain::communication::Message as BrainMessage,
+    heartbeat::communication::Message as HeartbeatMessage,
+    websocket::communication::Message as WsMessage,
+};
 
 #[derive(Default)]
 pub struct Simulation {
@@ -542,4 +546,3 @@ mod tests {
         );
     }
 }
-

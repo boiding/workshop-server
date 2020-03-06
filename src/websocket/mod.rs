@@ -1,12 +1,15 @@
 pub mod communication;
 
+use std::{
+    sync::mpsc::{Receiver, Sender},
+    thread,
+};
+
 use serde_json::{self};
-use std::sync::mpsc::{Receiver, Sender};
-use std::thread;
 use ws::{self, Message, WebSocket};
 
 use self::communication::Message as WsMessage;
-use super::simulation::communication::Message as TeamsMessage;
+use crate::simulation::communication::Message as TeamsMessage;
 
 pub struct WebSocketUpdate {
     socket_address: String,

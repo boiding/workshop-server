@@ -1,8 +1,6 @@
-use std::sync::mpsc::Sender;
-use std::thread;
-use std::time::Duration;
+use std::{sync::mpsc::Sender, thread, time::Duration};
 
-use super::simulation::communication::Message as TeamsMessage;
+use crate::simulation::communication::Message as TeamsMessage;
 
 pub struct Clock {
     tick_duration: Duration,
