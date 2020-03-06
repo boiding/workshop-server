@@ -18,7 +18,6 @@ extern crate ws;
 pub mod brain;
 pub mod clock;
 pub mod heartbeat;
-pub mod register;
 pub mod server;
 pub mod simulation;
 pub mod websocket;

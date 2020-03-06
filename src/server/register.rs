@@ -6,8 +6,7 @@ use iron::{status, Request, Response};
 use router::Router;
 use serde_json::{self, Error};
 
-use super::super::simulation::communication::Message;
-use super::model::*;
+use super::super::simulation::{*, communication::Message};
 
 pub fn router(tx: &Sender<Message>) -> Router {
     let mut router = Router::new();

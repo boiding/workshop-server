@@ -1,3 +1,5 @@
+mod register;
+
 use std::path::Path;
 use std::sync::mpsc::Sender;
 
@@ -6,7 +8,6 @@ use logger::Logger;
 use mount::Mount;
 use staticfile::Static;
 
-use super::register;
 use super::simulation::communication::Message;
 
 pub fn chain(tx: &Sender<Message>) -> Chain {
