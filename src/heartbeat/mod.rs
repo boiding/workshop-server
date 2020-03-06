@@ -45,29 +45,29 @@ impl Heartbeat {
                                 .uri(uri)
                                 .body(Body::empty())
                                 .unwrap();
-                            if let Ok(response) = client.request(request).await {
-                                info!("{} {}", team_name, response.status());
-                                if self
-                                    .tx
-                                    .send(TeamsMessage::HeartbeatStatus((team_name, true)))
-                                    .await
-                                    .is_err()
-                                {
-                                    error!("recieved heartbeat but could not notify simulation");
-                                }
-                            } else {
-                                error!("{} disconnected", team_name);
-                                if self
-                                    .tx
-                                    .send(TeamsMessage::HeartbeatStatus((team_name, false)))
-                                    .await
-                                    .is_err()
-                                {
-                                    error!(
-                                        "recieved disconnection but could not notify simulation"
-                                    );
-                                }
-                            }
+                        //     if let Ok(response) = client.request(request).await {
+                        //         info!("{} {}", team_name, response.status());
+                        //         if self
+                        //             .tx
+                        //             .send(TeamsMessage::HeartbeatStatus((team_name, true)))
+                        //             .await
+                        //             .is_err()
+                        //         {
+                        //             error!("recieved heartbeat but could not notify simulation");
+                        //         }
+                        //     } else {
+                        //         error!("{} disconnected", team_name);
+                        //         if self
+                        //             .tx
+                        //             .send(TeamsMessage::HeartbeatStatus((team_name, false)))
+                        //             .await
+                        //             .is_err()
+                        //         {
+                        //             error!(
+                        //                 "recieved disconnection but could not notify simulation"
+                        //             );
+                        //         }
+                        //     }
                         }
                     }
                 }

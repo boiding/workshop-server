@@ -2,7 +2,6 @@ pub mod communication;
 pub mod model;
 
 use tokio::sync::mpsc::{Receiver, Sender};
-
 use hyper::{
     header::{HeaderName, CONTENT_TYPE},
     Body, Client, Method, Request,
@@ -36,19 +35,19 @@ impl Brain {
                                 .uri(uri)
                                 .body(Body::from(payload))
                                 .unwrap();
-                            if let Ok(_response) = client.request(request).await {
-                                info!("picked brain of {}", team_name);
-                                if self
-                                    .tx
-                                    .send(TeamsMessage::BrainUpdate(team_name))
-                                    .await
-                                    .is_err()
-                                {
-                                    error!("could not send brain update for {}", team_name);
-                                }
-                            } else {
-                                error!("did not receive brain update from {}", team_name);
-                            }
+                        //     if let Ok(_response) = client.request(request).into_future().await {
+                        //         info!("picked brain of {}", team_name);
+                        //         if self
+                        //             .tx
+                        //             .send(TeamsMessage::BrainUpdate(team_name))
+                        //             .await
+                        //             .is_err()
+                        //         {
+                        //             error!("could not send brain update for {}", team_name);
+                        //         }
+                        //     } else {
+                        //         error!("did not receive brain update from {}", team_name);
+                        //     }
                         }
                     }
                 }

@@ -1,4 +1,4 @@
-use super::super::register::model::{Registration, Unregistration};
+use super::{Registration, Unregistration};
 
 #[derive(Debug)]
 pub enum Message {
