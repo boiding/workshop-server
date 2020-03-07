@@ -1,4 +1,4 @@
-use super::{Registration, Unregistration, Intent};
+use super::{Registration, Unregistration, Intentions};
 
 #[derive(Debug)]
 pub enum Message {
@@ -9,5 +9,5 @@ pub enum Message {
     Tick,
     SpawnAll(usize),
     Spawn((String, usize)),
-    BrainUpdate(String, Intent),
+    BrainUpdate(String, Intentions),
 }

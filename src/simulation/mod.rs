@@ -99,8 +99,8 @@ impl Simulation {
                         info!("spawning {} boids in team {}", n, team_name);
                         self.team_repository.spawn_in_team(team_name, n);
                     }
-                    Message::BrainUpdate(team_name, intent) => {
-                        info!("processing brain update for {}: {:?}", team_name, intent);
+                    Message::BrainUpdate(team_name, intentions) => {
+                        info!("processing brain update for {}: {:?}", team_name, intentions);
                     }
                 },
 
@@ -483,10 +483,10 @@ impl Value for Boid {
 }
 
 #[derive(Deserialize, Debug)]
-pub struct Intent(HashMap<FlockId, Velocity>);
+pub struct Intentions(HashMap<FlockId, Intent>);
 
 #[derive(Deserialize, Debug)]
-pub struct Velocity {
+pub struct Intent {
     pub heading: f64,
     pub speed: f64,
 }
