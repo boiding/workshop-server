@@ -471,10 +471,52 @@ impl Boid {
     fn update(&mut self, intent: Intent) {
         self.intent = Some(intent)
     }
+
+    fn follow_intent(&mut self) {
+        let agility = 0.1f64; // TODO this should be tweakable
+        let accelaration = 0.9f64; // TODO this should be tweakable
+        let mut heading_epsilon = 0f64;
+        let mut speed_epsilon = 0f64;
+        if let Some(intent) = self.intent {
+            self.heading = (1f64 - agility) * self.heading + agility * intent.heading; // TODO pick shortest route on circle
+            self.speed = (1f64 - accelaration) * self.speed + accelaration * intent.speed;
+
+            heading_epsilon = (self.heading - intent.heading).abs();
+            speed_epsilon = (self.speed - intent.speed).abs();
+        }
+        if heading_epsilon < 0.01 && speed_epsilon < 0.01 {
+            // TODO remove magic constant
+            self.intent = None
+        }
+    }
+
+    fn normalize(&mut self) {
+        while self.x < 0f64 {
+            self.x += 1f64;
+        }
+        while self.x > 1f64 {
+            self.x -= 1f64;
+        }
+        while self.y < 0f64 {
+            self.y += 1f64;
+        }
+        while self.y > 1f64 {
+            self.y -= 1f64;
+        }
+        while self.heading < -PI {
+            self.heading += 2f64 * PI;
+        }
+        while self.heading > PI {
+            self.heading -= 2f64 * PI;
+        }
+        // TODO clip speed
+    }
 }
 
 impl Simulate for Boid {
     fn step(&mut self, dt: f64) {
+        self.follow_intent();
+
         let d = self.speed * dt;
         let dx = d * self.heading.cos();
         let dy = d * self.heading.sin();
@@ -482,18 +524,7 @@ impl Simulate for Boid {
         self.x += dx;
         self.y += dy;
 
-        while self.x < 0f64 {
-            self.x += 1f64
-        }
-        while self.x > 1f64 {
-            self.x -= 1f64
-        }
-        while self.y < 0f64 {
-            self.y += 1f64
-        }
-        while self.y > 1f64 {
-            self.y -= 1f64
-        }
+        self.normalize()
     }
 }
 
