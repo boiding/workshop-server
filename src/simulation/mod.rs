@@ -99,8 +99,8 @@ impl Simulation {
                         info!("spawning {} boids in team {}", n, team_name);
                         self.team_repository.spawn_in_team(team_name, n);
                     }
-                    Message::BrainUpdate(team_name) => {
-                        info!("processing brain update for {}", team_name);
+                    Message::BrainUpdate(team_name, intent) => {
+                        info!("processing brain update for {}: {:?}", team_name, intent);
                     }
                 },
 
@@ -406,7 +406,7 @@ impl Spawn for Flock {
     }
 }
 
-#[derive(Deserialize, Serialize, Hash, PartialEq, Eq)]
+#[derive(Deserialize, Serialize, Debug, Hash, PartialEq, Eq)]
 pub struct FlockId(u64);
 
 impl From<u64> for FlockId {
@@ -480,6 +480,15 @@ impl Value for Boid {
         let speed = 0.01 * source.read_f64(); // TOOD determine maximum speed
         Self::new(x, y, heading, speed)
     }
+}
+
+#[derive(Deserialize, Debug)]
+pub struct Intent(HashMap<FlockId, Velocity>);
+
+#[derive(Deserialize, Debug)]
+pub struct Velocity {
+    pub heading: f64,
+    pub speed: f64,
 }
 
 #[cfg(test)]
