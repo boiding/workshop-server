@@ -1,4 +1,4 @@
-use super::{Registration, Unregistration, Intentions};
+use super::{Intentions, Registration, Unregistration};
 
 #[derive(Debug)]
 pub enum Message {

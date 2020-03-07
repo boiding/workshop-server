@@ -100,7 +100,8 @@ impl Simulation {
                         self.team_repository.spawn_in_team(team_name, n);
                     }
                     Message::BrainUpdate(team_name, intentions) => {
-                        info!("processing brain update for {}: {:?}", team_name, intentions);
+                        info!("processing brain update for {}", team_name);
+                        self.team_repository.update(team_name, &intentions);
                     }
                 },
 
@@ -295,6 +296,13 @@ impl Teams {
             .iter_mut()
             .for_each(|team| team.spawn(n))
     }
+
+    pub fn update(&mut self, name: String, intentions: &Intentions) {
+        self.teams
+            .get_mut(&name)
+            .iter_mut()
+            .for_each(|team| team.update(intentions))
+    }
 }
 
 impl Simulate for Teams {
@@ -350,7 +358,11 @@ impl Team {
     }
 
     pub fn set_connection_status(&mut self, connected: bool) {
-        self.connected = connected
+        self.connected = connected;
+    }
+
+    pub fn update(&mut self, intentions: &Intentions) {
+        self.flock.update(intentions);
     }
 }
 
@@ -385,6 +397,16 @@ impl Flock {
 
     pub fn is_empty(&self) -> bool {
         self.boids.is_empty()
+    }
+
+    pub fn update(&mut self, intentions: &Intentions) {
+        self.boids.iter_mut().for_each(|(name, boid)| {
+            if intentions.0.contains_key(&name) {
+                let intent =
+                    intentions.0.get(&name).unwrap(/* safe because of the contains_key check */);
+                boid.update(*intent);
+            }
+        });
     }
 }
 
@@ -432,6 +454,7 @@ pub struct Boid {
     y: f64,
     heading: f64,
     speed: f64,
+    intent: Option<Intent>,
 }
 
 impl Boid {
@@ -441,7 +464,12 @@ impl Boid {
             y,
             heading,
             speed,
+            intent: None,
         }
+    }
+
+    fn update(&mut self, intent: Intent) {
+        self.intent = Some(intent)
     }
 }
 
@@ -485,7 +513,7 @@ impl Value for Boid {
 #[derive(Deserialize, Debug)]
 pub struct Intentions(HashMap<FlockId, Intent>);
 
-#[derive(Deserialize, Debug)]
+#[derive(Deserialize, Serialize, Debug, Copy, Clone)]
 pub struct Intent {
     pub heading: f64,
     pub speed: f64,
