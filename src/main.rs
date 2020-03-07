@@ -47,9 +47,9 @@ fn main() {
     let (brain_tx, brain_rx): (Sender<BrainMessage>, Receiver<BrainMessage>) = channel();
     let (ws_tx, ws_rx): (Sender<WsMessage>, Receiver<WsMessage>) = channel();
 
-    let simulation_heartbeat_tx = heartbeat_tx.clone();
-    let simulation_brain_tx = brain_tx.clone();
-    let simulation_ws_tx = ws_tx.clone();
+    let simulation_heartbeat_tx = heartbeat_tx;
+    let simulation_brain_tx = brain_tx;
+    let simulation_ws_tx = ws_tx;
     let simulation_thread = thread::Builder::new()
         .name("simulation".to_string())
         .spawn(move || {
@@ -120,7 +120,7 @@ fn main() {
         })
         .unwrap();
 
-    let clock_simulation_tx = simulation_tx.clone();
+    let clock_simulation_tx = simulation_tx;
     let clock_thread = thread::Builder::new()
         .name("clock".to_string())
         .spawn(move || {
