@@ -43,7 +43,8 @@ viewTeam messageFor team =
             , ( "connected", team.connected )
             ]
         ]
-        [ Html.span [ Attribute.class "connection-status" ] []
+        [ Html.input [ Attribute.type_ "checkbox"] []
+        , Html.span [ Attribute.class "connection-status" ] []
         , Html.span [ Attribute.class "name" ] [ Html.text team.name ]
         , Html.button [ Event.onClick <| messageFor team.name ] [ Html.text "+" ]
         ]

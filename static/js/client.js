@@ -5505,6 +5505,7 @@ var $elm$html$Html$Attributes$classList = function (classes) {
 				$elm$core$Tuple$first,
 				A2($elm$core$List$filter, $elm$core$Tuple$second, classes))));
 };
+var $elm$html$Html$input = _VirtualDom_node('input');
 var $elm$core$Basics$not = _Basics_not;
 var $elm$virtual_dom$VirtualDom$Normal = function (a) {
 	return {$: 0, a: a};
@@ -5523,6 +5524,7 @@ var $elm$html$Html$Events$onClick = function (msg) {
 		'click',
 		$elm$json$Json$Decode$succeed(msg));
 };
+var $elm$html$Html$Attributes$type_ = $elm$html$Html$Attributes$stringProperty('type');
 var $author$project$Domain$viewTeam = F2(
 	function (messageFor, team) {
 		return A2(
@@ -5539,6 +5541,13 @@ var $author$project$Domain$viewTeam = F2(
 				]),
 			_List_fromArray(
 				[
+					A2(
+					$elm$html$Html$input,
+					_List_fromArray(
+						[
+							$elm$html$Html$Attributes$type_('checkbox')
+						]),
+					_List_Nil),
 					A2(
 					$elm$html$Html$span,
 					_List_fromArray(
