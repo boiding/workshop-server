@@ -7,6 +7,7 @@ import Html
 import Html.Attributes as Attribute
 import Json.Decode exposing (decodeString, decodeValue, errorToString)
 import Json.Encode exposing (Value)
+import Set
 
 
 main =
@@ -62,7 +63,29 @@ update message model =
                 next_model =
                     case decodeString decodeTeams updateMessage of
                         Ok teams ->
-                            { model | team_repository = teams }
+                            let
+                                existing =
+                                    model.show_team
+                                        |> Dict.keys
+                                        |> Set.fromList
+
+                                fresh =
+                                    teams.teams
+                                        |> Dict.keys
+                                        |> Set.fromList
+
+                                old =
+                                    Set.diff existing fresh
+
+                                new =
+                                    Set.diff fresh existing
+
+                                show_team =
+                                    model.show_team
+                                        |> (\map -> Set.foldl Dict.remove map old)
+                                        |> (\map -> Set.foldl (\name -> Dict.insert name True) map new)
+                            in
+                            { model | team_repository = teams, show_team = show_team }
 
                         Err error ->
                             { model | error_message = Just (errorToString error) }
