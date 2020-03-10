@@ -34,8 +34,14 @@ type alias Boid =
     }
 
 
-viewTeam : (String -> msg) -> Team -> Html.Html msg
-viewTeam messageFor team =
+viewTeam : (String -> msg) -> (String -> Bool -> msg) -> Dict.Dict String Bool -> Team -> Html.Html msg
+viewTeam onPlus onCheck show_team team =
+    let
+        checked =
+            show_team
+                |> Dict.get team.name
+                |> Maybe.withDefault True
+    in
     Html.div
         [ Attribute.classList
             [ ( "team", True )
@@ -43,10 +49,10 @@ viewTeam messageFor team =
             , ( "connected", team.connected )
             ]
         ]
-        [ Html.input [ Attribute.type_ "checkbox"] []
+        [ Html.input [ Event.onCheck <| onCheck team.name, Attribute.type_ "checkbox", Attribute.checked checked ] []
         , Html.span [ Attribute.class "connection-status" ] []
         , Html.span [ Attribute.class "name" ] [ Html.text team.name ]
-        , Html.button [ Event.onClick <| messageFor team.name ] [ Html.text "+" ]
+        , Html.button [ Event.onClick <| onPlus team.name ] [ Html.text "+" ]
         ]
 
 

@@ -25,7 +25,7 @@ init _ =
             Dict.empty
                 |> Dict.insert "red-bergen-crab" { name = "red-bergen-crab", connected = True, flock = { boids = Dict.empty } }
                 |> Dict.insert "yellow-nijmegen-whale" { name = "yellow-nijmegen-whale", connected = False, flock = { boids = Dict.empty } }
-                |> Dict.insert "blue-ibiza-flamingo" { name = "yellow-nijmegen-whale", connected = False, flock = { boids = Dict.empty } }
+                |> Dict.insert "blue-ibiza-flamingo" { name = "blue-ibiza-flamingo", connected = False, flock = { boids = Dict.empty } }
 
         show_team =
             Dict.empty
@@ -51,6 +51,7 @@ type alias Model =
 type Message
     = Update String
     | Spawn String
+    | ViewTeam String Bool
 
 
 update : Message -> Model -> ( Model, Cmd Message )
@@ -71,6 +72,17 @@ update message model =
         Spawn team_name ->
             ( model, spawn team_name )
 
+        ViewTeam team_name show_it ->
+            let
+                show_team =
+                    model.show_team
+                        |> Dict.insert team_name show_it
+
+                next_model =
+                    { model | show_team = show_team }
+            in
+            ( next_model, Cmd.none )
+
 
 view : Model -> Html.Html Message
 view model =
@@ -79,7 +91,7 @@ view model =
             model.team_repository
                 |> .teams
                 |> Dict.values
-                |> List.map (viewTeam Spawn)
+                |> List.map (viewTeam Spawn ViewTeam model.show_team)
 
         error_message =
             Maybe.withDefault "" model.error_message
