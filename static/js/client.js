@@ -784,11 +784,11 @@ function _Debug_crash_UNUSED(identifier, fact1, fact2, fact3, fact4)
 
 function _Debug_regionToString(region)
 {
-	if (region.Q.z === region.X.z)
+	if (region.Q.A === region.X.A)
 	{
-		return 'on line ' + region.Q.z;
+		return 'on line ' + region.Q.A;
 	}
-	return 'on lines ' + region.Q.z + ' through ' + region.X.z;
+	return 'on lines ' + region.Q.A + ' through ' + region.X.A;
 }
 
 
@@ -4191,7 +4191,7 @@ function _Browser_getViewport()
 		aq: {
 			S: _Browser_window.pageXOffset,
 			T: _Browser_window.pageYOffset,
-			x: _Browser_doc.documentElement.clientWidth,
+			y: _Browser_doc.documentElement.clientWidth,
 			s: _Browser_doc.documentElement.clientHeight
 		}
 	};
@@ -4202,7 +4202,7 @@ function _Browser_getScene()
 	var body = _Browser_doc.body;
 	var elem = _Browser_doc.documentElement;
 	return {
-		x: Math.max(body.scrollWidth, body.offsetWidth, elem.scrollWidth, elem.offsetWidth, elem.clientWidth),
+		y: Math.max(body.scrollWidth, body.offsetWidth, elem.scrollWidth, elem.offsetWidth, elem.clientWidth),
 		s: Math.max(body.scrollHeight, body.offsetHeight, elem.scrollHeight, elem.offsetHeight, elem.clientHeight)
 	};
 }
@@ -4227,13 +4227,13 @@ function _Browser_getViewportOf(id)
 	{
 		return {
 			am: {
-				x: node.scrollWidth,
+				y: node.scrollWidth,
 				s: node.scrollHeight
 			},
 			aq: {
 				S: node.scrollLeft,
 				T: node.scrollTop,
-				x: node.clientWidth,
+				y: node.clientWidth,
 				s: node.clientHeight
 			}
 		};
@@ -4268,13 +4268,13 @@ function _Browser_getElement(id)
 			aq: {
 				S: x,
 				T: y,
-				x: _Browser_doc.documentElement.clientWidth,
+				y: _Browser_doc.documentElement.clientWidth,
 				s: _Browser_doc.documentElement.clientHeight
 			},
 			av: {
 				S: x + rect.left,
 				T: y + rect.top,
-				x: rect.width,
+				y: rect.width,
 				s: rect.height
 			}
 		};
@@ -5244,7 +5244,7 @@ var $author$project$Boiding$init = function (_v0) {
 	return _Utils_Tuple2(
 		{
 			G: $elm$core$Maybe$Nothing,
-			A: show_team,
+			v: show_team,
 			C: {ap: teams}
 		},
 		$elm$core$Platform$Cmd$none);
@@ -5375,10 +5375,10 @@ var $author$project$Boiding$update = F2(
 			default:
 				var team_name = message.a;
 				var show_it = message.b;
-				var show_team = A3($elm$core$Dict$insert, team_name, show_it, model.A);
+				var show_team = A3($elm$core$Dict$insert, team_name, show_it, model.v);
 				var next_model = _Utils_update(
 					model,
-					{A: show_team});
+					{v: show_team});
 				return _Utils_Tuple2(next_model, $elm$core$Platform$Cmd$none);
 		}
 	});
@@ -5412,8 +5412,50 @@ var $elm$core$Dict$values = function (dict) {
 		dict);
 };
 var $elm$svg$Svg$Attributes$fill = _VirtualDom_attribute('fill');
+var $elm$core$List$filter = F2(
+	function (isGood, list) {
+		return A3(
+			$elm$core$List$foldr,
+			F2(
+				function (x, xs) {
+					return isGood(x) ? A2($elm$core$List$cons, x, xs) : xs;
+				}),
+			_List_Nil,
+			list);
+	});
 var $elm$svg$Svg$trustedNode = _VirtualDom_nodeNS('http://www.w3.org/2000/svg');
 var $elm$svg$Svg$g = $elm$svg$Svg$trustedNode('g');
+var $elm$core$Dict$get = F2(
+	function (targetKey, dict) {
+		get:
+		while (true) {
+			if (dict.$ === -2) {
+				return $elm$core$Maybe$Nothing;
+			} else {
+				var key = dict.b;
+				var value = dict.c;
+				var left = dict.d;
+				var right = dict.e;
+				var _v1 = A2($elm$core$Basics$compare, targetKey, key);
+				switch (_v1) {
+					case 0:
+						var $temp$targetKey = targetKey,
+							$temp$dict = left;
+						targetKey = $temp$targetKey;
+						dict = $temp$dict;
+						continue get;
+					case 1:
+						return $elm$core$Maybe$Just(value);
+					default:
+						var $temp$targetKey = targetKey,
+							$temp$dict = right;
+						targetKey = $temp$targetKey;
+						dict = $temp$dict;
+						continue get;
+				}
+			}
+		}
+	});
 var $elm$svg$Svg$Attributes$height = _VirtualDom_attribute('height');
 var $elm$svg$Svg$Attributes$stroke = _VirtualDom_attribute('stroke');
 var $elm$svg$Svg$Attributes$strokeWidth = _VirtualDom_attribute('stroke-width');
@@ -5466,32 +5508,51 @@ var $author$project$Domain$viewFlockOf = function (team) {
 	return A2($elm$svg$Svg$g, _List_Nil, boids);
 };
 var $elm$svg$Svg$Attributes$width = _VirtualDom_attribute('width');
-var $author$project$Domain$viewFlocks = function (teams) {
-	var flocks = A2(
-		$elm$core$List$map,
-		$author$project$Domain$viewFlockOf,
-		$elm$core$Dict$values(teams.ap));
-	return A2(
-		$elm$svg$Svg$svg,
-		_List_fromArray(
-			[
-				$elm$svg$Svg$Attributes$width('640'),
-				$elm$svg$Svg$Attributes$height('640'),
-				$elm$svg$Svg$Attributes$viewBox('0 0 1 1')
-			]),
-		_List_fromArray(
-			[
-				A2(
-				$elm$svg$Svg$g,
-				_List_fromArray(
-					[
-						$elm$svg$Svg$Attributes$fill('white'),
-						$elm$svg$Svg$Attributes$stroke('black'),
-						$elm$svg$Svg$Attributes$strokeWidth('0.001')
-					]),
-				flocks)
-			]));
-};
+var $elm$core$Maybe$withDefault = F2(
+	function (_default, maybe) {
+		if (!maybe.$) {
+			var value = maybe.a;
+			return value;
+		} else {
+			return _default;
+		}
+	});
+var $author$project$Domain$viewFlocks = F2(
+	function (view_team, teams) {
+		var should_view = function (team) {
+			return A2(
+				$elm$core$Maybe$withDefault,
+				true,
+				A2($elm$core$Dict$get, team.M, view_team));
+		};
+		var flocks = A2(
+			$elm$core$List$map,
+			$author$project$Domain$viewFlockOf,
+			A2(
+				$elm$core$List$filter,
+				should_view,
+				$elm$core$Dict$values(teams.ap)));
+		return A2(
+			$elm$svg$Svg$svg,
+			_List_fromArray(
+				[
+					$elm$svg$Svg$Attributes$width('640'),
+					$elm$svg$Svg$Attributes$height('640'),
+					$elm$svg$Svg$Attributes$viewBox('0 0 1 1')
+				]),
+			_List_fromArray(
+				[
+					A2(
+					$elm$svg$Svg$g,
+					_List_fromArray(
+						[
+							$elm$svg$Svg$Attributes$fill('white'),
+							$elm$svg$Svg$Attributes$stroke('black'),
+							$elm$svg$Svg$Attributes$strokeWidth('0.001')
+						]),
+					flocks)
+				]));
+	});
 var $elm$html$Html$button = _VirtualDom_node('button');
 var $elm$json$Json$Encode$bool = _Json_wrap;
 var $elm$html$Html$Attributes$boolProperty = F2(
@@ -5502,17 +5563,6 @@ var $elm$html$Html$Attributes$boolProperty = F2(
 			$elm$json$Json$Encode$bool(bool));
 	});
 var $elm$html$Html$Attributes$checked = $elm$html$Html$Attributes$boolProperty('checked');
-var $elm$core$List$filter = F2(
-	function (isGood, list) {
-		return A3(
-			$elm$core$List$foldr,
-			F2(
-				function (x, xs) {
-					return isGood(x) ? A2($elm$core$List$cons, x, xs) : xs;
-				}),
-			_List_Nil,
-			list);
-	});
 var $elm$core$Tuple$second = function (_v0) {
 	var y = _v0.b;
 	return y;
@@ -5527,37 +5577,6 @@ var $elm$html$Html$Attributes$classList = function (classes) {
 				$elm$core$Tuple$first,
 				A2($elm$core$List$filter, $elm$core$Tuple$second, classes))));
 };
-var $elm$core$Dict$get = F2(
-	function (targetKey, dict) {
-		get:
-		while (true) {
-			if (dict.$ === -2) {
-				return $elm$core$Maybe$Nothing;
-			} else {
-				var key = dict.b;
-				var value = dict.c;
-				var left = dict.d;
-				var right = dict.e;
-				var _v1 = A2($elm$core$Basics$compare, targetKey, key);
-				switch (_v1) {
-					case 0:
-						var $temp$targetKey = targetKey,
-							$temp$dict = left;
-						targetKey = $temp$targetKey;
-						dict = $temp$dict;
-						continue get;
-					case 1:
-						return $elm$core$Maybe$Just(value);
-					default:
-						var $temp$targetKey = targetKey,
-							$temp$dict = right;
-						targetKey = $temp$targetKey;
-						dict = $temp$dict;
-						continue get;
-				}
-			}
-		}
-	});
 var $elm$html$Html$input = _VirtualDom_node('input');
 var $elm$core$Basics$not = _Basics_not;
 var $elm$virtual_dom$VirtualDom$Normal = function (a) {
@@ -5593,15 +5612,6 @@ var $elm$html$Html$Events$onClick = function (msg) {
 		$elm$json$Json$Decode$succeed(msg));
 };
 var $elm$html$Html$Attributes$type_ = $elm$html$Html$Attributes$stringProperty('type');
-var $elm$core$Maybe$withDefault = F2(
-	function (_default, maybe) {
-		if (!maybe.$) {
-			var value = maybe.a;
-			return value;
-		} else {
-			return _default;
-		}
-	});
 var $author$project$Domain$viewTeam = F4(
 	function (onPlus, onCheck, show_team, team) {
 		var checked = A2(
@@ -5665,7 +5675,7 @@ var $author$project$Domain$viewTeam = F4(
 var $author$project$Boiding$view = function (model) {
 	var teams = A2(
 		$elm$core$List$map,
-		A3($author$project$Domain$viewTeam, $author$project$Boiding$Spawn, $author$project$Boiding$ViewTeam, model.A),
+		A3($author$project$Domain$viewTeam, $author$project$Boiding$Spawn, $author$project$Boiding$ViewTeam, model.v),
 		$elm$core$Dict$values(model.C.ap));
 	var error_message = A2($elm$core$Maybe$withDefault, '', model.G);
 	return A2(
@@ -5698,7 +5708,7 @@ var $author$project$Boiding$view = function (model) {
 					]),
 				_List_fromArray(
 					[
-						$author$project$Domain$viewFlocks(model.C)
+						A2($author$project$Domain$viewFlocks, model.v, model.C)
 					]))
 			]));
 };

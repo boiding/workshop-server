@@ -99,7 +99,7 @@ view model =
     Html.div []
         [ Html.span [ Attribute.class "error" ] [ Html.text error_message ]
         , Html.div [ Attribute.class "teams" ] teams
-        , Html.div [ Attribute.class "flocks" ] [ viewFlocks model.team_repository ]
+        , Html.div [ Attribute.class "flocks" ] [ viewFlocks model.show_team model.team_repository ]
         ]
 
 

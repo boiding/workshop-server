@@ -56,13 +56,19 @@ viewTeam onPlus onCheck show_team team =
         ]
 
 
-viewFlocks : Teams -> Svg.Svg msg
-viewFlocks teams =
+viewFlocks : Dict.Dict String Bool -> Teams -> Svg.Svg msg
+viewFlocks view_team teams =
     let
+        should_view team =
+            view_team
+                |> Dict.get team.name
+                |> Maybe.withDefault True
+
         flocks =
             teams
                 |> .teams
                 |> Dict.values
+                |> List.filter should_view
                 |> List.map viewFlockOf
     in
     Svg.svg [ width "640", height "640", viewBox "0 0 1 1" ]
