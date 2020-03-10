@@ -25,9 +25,17 @@ init _ =
             Dict.empty
                 |> Dict.insert "red-bergen-crab" { name = "red-bergen-crab", connected = True, flock = { boids = Dict.empty } }
                 |> Dict.insert "yellow-nijmegen-whale" { name = "yellow-nijmegen-whale", connected = False, flock = { boids = Dict.empty } }
+                |> Dict.insert "blue-ibiza-flamingo" { name = "yellow-nijmegen-whale", connected = False, flock = { boids = Dict.empty } }
+
+        show_team =
+            Dict.empty
+                |> Dict.insert "red-bergen-crab" True
+                |> Dict.insert "yellow-nijmegen-whale" True
+                |> Dict.insert "blue-ibiza-flamingo" False
     in
     ( { team_repository = { teams = teams }
       , error_message = Nothing
+      , show_team = show_team
       }
     , Cmd.none
     )
@@ -36,6 +44,7 @@ init _ =
 type alias Model =
     { team_repository : Teams
     , error_message : Maybe String
+    , show_team : Dict.Dict String Bool
     }
 
 
