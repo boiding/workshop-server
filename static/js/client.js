@@ -784,11 +784,11 @@ function _Debug_crash_UNUSED(identifier, fact1, fact2, fact3, fact4)
 
 function _Debug_regionToString(region)
 {
-	if (region.R.A === region.Z.A)
+	if (region.R.B === region.Z.B)
 	{
-		return 'on line ' + region.R.A;
+		return 'on line ' + region.R.B;
 	}
-	return 'on lines ' + region.R.A + ' through ' + region.Z.A;
+	return 'on lines ' + region.R.B + ' through ' + region.Z.B;
 }
 
 
@@ -5243,10 +5243,10 @@ var $author$project$Boiding$init = function (_v0) {
 			A3($elm$core$Dict$insert, 'red-bergen-crab', true, $elm$core$Dict$empty)));
 	return _Utils_Tuple2(
 		{
-			G: $elm$core$Maybe$Nothing,
-			I: $elm$core$Maybe$Nothing,
+			H: $elm$core$Maybe$Nothing,
+			A: $elm$core$Maybe$Nothing,
 			i: show_team,
-			C: {T: teams}
+			D: {T: teams}
 		},
 		$elm$core$Platform$Cmd$none);
 };
@@ -5272,7 +5272,7 @@ var $author$project$Domain$Flock = function (boids) {
 };
 var $author$project$Domain$Boid = F4(
 	function (x, y, heading, speed) {
-		return {H: heading, aF: speed, U: x, V: y};
+		return {I: heading, aF: speed, U: x, V: y};
 	});
 var $elm$json$Json$Decode$float = _Json_decodeFloat;
 var $NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$custom = $elm$json$Json$Decode$map2($elm$core$Basics$apR);
@@ -5800,13 +5800,13 @@ var $author$project$Boiding$update = F2(
 							}(model.i));
 						return _Utils_update(
 							model,
-							{i: show_team, C: teams});
+							{i: show_team, D: teams});
 					} else {
 						var error = _v1.a;
 						return _Utils_update(
 							model,
 							{
-								G: $elm$core$Maybe$Just(
+								H: $elm$core$Maybe$Just(
 									$elm$json$Json$Decode$errorToString(error))
 							});
 					}
@@ -5829,7 +5829,7 @@ var $author$project$Boiding$update = F2(
 				var hover_over = message.a;
 				var next_model = _Utils_update(
 					model,
-					{I: hover_over});
+					{A: hover_over});
 				return _Utils_Tuple2(next_model, $elm$core$Platform$Cmd$none);
 		}
 	});
@@ -5915,6 +5915,25 @@ var $elm$svg$Svg$Attributes$stroke = _VirtualDom_attribute('stroke');
 var $elm$svg$Svg$Attributes$strokeWidth = _VirtualDom_attribute('stroke-width');
 var $elm$svg$Svg$svg = $elm$svg$Svg$trustedNode('svg');
 var $elm$svg$Svg$Attributes$viewBox = _VirtualDom_attribute('viewBox');
+var $elm$core$Maybe$andThen = F2(
+	function (callback, maybeValue) {
+		if (!maybeValue.$) {
+			var value = maybeValue.a;
+			return callback(value);
+		} else {
+			return $elm$core$Maybe$Nothing;
+		}
+	});
+var $elm$core$Maybe$map = F2(
+	function (f, maybe) {
+		if (!maybe.$) {
+			var value = maybe.a;
+			return $elm$core$Maybe$Just(
+				f(value));
+		} else {
+			return $elm$core$Maybe$Nothing;
+		}
+	});
 var $elm$core$Basics$cos = _Basics_cos;
 var $elm$core$String$fromFloat = _String_fromNumber;
 var $elm$core$Basics$pi = _Basics_pi;
@@ -5941,10 +5960,10 @@ var $author$project$Domain$viewBoid = function (boid) {
 			},
 			_List_fromArray(
 				[
-					circlePoint(boid.H),
-					circlePoint(boid.H + a),
+					circlePoint(boid.I),
+					circlePoint(boid.I + a),
 					_Utils_Tuple2(boid.U, boid.V),
-					circlePoint(boid.H - a)
+					circlePoint(boid.I - a)
 				])));
 	return A2(
 		$elm$svg$Svg$polygon,
@@ -5954,14 +5973,6 @@ var $author$project$Domain$viewBoid = function (boid) {
 			]),
 		_List_Nil);
 };
-var $author$project$Domain$viewFlockOf = function (team) {
-	var boids = A2(
-		$elm$core$List$map,
-		$author$project$Domain$viewBoid,
-		$elm$core$Dict$values(team.L.J));
-	return A2($elm$svg$Svg$g, _List_Nil, boids);
-};
-var $elm$svg$Svg$Attributes$width = _VirtualDom_attribute('width');
 var $elm$core$Maybe$withDefault = F2(
 	function (_default, maybe) {
 		if (!maybe.$) {
@@ -5971,8 +5982,38 @@ var $elm$core$Maybe$withDefault = F2(
 			return _default;
 		}
 	});
-var $author$project$Domain$viewFlocks = F2(
-	function (view_team, teams) {
+var $author$project$Domain$viewFlockOf = F2(
+	function (attention, team) {
+		var highlightColor = function (sentinal) {
+			return sentinal ? $elm$core$Maybe$Just('blue') : $elm$core$Maybe$Nothing;
+		};
+		var color = A2(
+			$elm$core$Maybe$withDefault,
+			'black',
+			A2(
+				$elm$core$Maybe$andThen,
+				highlightColor,
+				A2(
+					$elm$core$Maybe$map,
+					function (name) {
+						return _Utils_eq(name, team.N);
+					},
+					attention)));
+		var boids = A2(
+			$elm$core$List$map,
+			$author$project$Domain$viewBoid,
+			$elm$core$Dict$values(team.L.J));
+		return A2(
+			$elm$svg$Svg$g,
+			_List_fromArray(
+				[
+					$elm$svg$Svg$Attributes$stroke(color)
+				]),
+			boids);
+	});
+var $elm$svg$Svg$Attributes$width = _VirtualDom_attribute('width');
+var $author$project$Domain$viewFlocks = F3(
+	function (view_team, attention, teams) {
 		var should_view = function (team) {
 			return A2(
 				$elm$core$Maybe$withDefault,
@@ -5981,7 +6022,7 @@ var $author$project$Domain$viewFlocks = F2(
 		};
 		var flocks = A2(
 			$elm$core$List$map,
-			$author$project$Domain$viewFlockOf,
+			$author$project$Domain$viewFlockOf(attention),
 			A2(
 				$elm$core$List$filter,
 				should_view,
@@ -6032,16 +6073,6 @@ var $elm$html$Html$Attributes$classList = function (classes) {
 				A2($elm$core$List$filter, $elm$core$Tuple$second, classes))));
 };
 var $elm$html$Html$input = _VirtualDom_node('input');
-var $elm$core$Maybe$map = F2(
-	function (f, maybe) {
-		if (!maybe.$) {
-			var value = maybe.a;
-			return $elm$core$Maybe$Just(
-				f(value));
-		} else {
-			return $elm$core$Maybe$Nothing;
-		}
-	});
 var $elm$core$Basics$not = _Basics_not;
 var $elm$virtual_dom$VirtualDom$Normal = function (a) {
 	return {$: 0, a: a};
@@ -6167,9 +6198,9 @@ var $author$project$Domain$viewTeam = F6(
 var $author$project$Boiding$view = function (model) {
 	var teams = A2(
 		$elm$core$List$map,
-		A5($author$project$Domain$viewTeam, $author$project$Boiding$Spawn, $author$project$Boiding$ViewTeam, $author$project$Boiding$Hover, model.i, model.I),
-		$elm$core$Dict$values(model.C.T));
-	var error_message = A2($elm$core$Maybe$withDefault, '', model.G);
+		A5($author$project$Domain$viewTeam, $author$project$Boiding$Spawn, $author$project$Boiding$ViewTeam, $author$project$Boiding$Hover, model.i, model.A),
+		$elm$core$Dict$values(model.D.T));
+	var error_message = A2($elm$core$Maybe$withDefault, '', model.H);
 	return A2(
 		$elm$html$Html$div,
 		_List_Nil,
@@ -6200,7 +6231,7 @@ var $author$project$Boiding$view = function (model) {
 					]),
 				_List_fromArray(
 					[
-						A2($author$project$Domain$viewFlocks, model.i, model.C)
+						A3($author$project$Domain$viewFlocks, model.i, model.A, model.D)
 					]))
 			]));
 };
