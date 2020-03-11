@@ -124,7 +124,7 @@ view model =
             model.team_repository
                 |> .teams
                 |> Dict.values
-                |> List.map (viewTeam Spawn ViewTeam model.show_team)
+                |> List.map (viewTeam Spawn ViewTeam Hover model.show_team)
 
         error_message =
             Maybe.withDefault "" model.error_message

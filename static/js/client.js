@@ -5833,6 +5833,9 @@ var $author$project$Boiding$update = F2(
 				return _Utils_Tuple2(next_model, $elm$core$Platform$Cmd$none);
 		}
 	});
+var $author$project$Boiding$Hover = function (a) {
+	return {$: 3, a: a};
+};
 var $author$project$Boiding$Spawn = function (a) {
 	return {$: 1, a: a};
 };
@@ -6062,9 +6065,21 @@ var $elm$html$Html$Events$onClick = function (msg) {
 		'click',
 		$elm$json$Json$Decode$succeed(msg));
 };
+var $elm$html$Html$Events$onMouseEnter = function (msg) {
+	return A2(
+		$elm$html$Html$Events$on,
+		'mouseenter',
+		$elm$json$Json$Decode$succeed(msg));
+};
+var $elm$html$Html$Events$onMouseOut = function (msg) {
+	return A2(
+		$elm$html$Html$Events$on,
+		'mouseout',
+		$elm$json$Json$Decode$succeed(msg));
+};
 var $elm$html$Html$Attributes$type_ = $elm$html$Html$Attributes$stringProperty('type');
-var $author$project$Domain$viewTeam = F4(
-	function (onPlus, onCheck, show_team, team) {
+var $author$project$Domain$viewTeam = F5(
+	function (onPlus, onCheck, onHover, show_team, team) {
 		var checked = A2(
 			$elm$core$Maybe$withDefault,
 			true,
@@ -6073,6 +6088,11 @@ var $author$project$Domain$viewTeam = F4(
 			$elm$html$Html$div,
 			_List_fromArray(
 				[
+					$elm$html$Html$Events$onMouseEnter(
+					onHover(
+						$elm$core$Maybe$Just(team.N))),
+					$elm$html$Html$Events$onMouseOut(
+					onHover($elm$core$Maybe$Nothing)),
 					$elm$html$Html$Attributes$classList(
 					_List_fromArray(
 						[
@@ -6126,7 +6146,7 @@ var $author$project$Domain$viewTeam = F4(
 var $author$project$Boiding$view = function (model) {
 	var teams = A2(
 		$elm$core$List$map,
-		A3($author$project$Domain$viewTeam, $author$project$Boiding$Spawn, $author$project$Boiding$ViewTeam, model.i),
+		A4($author$project$Domain$viewTeam, $author$project$Boiding$Spawn, $author$project$Boiding$ViewTeam, $author$project$Boiding$Hover, model.i),
 		$elm$core$Dict$values(model.C.T));
 	var error_message = A2($elm$core$Maybe$withDefault, '', model.G);
 	return A2(

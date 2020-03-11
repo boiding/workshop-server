@@ -34,8 +34,8 @@ type alias Boid =
     }
 
 
-viewTeam : (String -> msg) -> (String -> Bool -> msg) -> Dict.Dict String Bool -> Team -> Html.Html msg
-viewTeam onPlus onCheck show_team team =
+viewTeam : (String -> msg) -> (String -> Bool -> msg) -> (Maybe String -> msg) -> Dict.Dict String Bool -> Team -> Html.Html msg
+viewTeam onPlus onCheck onHover show_team team =
     let
         checked =
             show_team
@@ -43,7 +43,9 @@ viewTeam onPlus onCheck show_team team =
                 |> Maybe.withDefault True
     in
     Html.div
-        [ Attribute.classList
+        [ Event.onMouseEnter <| onHover (Just team.name)
+        , Event.onMouseOut <| onHover Nothing
+        , Attribute.classList
             [ ( "team", True )
             , ( "disconnected", not team.connected )
             , ( "connected", team.connected )
