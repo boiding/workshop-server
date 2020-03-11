@@ -34,8 +34,8 @@ type alias Boid =
     }
 
 
-viewTeam : (String -> msg) -> (String -> Bool -> msg) -> (Maybe String -> msg) -> Dict.Dict String Bool -> Team -> Html.Html msg
-viewTeam onPlus onCheck onHover show_team team =
+viewTeam : (String -> msg) -> (String -> Bool -> msg) -> (Maybe String -> msg) -> Dict.Dict String Bool -> Maybe String -> Team -> Html.Html msg
+viewTeam onPlus onCheck onHover show_team attention team =
     let
         checked =
             show_team
@@ -49,6 +49,7 @@ viewTeam onPlus onCheck onHover show_team team =
             [ ( "team", True )
             , ( "disconnected", not team.connected )
             , ( "connected", team.connected )
+            , ( "attention", attention |> Maybe.map (\name -> name == team.name) |> Maybe.withDefault False )
             ]
         ]
         [ Html.input [ Event.onCheck <| onCheck team.name, Attribute.type_ "checkbox", Attribute.checked checked ] []

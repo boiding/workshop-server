@@ -5211,24 +5211,24 @@ var $author$project$Boiding$init = function (_v0) {
 		$elm$core$Dict$insert,
 		'blue-ibiza-flamingo',
 		{
-			J: false,
-			K: {I: $elm$core$Dict$empty},
+			K: false,
+			L: {J: $elm$core$Dict$empty},
 			N: 'blue-ibiza-flamingo'
 		},
 		A3(
 			$elm$core$Dict$insert,
 			'yellow-nijmegen-whale',
 			{
-				J: false,
-				K: {I: $elm$core$Dict$empty},
+				K: false,
+				L: {J: $elm$core$Dict$empty},
 				N: 'yellow-nijmegen-whale'
 			},
 			A3(
 				$elm$core$Dict$insert,
 				'red-bergen-crab',
 				{
-					J: true,
-					K: {I: $elm$core$Dict$empty},
+					K: true,
+					L: {J: $elm$core$Dict$empty},
 					N: 'red-bergen-crab'
 				},
 				$elm$core$Dict$empty)));
@@ -5244,7 +5244,7 @@ var $author$project$Boiding$init = function (_v0) {
 	return _Utils_Tuple2(
 		{
 			G: $elm$core$Maybe$Nothing,
-			L: $elm$core$Maybe$Nothing,
+			I: $elm$core$Maybe$Nothing,
 			i: show_team,
 			C: {T: teams}
 		},
@@ -5264,11 +5264,11 @@ var $author$project$Domain$Teams = function (teams) {
 };
 var $author$project$Domain$Team = F3(
 	function (name, connected, flock) {
-		return {J: connected, K: flock, N: name};
+		return {K: connected, L: flock, N: name};
 	});
 var $elm$json$Json$Decode$bool = _Json_decodeBool;
 var $author$project$Domain$Flock = function (boids) {
-	return {I: boids};
+	return {J: boids};
 };
 var $author$project$Domain$Boid = F4(
 	function (x, y, heading, speed) {
@@ -5829,7 +5829,7 @@ var $author$project$Boiding$update = F2(
 				var hover_over = message.a;
 				var next_model = _Utils_update(
 					model,
-					{L: hover_over});
+					{I: hover_over});
 				return _Utils_Tuple2(next_model, $elm$core$Platform$Cmd$none);
 		}
 	});
@@ -5958,7 +5958,7 @@ var $author$project$Domain$viewFlockOf = function (team) {
 	var boids = A2(
 		$elm$core$List$map,
 		$author$project$Domain$viewBoid,
-		$elm$core$Dict$values(team.K.I));
+		$elm$core$Dict$values(team.L.J));
 	return A2($elm$svg$Svg$g, _List_Nil, boids);
 };
 var $elm$svg$Svg$Attributes$width = _VirtualDom_attribute('width');
@@ -6032,6 +6032,16 @@ var $elm$html$Html$Attributes$classList = function (classes) {
 				A2($elm$core$List$filter, $elm$core$Tuple$second, classes))));
 };
 var $elm$html$Html$input = _VirtualDom_node('input');
+var $elm$core$Maybe$map = F2(
+	function (f, maybe) {
+		if (!maybe.$) {
+			var value = maybe.a;
+			return $elm$core$Maybe$Just(
+				f(value));
+		} else {
+			return $elm$core$Maybe$Nothing;
+		}
+	});
 var $elm$core$Basics$not = _Basics_not;
 var $elm$virtual_dom$VirtualDom$Normal = function (a) {
 	return {$: 0, a: a};
@@ -6078,8 +6088,8 @@ var $elm$html$Html$Events$onMouseOut = function (msg) {
 		$elm$json$Json$Decode$succeed(msg));
 };
 var $elm$html$Html$Attributes$type_ = $elm$html$Html$Attributes$stringProperty('type');
-var $author$project$Domain$viewTeam = F5(
-	function (onPlus, onCheck, onHover, show_team, team) {
+var $author$project$Domain$viewTeam = F6(
+	function (onPlus, onCheck, onHover, show_team, attention, team) {
 		var checked = A2(
 			$elm$core$Maybe$withDefault,
 			true,
@@ -6097,8 +6107,19 @@ var $author$project$Domain$viewTeam = F5(
 					_List_fromArray(
 						[
 							_Utils_Tuple2('team', true),
-							_Utils_Tuple2('disconnected', !team.J),
-							_Utils_Tuple2('connected', team.J)
+							_Utils_Tuple2('disconnected', !team.K),
+							_Utils_Tuple2('connected', team.K),
+							_Utils_Tuple2(
+							'attention',
+							A2(
+								$elm$core$Maybe$withDefault,
+								false,
+								A2(
+									$elm$core$Maybe$map,
+									function (name) {
+										return _Utils_eq(name, team.N);
+									},
+									attention)))
 						]))
 				]),
 			_List_fromArray(
@@ -6146,7 +6167,7 @@ var $author$project$Domain$viewTeam = F5(
 var $author$project$Boiding$view = function (model) {
 	var teams = A2(
 		$elm$core$List$map,
-		A4($author$project$Domain$viewTeam, $author$project$Boiding$Spawn, $author$project$Boiding$ViewTeam, $author$project$Boiding$Hover, model.i),
+		A5($author$project$Domain$viewTeam, $author$project$Boiding$Spawn, $author$project$Boiding$ViewTeam, $author$project$Boiding$Hover, model.i, model.I),
 		$elm$core$Dict$values(model.C.T));
 	var error_message = A2($elm$core$Maybe$withDefault, '', model.G);
 	return A2(
