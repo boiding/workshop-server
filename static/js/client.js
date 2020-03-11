@@ -1857,9 +1857,9 @@ var _Platform_worker = F4(function(impl, flagDecoder, debugMetadata, args)
 	return _Platform_initialize(
 		flagDecoder,
 		args,
-		impl.az,
-		impl.aH,
-		impl.aF,
+		impl.aA,
+		impl.aI,
+		impl.aG,
 		function() { return function() {} }
 	);
 });
@@ -3883,11 +3883,11 @@ var _Browser_element = _Debugger_element || F4(function(impl, flagDecoder, debug
 	return _Platform_initialize(
 		flagDecoder,
 		args,
-		impl.az,
-		impl.aH,
-		impl.aF,
+		impl.aA,
+		impl.aI,
+		impl.aG,
 		function(sendToApp, initialModel) {
-			var view = impl.aI;
+			var view = impl.aJ;
 			/**/
 			var domNode = args['node'];
 			//*/
@@ -3919,12 +3919,12 @@ var _Browser_document = _Debugger_document || F4(function(impl, flagDecoder, deb
 	return _Platform_initialize(
 		flagDecoder,
 		args,
-		impl.az,
-		impl.aH,
-		impl.aF,
+		impl.aA,
+		impl.aI,
+		impl.aG,
 		function(sendToApp, initialModel) {
 			var divertHrefToApp = impl.P && impl.P(sendToApp)
-			var view = impl.aI;
+			var view = impl.aJ;
 			var title = _VirtualDom_doc.title;
 			var bodyNode = _VirtualDom_doc.body;
 			var currNode = _VirtualDom_virtualize(bodyNode);
@@ -3932,12 +3932,12 @@ var _Browser_document = _Debugger_document || F4(function(impl, flagDecoder, deb
 			{
 				_VirtualDom_divertHrefToApp = divertHrefToApp;
 				var doc = view(model);
-				var nextNode = _VirtualDom_node('body')(_List_Nil)(doc.at);
+				var nextNode = _VirtualDom_node('body')(_List_Nil)(doc.au);
 				var patches = _VirtualDom_diff(currNode, nextNode);
 				bodyNode = _VirtualDom_applyPatches(bodyNode, currNode, patches, sendToApp);
 				currNode = nextNode;
 				_VirtualDom_divertHrefToApp = 0;
-				(title !== doc.aG) && (_VirtualDom_doc.title = title = doc.aG);
+				(title !== doc.aH) && (_VirtualDom_doc.title = title = doc.aH);
 			});
 		}
 	);
@@ -3993,8 +3993,8 @@ function _Browser_makeAnimator(model, draw)
 
 function _Browser_application(impl)
 {
-	var onUrlChange = impl.aA;
-	var onUrlRequest = impl.aB;
+	var onUrlChange = impl.aB;
+	var onUrlRequest = impl.aC;
 	var key = function() { key.a(onUrlChange(_Browser_getUrl())); };
 
 	return _Browser_document({
@@ -4014,9 +4014,9 @@ function _Browser_application(impl)
 					var next = $elm$url$Url$fromString(href).a;
 					sendToApp(onUrlRequest(
 						(next
-							&& curr.aj === next.aj
+							&& curr.ak === next.ak
 							&& curr.aa === next.aa
-							&& curr.ag.a === next.ag.a
+							&& curr.ah.a === next.ah.a
 						)
 							? $elm$browser$Browser$Internal(next)
 							: $elm$browser$Browser$External(href)
@@ -4024,13 +4024,13 @@ function _Browser_application(impl)
 				}
 			});
 		},
-		az: function(flags)
+		aA: function(flags)
 		{
-			return A3(impl.az, flags, _Browser_getUrl(), key);
+			return A3(impl.aA, flags, _Browser_getUrl(), key);
 		},
+		aJ: impl.aJ,
 		aI: impl.aI,
-		aH: impl.aH,
-		aF: impl.aF
+		aG: impl.aG
 	});
 }
 
@@ -4096,17 +4096,17 @@ var _Browser_decodeEvent = F2(function(decoder, event)
 function _Browser_visibilityInfo()
 {
 	return (typeof _VirtualDom_doc.hidden !== 'undefined')
-		? { ax: 'hidden', au: 'visibilitychange' }
+		? { ay: 'hidden', av: 'visibilitychange' }
 		:
 	(typeof _VirtualDom_doc.mozHidden !== 'undefined')
-		? { ax: 'mozHidden', au: 'mozvisibilitychange' }
+		? { ay: 'mozHidden', av: 'mozvisibilitychange' }
 		:
 	(typeof _VirtualDom_doc.msHidden !== 'undefined')
-		? { ax: 'msHidden', au: 'msvisibilitychange' }
+		? { ay: 'msHidden', av: 'msvisibilitychange' }
 		:
 	(typeof _VirtualDom_doc.webkitHidden !== 'undefined')
-		? { ax: 'webkitHidden', au: 'webkitvisibilitychange' }
-		: { ax: 'hidden', au: 'visibilitychange' };
+		? { ay: 'webkitHidden', av: 'webkitvisibilitychange' }
+		: { ay: 'hidden', av: 'visibilitychange' };
 }
 
 
@@ -4187,8 +4187,8 @@ var _Browser_call = F2(function(functionName, id)
 function _Browser_getViewport()
 {
 	return {
-		an: _Browser_getScene(),
-		aq: {
+		ao: _Browser_getScene(),
+		ar: {
 			T: _Browser_window.pageXOffset,
 			U: _Browser_window.pageYOffset,
 			y: _Browser_doc.documentElement.clientWidth,
@@ -4226,11 +4226,11 @@ function _Browser_getViewportOf(id)
 	return _Browser_withNode(id, function(node)
 	{
 		return {
-			an: {
+			ao: {
 				y: node.scrollWidth,
 				t: node.scrollHeight
 			},
-			aq: {
+			ar: {
 				T: node.scrollLeft,
 				U: node.scrollTop,
 				y: node.clientWidth,
@@ -4264,14 +4264,14 @@ function _Browser_getElement(id)
 		var x = _Browser_window.pageXOffset;
 		var y = _Browser_window.pageYOffset;
 		return {
-			an: _Browser_getScene(),
-			aq: {
+			ao: _Browser_getScene(),
+			ar: {
 				T: x,
 				U: y,
 				y: _Browser_doc.documentElement.clientWidth,
 				t: _Browser_doc.documentElement.clientHeight
 			},
-			av: {
+			aw: {
 				T: x + rect.left,
 				U: y + rect.top,
 				y: rect.width,
@@ -4814,7 +4814,7 @@ var $elm$url$Url$Http = 0;
 var $elm$url$Url$Https = 1;
 var $elm$url$Url$Url = F6(
 	function (protocol, host, port_, path, query, fragment) {
-		return {_: fragment, aa: host, ae: path, ag: port_, aj: protocol, ak: query};
+		return {_: fragment, aa: host, af: path, ah: port_, ak: protocol, al: query};
 	});
 var $elm$core$String$contains = _String_contains;
 var $elm$core$String$length = _String_length;
@@ -5244,6 +5244,7 @@ var $author$project$Boiding$init = function (_v0) {
 	return _Utils_Tuple2(
 		{
 			G: $elm$core$Maybe$Nothing,
+			ab: $elm$core$Maybe$Nothing,
 			i: show_team,
 			C: {S: teams}
 		},
@@ -5271,7 +5272,7 @@ var $author$project$Domain$Flock = function (boids) {
 };
 var $author$project$Domain$Boid = F4(
 	function (x, y, heading, speed) {
-		return {H: heading, aE: speed, T: x, U: y};
+		return {H: heading, aF: speed, T: x, U: y};
 	});
 var $elm$json$Json$Decode$float = _Json_decodeFloat;
 var $NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$custom = $elm$json$Json$Decode$map2($elm$core$Basics$apR);
@@ -6157,6 +6158,6 @@ var $author$project$Boiding$view = function (model) {
 			]));
 };
 var $author$project$Boiding$main = $elm$browser$Browser$element(
-	{az: $author$project$Boiding$init, aF: $author$project$Boiding$subscriptions, aH: $author$project$Boiding$update, aI: $author$project$Boiding$view});
+	{aA: $author$project$Boiding$init, aG: $author$project$Boiding$subscriptions, aI: $author$project$Boiding$update, aJ: $author$project$Boiding$view});
 _Platform_export({'Boiding':{'init':$author$project$Boiding$main(
 	$elm$json$Json$Decode$succeed(0))(0)}});}(this));

@@ -37,6 +37,7 @@ init _ =
     ( { team_repository = { teams = teams }
       , error_message = Nothing
       , show_team = show_team
+      , hover_over = Nothing
       }
     , Cmd.none
     )
@@ -46,6 +47,7 @@ type alias Model =
     { team_repository : Teams
     , error_message : Maybe String
     , show_team : Dict.Dict String Bool
+    , hover_over : Maybe String
     }
 
 
