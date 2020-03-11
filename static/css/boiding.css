@@ -22,6 +22,10 @@
     margin-bottom: 2px;
 }
 
+.teams .team.attention {
+    border-color: rgb(0, 0, 256);
+}
+
 .teams .team .connection-status {
     display: inline-block;
     min-width: 32px;
