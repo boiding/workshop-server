@@ -784,11 +784,11 @@ function _Debug_crash_UNUSED(identifier, fact1, fact2, fact3, fact4)
 
 function _Debug_regionToString(region)
 {
-	if (region.Q.A === region.Y.A)
+	if (region.R.A === region.Z.A)
 	{
-		return 'on line ' + region.Q.A;
+		return 'on line ' + region.R.A;
 	}
-	return 'on lines ' + region.Q.A + ' through ' + region.Y.A;
+	return 'on lines ' + region.R.A + ' through ' + region.Z.A;
 }
 
 
@@ -2660,8 +2660,8 @@ var _VirtualDom_mapEventRecord = F2(function(func, record)
 {
 	return {
 		l: func(record.l),
-		R: record.R,
-		O: record.O
+		S: record.S,
+		P: record.P
 	}
 });
 
@@ -2930,10 +2930,10 @@ function _VirtualDom_makeCallback(eventNode, initialHandler)
 
 		var value = result.a;
 		var message = !tag ? value : tag < 3 ? value.a : value.l;
-		var stopPropagation = tag == 1 ? value.b : tag == 3 && value.R;
+		var stopPropagation = tag == 1 ? value.b : tag == 3 && value.S;
 		var currentEventNode = (
 			stopPropagation && event.stopPropagation(),
-			(tag == 2 ? value.b : tag == 3 && value.O) && event.preventDefault(),
+			(tag == 2 ? value.b : tag == 3 && value.P) && event.preventDefault(),
 			eventNode
 		);
 		var tagger;
@@ -3923,7 +3923,7 @@ var _Browser_document = _Debugger_document || F4(function(impl, flagDecoder, deb
 		impl.aI,
 		impl.aG,
 		function(sendToApp, initialModel) {
-			var divertHrefToApp = impl.P && impl.P(sendToApp)
+			var divertHrefToApp = impl.Q && impl.Q(sendToApp)
 			var view = impl.aJ;
 			var title = _VirtualDom_doc.title;
 			var bodyNode = _VirtualDom_doc.body;
@@ -3998,7 +3998,7 @@ function _Browser_application(impl)
 	var key = function() { key.a(onUrlChange(_Browser_getUrl())); };
 
 	return _Browser_document({
-		P: function(sendToApp)
+		Q: function(sendToApp)
 		{
 			key.a = sendToApp;
 			_Browser_window.addEventListener('popstate', key);
@@ -4015,7 +4015,7 @@ function _Browser_application(impl)
 					sendToApp(onUrlRequest(
 						(next
 							&& curr.ak === next.ak
-							&& curr.aa === next.aa
+							&& curr.ab === next.ab
 							&& curr.ah.a === next.ah.a
 						)
 							? $elm$browser$Browser$Internal(next)
@@ -4189,8 +4189,8 @@ function _Browser_getViewport()
 	return {
 		ao: _Browser_getScene(),
 		ar: {
-			T: _Browser_window.pageXOffset,
-			U: _Browser_window.pageYOffset,
+			U: _Browser_window.pageXOffset,
+			V: _Browser_window.pageYOffset,
 			y: _Browser_doc.documentElement.clientWidth,
 			t: _Browser_doc.documentElement.clientHeight
 		}
@@ -4231,8 +4231,8 @@ function _Browser_getViewportOf(id)
 				t: node.scrollHeight
 			},
 			ar: {
-				T: node.scrollLeft,
-				U: node.scrollTop,
+				U: node.scrollLeft,
+				V: node.scrollTop,
 				y: node.clientWidth,
 				t: node.clientHeight
 			}
@@ -4266,14 +4266,14 @@ function _Browser_getElement(id)
 		return {
 			ao: _Browser_getScene(),
 			ar: {
-				T: x,
-				U: y,
+				U: x,
+				V: y,
 				y: _Browser_doc.documentElement.clientWidth,
 				t: _Browser_doc.documentElement.clientHeight
 			},
 			aw: {
-				T: x + rect.left,
-				U: y + rect.top,
+				U: x + rect.left,
+				V: y + rect.top,
 				y: rect.width,
 				t: rect.height
 			}
@@ -4814,7 +4814,7 @@ var $elm$url$Url$Http = 0;
 var $elm$url$Url$Https = 1;
 var $elm$url$Url$Url = F6(
 	function (protocol, host, port_, path, query, fragment) {
-		return {_: fragment, aa: host, af: path, ah: port_, ak: protocol, al: query};
+		return {aa: fragment, ab: host, af: path, ah: port_, ak: protocol, al: query};
 	});
 var $elm$core$String$contains = _String_contains;
 var $elm$core$String$length = _String_length;
@@ -5213,7 +5213,7 @@ var $author$project$Boiding$init = function (_v0) {
 		{
 			J: false,
 			K: {I: $elm$core$Dict$empty},
-			M: 'blue-ibiza-flamingo'
+			N: 'blue-ibiza-flamingo'
 		},
 		A3(
 			$elm$core$Dict$insert,
@@ -5221,7 +5221,7 @@ var $author$project$Boiding$init = function (_v0) {
 			{
 				J: false,
 				K: {I: $elm$core$Dict$empty},
-				M: 'yellow-nijmegen-whale'
+				N: 'yellow-nijmegen-whale'
 			},
 			A3(
 				$elm$core$Dict$insert,
@@ -5229,7 +5229,7 @@ var $author$project$Boiding$init = function (_v0) {
 				{
 					J: true,
 					K: {I: $elm$core$Dict$empty},
-					M: 'red-bergen-crab'
+					N: 'red-bergen-crab'
 				},
 				$elm$core$Dict$empty)));
 	var show_team = A3(
@@ -5244,9 +5244,9 @@ var $author$project$Boiding$init = function (_v0) {
 	return _Utils_Tuple2(
 		{
 			G: $elm$core$Maybe$Nothing,
-			ab: $elm$core$Maybe$Nothing,
+			L: $elm$core$Maybe$Nothing,
 			i: show_team,
-			C: {S: teams}
+			C: {T: teams}
 		},
 		$elm$core$Platform$Cmd$none);
 };
@@ -5260,11 +5260,11 @@ var $author$project$Boiding$subscriptions = function (model) {
 };
 var $elm$json$Json$Decode$decodeString = _Json_runOnString;
 var $author$project$Domain$Teams = function (teams) {
-	return {S: teams};
+	return {T: teams};
 };
 var $author$project$Domain$Team = F3(
 	function (name, connected, flock) {
-		return {J: connected, K: flock, M: name};
+		return {J: connected, K: flock, N: name};
 	});
 var $elm$json$Json$Decode$bool = _Json_decodeBool;
 var $author$project$Domain$Flock = function (boids) {
@@ -5272,7 +5272,7 @@ var $author$project$Domain$Flock = function (boids) {
 };
 var $author$project$Domain$Boid = F4(
 	function (x, y, heading, speed) {
-		return {H: heading, aF: speed, T: x, U: y};
+		return {H: heading, aF: speed, U: x, V: y};
 	});
 var $elm$json$Json$Decode$float = _Json_decodeFloat;
 var $NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$custom = $elm$json$Json$Decode$map2($elm$core$Basics$apR);
@@ -5781,7 +5781,7 @@ var $author$project$Boiding$update = F2(
 					if (!_v1.$) {
 						var teams = _v1.a;
 						var fresh = $elm$core$Set$fromList(
-							$elm$core$Dict$keys(teams.S));
+							$elm$core$Dict$keys(teams.T));
 						var existing = $elm$core$Set$fromList(
 							$elm$core$Dict$keys(model.i));
 						var _new = A2($elm$core$Set$diff, fresh, existing);
@@ -5817,13 +5817,19 @@ var $author$project$Boiding$update = F2(
 				return _Utils_Tuple2(
 					model,
 					$author$project$Boiding$spawn(team_name));
-			default:
+			case 2:
 				var team_name = message.a;
 				var show_it = message.b;
 				var show_team = A3($elm$core$Dict$insert, team_name, show_it, model.i);
 				var next_model = _Utils_update(
 					model,
 					{i: show_team});
+				return _Utils_Tuple2(next_model, $elm$core$Platform$Cmd$none);
+			default:
+				var hover_over = message.a;
+				var next_model = _Utils_update(
+					model,
+					{L: hover_over});
 				return _Utils_Tuple2(next_model, $elm$core$Platform$Cmd$none);
 		}
 	});
@@ -5916,8 +5922,8 @@ var $author$project$Domain$viewBoid = function (boid) {
 	var r = 0.01;
 	var circlePoint = function (angle) {
 		return _Utils_Tuple2(
-			(r * $elm$core$Basics$cos(angle)) + boid.T,
-			(r * $elm$core$Basics$sin(angle)) + boid.U);
+			(r * $elm$core$Basics$cos(angle)) + boid.U,
+			(r * $elm$core$Basics$sin(angle)) + boid.V);
 	};
 	var a = (2 * $elm$core$Basics$pi) / 3;
 	var path = A2(
@@ -5934,7 +5940,7 @@ var $author$project$Domain$viewBoid = function (boid) {
 				[
 					circlePoint(boid.H),
 					circlePoint(boid.H + a),
-					_Utils_Tuple2(boid.T, boid.U),
+					_Utils_Tuple2(boid.U, boid.V),
 					circlePoint(boid.H - a)
 				])));
 	return A2(
@@ -5968,7 +5974,7 @@ var $author$project$Domain$viewFlocks = F2(
 			return A2(
 				$elm$core$Maybe$withDefault,
 				true,
-				A2($elm$core$Dict$get, team.M, view_team));
+				A2($elm$core$Dict$get, team.N, view_team));
 		};
 		var flocks = A2(
 			$elm$core$List$map,
@@ -5976,7 +5982,7 @@ var $author$project$Domain$viewFlocks = F2(
 			A2(
 				$elm$core$List$filter,
 				should_view,
-				$elm$core$Dict$values(teams.S)));
+				$elm$core$Dict$values(teams.T)));
 		return A2(
 			$elm$svg$Svg$svg,
 			_List_fromArray(
@@ -6062,7 +6068,7 @@ var $author$project$Domain$viewTeam = F4(
 		var checked = A2(
 			$elm$core$Maybe$withDefault,
 			true,
-			A2($elm$core$Dict$get, team.M, show_team));
+			A2($elm$core$Dict$get, team.N, show_team));
 		return A2(
 			$elm$html$Html$div,
 			_List_fromArray(
@@ -6082,7 +6088,7 @@ var $author$project$Domain$viewTeam = F4(
 					_List_fromArray(
 						[
 							$elm$html$Html$Events$onCheck(
-							onCheck(team.M)),
+							onCheck(team.N)),
 							$elm$html$Html$Attributes$type_('checkbox'),
 							$elm$html$Html$Attributes$checked(checked)
 						]),
@@ -6102,14 +6108,14 @@ var $author$project$Domain$viewTeam = F4(
 						]),
 					_List_fromArray(
 						[
-							$elm$html$Html$text(team.M)
+							$elm$html$Html$text(team.N)
 						])),
 					A2(
 					$elm$html$Html$button,
 					_List_fromArray(
 						[
 							$elm$html$Html$Events$onClick(
-							onPlus(team.M))
+							onPlus(team.N))
 						]),
 					_List_fromArray(
 						[
@@ -6121,7 +6127,7 @@ var $author$project$Boiding$view = function (model) {
 	var teams = A2(
 		$elm$core$List$map,
 		A3($author$project$Domain$viewTeam, $author$project$Boiding$Spawn, $author$project$Boiding$ViewTeam, model.i),
-		$elm$core$Dict$values(model.C.S));
+		$elm$core$Dict$values(model.C.T));
 	var error_message = A2($elm$core$Maybe$withDefault, '', model.G);
 	return A2(
 		$elm$html$Html$div,

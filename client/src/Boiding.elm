@@ -55,6 +55,7 @@ type Message
     = Update String
     | Spawn String
     | ViewTeam String Bool
+    | Hover (Maybe String)
 
 
 update : Message -> Model -> ( Model, Cmd Message )
@@ -105,6 +106,13 @@ update message model =
 
                 next_model =
                     { model | show_team = show_team }
+            in
+            ( next_model, Cmd.none )
+
+        Hover hover_over ->
+            let
+                next_model =
+                    { model | hover_over = hover_over }
             in
             ( next_model, Cmd.none )
 
