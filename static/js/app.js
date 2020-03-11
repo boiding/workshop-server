@@ -1,7 +1,8 @@
 (function(document, Elm, socket_host, socket_port) {
     const container = document.getElementById('client-container');
     const app = Elm.Boiding.init({
-        node: container
+        node: container,
+        flags: { size: 640 }
     });
 
     window.app = app;

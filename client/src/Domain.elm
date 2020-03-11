@@ -59,9 +59,12 @@ viewTeam onPlus onCheck onHover show_team attention team =
         ]
 
 
-viewFlocks : Dict.Dict String Bool -> Maybe String -> Teams -> Svg.Svg msg
-viewFlocks view_team attention teams =
+viewFlocks : Int -> Dict.Dict String Bool -> Maybe String -> Teams -> Svg.Svg msg
+viewFlocks size view_team attention teams =
     let
+        s =
+            String.fromInt size
+
         should_view team =
             view_team
                 |> Dict.get team.name
@@ -74,7 +77,7 @@ viewFlocks view_team attention teams =
                 |> List.filter should_view
                 |> List.map (viewFlockOf attention)
     in
-    Svg.svg [ width "640", height "640", viewBox "0 0 1 1" ]
+    Svg.svg [ width s, height s, viewBox "0 0 1 1" ]
         [ Svg.g [ fill "white", stroke "black", strokeWidth "0.001" ] flocks
         ]
 
@@ -83,20 +86,24 @@ viewFlockOf : Maybe String -> Team -> Svg.Svg msg
 viewFlockOf attention team =
     let
         highlightColor sentinal =
-            if sentinal then Just "blue" else Nothing
+            if sentinal then
+                Just "blue"
+
+            else
+                Nothing
 
         stroke_color =
             attention
-            |> Maybe.map (\name -> name == team.name)
-            |> Maybe.andThen highlightColor
-            |> Maybe.withDefault "black"
+                |> Maybe.map (\name -> name == team.name)
+                |> Maybe.andThen highlightColor
+                |> Maybe.withDefault "black"
 
         fill_color =
             team.name
-            |> String.split "-"
-            |> List.head
-            |> Maybe.withDefault "white"
-            
+                |> String.split "-"
+                |> List.head
+                |> Maybe.withDefault "white"
+
         boids =
             team
                 |> .flock

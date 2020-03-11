@@ -19,8 +19,8 @@ main =
         }
 
 
-init : () -> ( Model, Cmd Message )
-init _ =
+init : Flags -> ( Model, Cmd Message )
+init flags =
     let
         teams =
             Dict.empty
@@ -38,9 +38,14 @@ init _ =
       , error_message = Nothing
       , show_team = show_team
       , hover_over = Nothing
+      , flags = flags
       }
     , Cmd.none
     )
+
+
+type alias Flags =
+    { size : Int }
 
 
 type alias Model =
@@ -48,6 +53,7 @@ type alias Model =
     , error_message : Maybe String
     , show_team : Dict.Dict String Bool
     , hover_over : Maybe String
+    , flags : Flags
     }
 
 
@@ -132,7 +138,7 @@ view model =
     Html.div []
         [ Html.span [ Attribute.class "error" ] [ Html.text error_message ]
         , Html.div [ Attribute.class "teams" ] teams
-        , Html.div [ Attribute.class "flocks" ] [ viewFlocks model.show_team model.hover_over model.team_repository ]
+        , Html.div [ Attribute.class "flocks" ] [ viewFlocks model.flags.size model.show_team model.hover_over model.team_repository ]
         ]
 
 
