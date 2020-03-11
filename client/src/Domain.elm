@@ -85,11 +85,17 @@ viewFlockOf attention team =
         highlightColor sentinal =
             if sentinal then Just "blue" else Nothing
 
-        color =
+        stroke_color =
             attention
             |> Maybe.map (\name -> name == team.name)
             |> Maybe.andThen highlightColor
             |> Maybe.withDefault "black"
+
+        fill_color =
+            team.name
+            |> String.split "-"
+            |> List.head
+            |> Maybe.withDefault "white"
             
         boids =
             team
@@ -98,7 +104,7 @@ viewFlockOf attention team =
                 |> Dict.values
                 |> List.map viewBoid
     in
-    Svg.g [ stroke color ] boids
+    Svg.g [ fill fill_color, stroke stroke_color ] boids
 
 
 viewBoid : Boid -> Svg.Svg msg

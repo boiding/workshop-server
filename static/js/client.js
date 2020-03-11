@@ -5924,6 +5924,15 @@ var $elm$core$Maybe$andThen = F2(
 			return $elm$core$Maybe$Nothing;
 		}
 	});
+var $elm$core$List$head = function (list) {
+	if (list.b) {
+		var x = list.a;
+		var xs = list.b;
+		return $elm$core$Maybe$Just(x);
+	} else {
+		return $elm$core$Maybe$Nothing;
+	}
+};
 var $elm$core$Maybe$map = F2(
 	function (f, maybe) {
 		if (!maybe.$) {
@@ -5987,7 +5996,7 @@ var $author$project$Domain$viewFlockOf = F2(
 		var highlightColor = function (sentinal) {
 			return sentinal ? $elm$core$Maybe$Just('blue') : $elm$core$Maybe$Nothing;
 		};
-		var color = A2(
+		var stroke_color = A2(
 			$elm$core$Maybe$withDefault,
 			'black',
 			A2(
@@ -5999,6 +6008,11 @@ var $author$project$Domain$viewFlockOf = F2(
 						return _Utils_eq(name, team.N);
 					},
 					attention)));
+		var fill_color = A2(
+			$elm$core$Maybe$withDefault,
+			'white',
+			$elm$core$List$head(
+				A2($elm$core$String$split, '-', team.N)));
 		var boids = A2(
 			$elm$core$List$map,
 			$author$project$Domain$viewBoid,
@@ -6007,7 +6021,8 @@ var $author$project$Domain$viewFlockOf = F2(
 			$elm$svg$Svg$g,
 			_List_fromArray(
 				[
-					$elm$svg$Svg$Attributes$stroke(color)
+					$elm$svg$Svg$Attributes$fill(fill_color),
+					$elm$svg$Svg$Attributes$stroke(stroke_color)
 				]),
 			boids);
 	});
