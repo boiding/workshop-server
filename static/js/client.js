@@ -6081,10 +6081,10 @@ var $elm$html$Html$Events$onMouseEnter = function (msg) {
 		'mouseenter',
 		$elm$json$Json$Decode$succeed(msg));
 };
-var $elm$html$Html$Events$onMouseOut = function (msg) {
+var $elm$html$Html$Events$onMouseLeave = function (msg) {
 	return A2(
 		$elm$html$Html$Events$on,
-		'mouseout',
+		'mouseleave',
 		$elm$json$Json$Decode$succeed(msg));
 };
 var $elm$html$Html$Attributes$type_ = $elm$html$Html$Attributes$stringProperty('type');
@@ -6101,7 +6101,7 @@ var $author$project$Domain$viewTeam = F6(
 					$elm$html$Html$Events$onMouseEnter(
 					onHover(
 						$elm$core$Maybe$Just(team.N))),
-					$elm$html$Html$Events$onMouseOut(
+					$elm$html$Html$Events$onMouseLeave(
 					onHover($elm$core$Maybe$Nothing)),
 					$elm$html$Html$Attributes$classList(
 					_List_fromArray(

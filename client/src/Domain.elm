@@ -44,7 +44,7 @@ viewTeam onPlus onCheck onHover show_team attention team =
     in
     Html.div
         [ Event.onMouseEnter <| onHover (Just team.name)
-        , Event.onMouseOut <| onHover Nothing
+        , Event.onMouseLeave <| onHover Nothing
         , Attribute.classList
             [ ( "team", True )
             , ( "disconnected", not team.connected )
