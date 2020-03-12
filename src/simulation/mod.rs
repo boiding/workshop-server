@@ -497,7 +497,15 @@ impl Boid {
         let mut heading_epsilon = 0f64;
         let mut speed_epsilon = 0f64;
         if let Some(intent) = self.intent {
-            self.heading = (1f64 - agility) * self.heading + agility * intent.heading; // TODO pick shortest route on circle
+            let mut delta = intent.heading - self.heading;
+            while delta < -PI {
+                delta += 2f64 * PI;
+            }
+            while delta > PI {
+                delta -= 2f64 * PI;
+            }
+            delta *= agility;
+            self.heading = self.heading + delta;
             self.speed = (1f64 - acceleration) * self.speed + acceleration * intent.speed;
 
             heading_epsilon = (self.heading - intent.heading).abs();
