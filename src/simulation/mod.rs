@@ -19,6 +19,25 @@ use crate::{
     websocket::communication::Message as WsMessage,
 };
 
+const EPSILON: f64 = 0.01;
+
+const PHENOTYPE: Phenotype = Phenotype(0.1, 0.9, 0.01);
+
+struct Phenotype(f64, f64, f64);
+
+impl Phenotype {
+    fn agility(&self) -> f64 {
+        self.0
+    }
+
+    fn acceleration(&self) -> f64 {
+        self.1
+    }
+    fn max_speed(&self) -> f64 {
+        self.2
+    }
+}
+
 #[derive(Default)]
 pub struct Simulation {
     team_repository: Teams,
@@ -473,19 +492,18 @@ impl Boid {
     }
 
     fn follow_intent(&mut self) {
-        let agility = 0.1f64; // TODO this should be tweakable
-        let accelaration = 0.9f64; // TODO this should be tweakable
+        let agility = PHENOTYPE.agility();
+        let acceleration = PHENOTYPE.acceleration();
         let mut heading_epsilon = 0f64;
         let mut speed_epsilon = 0f64;
         if let Some(intent) = self.intent {
             self.heading = (1f64 - agility) * self.heading + agility * intent.heading; // TODO pick shortest route on circle
-            self.speed = (1f64 - accelaration) * self.speed + accelaration * intent.speed;
+            self.speed = (1f64 - acceleration) * self.speed + acceleration * intent.speed;
 
             heading_epsilon = (self.heading - intent.heading).abs();
             speed_epsilon = (self.speed - intent.speed).abs();
         }
-        if heading_epsilon < 0.01 && speed_epsilon < 0.01 {
-            // TODO remove magic constant
+        if heading_epsilon < EPSILON && speed_epsilon < EPSILON {
             self.intent = None
         }
     }
@@ -509,7 +527,12 @@ impl Boid {
         while self.heading > PI {
             self.heading -= 2f64 * PI;
         }
-        // TODO clip speed
+        if self.speed < 0.0 {
+            self.speed = 0.0;
+        }
+        if self.speed > PHENOTYPE.max_speed() {
+            self.speed = PHENOTYPE.max_speed();
+        }
     }
 }
 
