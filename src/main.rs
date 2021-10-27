@@ -84,13 +84,11 @@ fn main() {
         .name("heartbeat".to_string())
         .spawn(move || {
             info!("starting heartbeat");
-            let sleep_duration_value = u64::from_str_radix(
-                &env::var("heartbeat_sleep_duration")
-                    .expect("\"heartbeat_sleep_duration\" in environment variables"),
-                10,
-            )
-            .expect("\"heartbeat_sleep_duration\" to be u64");
-            let sleep_duration = Duration::from_secs(sleep_duration_value);
+            let sleep_duration_value = &env::var("hearbeat_sleep_duration")
+                .expect("\"heartbeat_sleep_duration\" in environment variables")
+                .parse::<u64>()
+                .expect("\"heartbeat_sleep_duration\" to be u64");
+            let sleep_duration = Duration::from_secs(*sleep_duration_value);
 
             let mut heartbeat =
                 Heartbeat::new(sleep_duration, heartbeat_rx, heartbeat_simulation_tx);
@@ -126,8 +124,9 @@ fn main() {
         .spawn(move || {
             info!("starting clock");
             let tick_representation = env::var("tick").expect("\"tick\" in environment variables");
-            let tick_duration_value =
-                u64::from_str_radix(&tick_representation, 10).expect("\"tick\" to be u64");
+            let tick_duration_value = tick_representation
+                .parse::<u64>()
+                .expect("\"tick\" to be u64");
             let tick_duration = Duration::from_millis(tick_duration_value);
 
             let mut clock = Clock::new(tick_duration, clock_simulation_tx);

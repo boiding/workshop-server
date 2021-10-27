@@ -235,9 +235,13 @@ pub struct Registration {
     port: u16,
 }
 
-impl Into<Team> for Registration {
-    fn into(self) -> Team {
-        Team::new(self.name, self.ip_address, self.port)
+impl From<Registration> for Team {
+    fn from(registratration: Registration) -> Self {
+        Team::new(
+            registratration.name,
+            registratration.ip_address,
+            registratration.port,
+        )
     }
 }
 
@@ -420,9 +424,9 @@ impl Flock {
 
     pub fn update(&mut self, intentions: &Intentions) {
         self.boids.iter_mut().for_each(|(name, boid)| {
-            if intentions.0.contains_key(&name) {
+            if intentions.0.contains_key(name) {
                 let intent =
-                    intentions.0.get(&name).unwrap(/* safe because of the contains_key check */);
+                    intentions.0.get(name).unwrap(/* safe because of the contains_key check */);
                 boid.update(*intent);
             }
         });
@@ -505,7 +509,7 @@ impl Boid {
                 delta -= 2f64 * PI;
             }
             delta *= agility;
-            self.heading = self.heading + delta;
+            self.heading += delta;
             self.speed = (1f64 - acceleration) * self.speed + acceleration * intent.speed;
 
             heading_epsilon = (self.heading - intent.heading).abs();
