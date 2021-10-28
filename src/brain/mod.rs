@@ -7,15 +7,15 @@ use hyper::{header::ContentType, Client, Method, Request};
 use tokio_core::reactor::Core;
 
 use self::communication::Message as BrainMessage;
-use crate::simulation::{communication::Message as TeamsMessage, Intentions};
+use crate::simulation::{communication::Message as SimulationMessage, Intentions};
 
 pub struct Brain {
     rx: Receiver<BrainMessage>,
-    tx: Sender<TeamsMessage>,
+    tx: Sender<SimulationMessage>,
 }
 
 impl Brain {
-    pub fn new(rx: Receiver<BrainMessage>, tx: Sender<TeamsMessage>) -> Self {
+    pub fn new(rx: Receiver<BrainMessage>, tx: Sender<SimulationMessage>) -> Self {
         Self { rx, tx }
     }
 
@@ -51,7 +51,7 @@ impl Brain {
                                     if let Ok(intentions) = result {
                                         info!("picked brain of {}", success_team_name);
                                         team_tx
-                                            .send(TeamsMessage::BrainUpdate(
+                                            .send(SimulationMessage::BrainUpdate(
                                                 success_team_name,
                                                 intentions,
                                             ))

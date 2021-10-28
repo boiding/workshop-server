@@ -9,7 +9,7 @@ use serde_json::{self};
 use ws::{self, Message, WebSocket};
 
 use self::communication::Message as WsMessage;
-use crate::simulation::communication::Message as TeamsMessage;
+use crate::simulation::communication::Message as SimulationMessage;
 
 pub struct WebSocketUpdate {
     socket_address: String,
@@ -25,7 +25,7 @@ impl WebSocketUpdate {
         }
     }
 
-    pub fn dispatch(&self, tx: Sender<TeamsMessage>, rx: Receiver<WsMessage>) {
+    pub fn dispatch(&self, tx: Sender<SimulationMessage>, rx: Receiver<WsMessage>) {
         if let Ok(web_socket) = WebSocket::new(|out: ws::Sender| {
             let simulation_tx = tx.clone();
             move |msg: Message| {
@@ -34,7 +34,10 @@ impl WebSocketUpdate {
                     if let Ok(command) = serde_json::from_str::<Command>(command_text) {
                         match command {
                             Command::Spawn { team } => {
-                                if simulation_tx.send(TeamsMessage::Spawn((team, 5))).is_err() {
+                                if simulation_tx
+                                    .send(SimulationMessage::Spawn((team, 5)))
+                                    .is_err()
+                                {
                                     error!("could not send a spawn message");
                                 }
                             }

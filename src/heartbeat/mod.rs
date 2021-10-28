@@ -11,19 +11,19 @@ use hyper::{Client, Method, Request};
 use tokio_core::reactor::Core;
 
 use self::communication::Message as HeartbeatMessage;
-use crate::simulation::communication::Message as TeamsMessage;
+use crate::simulation::communication::Message as SimulationMessage;
 
 pub struct Heartbeat {
     sleep_duration: Duration,
     rx: Receiver<HeartbeatMessage>,
-    tx: Sender<TeamsMessage>,
+    tx: Sender<SimulationMessage>,
 }
 
 impl Heartbeat {
     pub fn new(
         sleep_duration: Duration,
         rx: Receiver<HeartbeatMessage>,
-        tx: Sender<TeamsMessage>,
+        tx: Sender<SimulationMessage>,
     ) -> Self {
         Self {
             sleep_duration,
@@ -38,7 +38,7 @@ impl Heartbeat {
 
         loop {
             thread::sleep(self.sleep_duration);
-            if let Err(error) = self.tx.send(TeamsMessage::Heartbeat) {
+            if let Err(error) = self.tx.send(SimulationMessage::Heartbeat) {
                 error!("could not send heartbeat: {:?}", error);
             } else if let Ok(message) = self.rx.recv() {
                 match message {
@@ -54,13 +54,13 @@ impl Heartbeat {
                                 .request(request)
                                 .map(move |response| {
                                     info!("{} {}", success_team_name, response.status());
-                                    if success_team_tx.send(TeamsMessage::HeartbeatStatus((success_team_name, true))).is_err() {
+                                    if success_team_tx.send(SimulationMessage::HeartbeatStatus((success_team_name, true))).is_err() {
                                         error!("recieved heartbeat but could not notify simulation")
                                     }
                                })
                                 .map_err(move |_| {
                                     error!("{} disconnected", failure_team_name);
-                                    if failure_team_tx.send(TeamsMessage::HeartbeatStatus((failure_team_name, false))).is_err() {
+                                    if failure_team_tx.send(SimulationMessage::HeartbeatStatus((failure_team_name, false))).is_err() {
                                         error!("recieved disconnection but could not notify simulation");
                                     }
                                 });
