@@ -519,11 +519,11 @@ function _Debug_crash_UNUSED(identifier, fact1, fact2, fact3, fact4)
 
 function _Debug_regionToString(region)
 {
-	if (region.T.B === region.aa.B)
+	if (region.R.C === region.Z.C)
 	{
-		return 'on line ' + region.T.B;
+		return 'on line ' + region.R.C;
 	}
-	return 'on lines ' + region.T.B + ' through ' + region.aa.B;
+	return 'on lines ' + region.R.C + ' through ' + region.Z.C;
 }
 
 
@@ -2660,8 +2660,8 @@ var _VirtualDom_mapEventRecord = F2(function(func, record)
 {
 	return {
 		l: func(record.l),
-		U: record.U,
-		Q: record.Q
+		S: record.S,
+		O: record.O
 	}
 });
 
@@ -2930,10 +2930,10 @@ function _VirtualDom_makeCallback(eventNode, initialHandler)
 
 		var value = result.a;
 		var message = !tag ? value : tag < 3 ? value.a : value.l;
-		var stopPropagation = tag == 1 ? value.b : tag == 3 && value.U;
+		var stopPropagation = tag == 1 ? value.b : tag == 3 && value.S;
 		var currentEventNode = (
 			stopPropagation && event.stopPropagation(),
-			(tag == 2 ? value.b : tag == 3 && value.Q) && event.preventDefault(),
+			(tag == 2 ? value.b : tag == 3 && value.O) && event.preventDefault(),
 			eventNode
 		);
 		var tagger;
@@ -3923,7 +3923,7 @@ var _Browser_document = _Debugger_document || F4(function(impl, flagDecoder, deb
 		impl.aK,
 		impl.aI,
 		function(sendToApp, initialModel) {
-			var divertHrefToApp = impl.R && impl.R(sendToApp)
+			var divertHrefToApp = impl.P && impl.P(sendToApp)
 			var view = impl.aL;
 			var title = _VirtualDom_doc.title;
 			var bodyNode = _VirtualDom_doc.body;
@@ -3998,7 +3998,7 @@ function _Browser_application(impl)
 	var key = function() { key.a(onUrlChange(_Browser_getUrl())); };
 
 	return _Browser_document({
-		R: function(sendToApp)
+		P: function(sendToApp)
 		{
 			key.a = sendToApp;
 			_Browser_window.addEventListener('popstate', key);
@@ -4014,9 +4014,9 @@ function _Browser_application(impl)
 					var next = $elm$url$Url$fromString(href).a;
 					sendToApp(onUrlRequest(
 						(next
-							&& curr.am === next.am
-							&& curr.ad === next.ad
-							&& curr.aj.a === next.aj.a
+							&& curr.al === next.al
+							&& curr.ac === next.ac
+							&& curr.ai.a === next.ai.a
 						)
 							? $elm$browser$Browser$Internal(next)
 							: $elm$browser$Browser$External(href)
@@ -4187,12 +4187,12 @@ var _Browser_call = F2(function(functionName, id)
 function _Browser_getViewport()
 {
 	return {
-		aq: _Browser_getScene(),
+		ap: _Browser_getScene(),
 		at: {
-			W: _Browser_window.pageXOffset,
-			X: _Browser_window.pageYOffset,
-			y: _Browser_doc.documentElement.clientWidth,
-			t: _Browser_doc.documentElement.clientHeight
+			T: _Browser_window.pageXOffset,
+			U: _Browser_window.pageYOffset,
+			z: _Browser_doc.documentElement.clientWidth,
+			u: _Browser_doc.documentElement.clientHeight
 		}
 	};
 }
@@ -4202,8 +4202,8 @@ function _Browser_getScene()
 	var body = _Browser_doc.body;
 	var elem = _Browser_doc.documentElement;
 	return {
-		y: Math.max(body.scrollWidth, body.offsetWidth, elem.scrollWidth, elem.offsetWidth, elem.clientWidth),
-		t: Math.max(body.scrollHeight, body.offsetHeight, elem.scrollHeight, elem.offsetHeight, elem.clientHeight)
+		z: Math.max(body.scrollWidth, body.offsetWidth, elem.scrollWidth, elem.offsetWidth, elem.clientWidth),
+		u: Math.max(body.scrollHeight, body.offsetHeight, elem.scrollHeight, elem.offsetHeight, elem.clientHeight)
 	};
 }
 
@@ -4226,15 +4226,15 @@ function _Browser_getViewportOf(id)
 	return _Browser_withNode(id, function(node)
 	{
 		return {
-			aq: {
-				y: node.scrollWidth,
-				t: node.scrollHeight
+			ap: {
+				z: node.scrollWidth,
+				u: node.scrollHeight
 			},
 			at: {
-				W: node.scrollLeft,
-				X: node.scrollTop,
-				y: node.clientWidth,
-				t: node.clientHeight
+				T: node.scrollLeft,
+				U: node.scrollTop,
+				z: node.clientWidth,
+				u: node.clientHeight
 			}
 		};
 	});
@@ -4264,18 +4264,18 @@ function _Browser_getElement(id)
 		var x = _Browser_window.pageXOffset;
 		var y = _Browser_window.pageYOffset;
 		return {
-			aq: _Browser_getScene(),
+			ap: _Browser_getScene(),
 			at: {
-				W: x,
-				X: y,
-				y: _Browser_doc.documentElement.clientWidth,
-				t: _Browser_doc.documentElement.clientHeight
+				T: x,
+				U: y,
+				z: _Browser_doc.documentElement.clientWidth,
+				u: _Browser_doc.documentElement.clientHeight
 			},
 			ay: {
-				W: x + rect.left,
-				X: y + rect.top,
-				y: rect.width,
-				t: rect.height
+				T: x + rect.left,
+				U: y + rect.top,
+				z: rect.width,
+				u: rect.height
 			}
 		};
 	});
@@ -4815,7 +4815,7 @@ var $elm$url$Url$Http = 0;
 var $elm$url$Url$Https = 1;
 var $elm$url$Url$Url = F6(
 	function (protocol, host, port_, path, query, fragment) {
-		return {ac: fragment, ad: host, ah: path, aj: port_, am: protocol, an: query};
+		return {ab: fragment, ac: host, ag: path, ai: port_, al: protocol, am: query};
 	});
 var $elm$core$String$contains = _String_contains;
 var $elm$core$String$length = _String_length;
@@ -5097,6 +5097,11 @@ var $elm$browser$Browser$element = _Browser_element;
 var $elm$json$Json$Decode$field = _Json_decodeField;
 var $elm$core$Dict$RBEmpty_elm_builtin = {$: -2};
 var $elm$core$Dict$empty = $elm$core$Dict$RBEmpty_elm_builtin;
+var $author$project$Domain$Flock$Flock = $elm$core$Basics$identity;
+var $author$project$Domain$Flock$flock = function (boids) {
+	return {W: boids};
+};
+var $author$project$Domain$Flock$empty = $author$project$Domain$Flock$flock($elm$core$Dict$empty);
 var $elm$core$Dict$Black = 1;
 var $elm$core$Dict$RBNode_elm_builtin = F5(
 	function (a, b, c, d, e) {
@@ -5206,50 +5211,71 @@ var $elm$core$Dict$insert = F3(
 			return x;
 		}
 	});
+var $elm$core$Dict$fromList = function (assocs) {
+	return A3(
+		$elm$core$List$foldl,
+		F2(
+			function (_v0, dict) {
+				var key = _v0.a;
+				var value = _v0.b;
+				return A3($elm$core$Dict$insert, key, value, dict);
+			}),
+		$elm$core$Dict$empty,
+		assocs);
+};
+var $elm$core$Tuple$mapFirst = F2(
+	function (func, _v0) {
+		var x = _v0.a;
+		var y = _v0.b;
+		return _Utils_Tuple2(
+			func(x),
+			y);
+	});
+var $author$project$Domain$Team$nameOf = function (_v0) {
+	var aTeam = _v0;
+	return aTeam.m;
+};
 var $elm$core$Platform$Cmd$batch = _Platform_batch;
 var $elm$core$Platform$Cmd$none = $elm$core$Platform$Cmd$batch(_List_Nil);
+var $author$project$Domain$Team$Team = $elm$core$Basics$identity;
+var $author$project$Domain$Team$team = F3(
+	function (name, connected, flock) {
+		return {K: connected, aa: flock, m: name};
+	});
 var $author$project$Boiding$init = function (flags) {
-	var teams = A3(
-		$elm$core$Dict$insert,
-		'blue-ibiza-flamingo',
-		{
-			K: false,
-			M: {J: $elm$core$Dict$empty},
-			O: 'blue-ibiza-flamingo'
-		},
-		A3(
-			$elm$core$Dict$insert,
-			'yellow-nijmegen-whale',
-			{
-				K: false,
-				M: {J: $elm$core$Dict$empty},
-				O: 'yellow-nijmegen-whale'
+	var data = _List_fromArray(
+		[
+			_Utils_Tuple2(
+			A3($author$project$Domain$Team$team, 'red-bergen-crab', true, $author$project$Domain$Flock$empty),
+			true),
+			_Utils_Tuple2(
+			A3($author$project$Domain$Team$team, 'yellow-nijmegen-whale', false, $author$project$Domain$Flock$empty),
+			true),
+			_Utils_Tuple2(
+			A3($author$project$Domain$Team$team, 'blue-ibiza-flamingo', false, $author$project$Domain$Flock$empty),
+			false)
+		]);
+	var teams = $elm$core$Dict$fromList(
+		A2(
+			$elm$core$List$map,
+			function (t) {
+				return _Utils_Tuple2(
+					$author$project$Domain$Team$nameOf(t),
+					t);
 			},
-			A3(
-				$elm$core$Dict$insert,
-				'red-bergen-crab',
-				{
-					K: true,
-					M: {J: $elm$core$Dict$empty},
-					O: 'red-bergen-crab'
-				},
-				$elm$core$Dict$empty)));
-	var show_team = A3(
-		$elm$core$Dict$insert,
-		'blue-ibiza-flamingo',
-		false,
-		A3(
-			$elm$core$Dict$insert,
-			'yellow-nijmegen-whale',
-			true,
-			A3($elm$core$Dict$insert, 'red-bergen-crab', true, $elm$core$Dict$empty)));
+			A2($elm$core$List$map, $elm$core$Tuple$first, data)));
+	var visibleTeams = $elm$core$Dict$fromList(
+		A2(
+			$elm$core$List$map,
+			$elm$core$Tuple$mapFirst($author$project$Domain$Team$nameOf),
+			data));
 	return _Utils_Tuple2(
 		{
-			H: $elm$core$Maybe$Nothing,
+			I: $elm$core$Maybe$Nothing,
 			L: flags,
-			A: $elm$core$Maybe$Nothing,
-			i: show_team,
-			D: {V: teams}
+			B: $elm$core$Maybe$Nothing,
+			D: {as: teams},
+			j: visibleTeams
 		},
 		$elm$core$Platform$Cmd$none);
 };
@@ -5259,24 +5285,17 @@ var $author$project$Boiding$Update = function (a) {
 };
 var $elm$json$Json$Decode$string = _Json_decodeString;
 var $author$project$Boiding$updateTeams = _Platform_incomingPort('updateTeams', $elm$json$Json$Decode$string);
-var $author$project$Boiding$subscriptions = function (model) {
+var $author$project$Boiding$subscriptions = function (_v0) {
 	return $author$project$Boiding$updateTeams($author$project$Boiding$Update);
 };
-var $elm$json$Json$Decode$decodeString = _Json_runOnString;
-var $author$project$Domain$Teams = function (teams) {
-	return {V: teams};
+var $author$project$Simulation$Simulation = function (teams) {
+	return {as: teams};
 };
-var $author$project$Domain$Team = F3(
-	function (name, connected, flock) {
-		return {K: connected, M: flock, O: name};
-	});
 var $elm$json$Json$Decode$bool = _Json_decodeBool;
-var $author$project$Domain$Flock = function (boids) {
-	return {J: boids};
-};
-var $author$project$Domain$Boid = F4(
+var $author$project$Domain$Boid$Boid = $elm$core$Basics$identity;
+var $author$project$Domain$Boid$boid = F4(
 	function (x, y, heading, speed) {
-		return {I: heading, aH: speed, W: x, X: y};
+		return {J: heading, aH: speed, T: x, U: y};
 	});
 var $elm$json$Json$Decode$float = _Json_decodeFloat;
 var $NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$custom = $elm$json$Json$Decode$map2($elm$core$Basics$apR);
@@ -5287,7 +5306,7 @@ var $NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required = F3(
 			A2($elm$json$Json$Decode$field, key, valDecoder),
 			decoder);
 	});
-var $author$project$Domain$decodeBoid = A3(
+var $author$project$Domain$Boid$decode = A3(
 	$NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
 	'speed',
 	$elm$json$Json$Decode$float,
@@ -5303,19 +5322,7 @@ var $author$project$Domain$decodeBoid = A3(
 				$NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
 				'x',
 				$elm$json$Json$Decode$float,
-				$elm$json$Json$Decode$succeed($author$project$Domain$Boid)))));
-var $elm$core$Dict$fromList = function (assocs) {
-	return A3(
-		$elm$core$List$foldl,
-		F2(
-			function (_v0, dict) {
-				var key = _v0.a;
-				var value = _v0.b;
-				return A3($elm$core$Dict$insert, key, value, dict);
-			}),
-		$elm$core$Dict$empty,
-		assocs);
-};
+				$elm$json$Json$Decode$succeed($author$project$Domain$Boid$boid)))));
 var $elm$json$Json$Decode$keyValuePairs = _Json_decodeKeyValuePairs;
 var $elm$json$Json$Decode$dict = function (decoder) {
 	return A2(
@@ -5323,15 +5330,15 @@ var $elm$json$Json$Decode$dict = function (decoder) {
 		$elm$core$Dict$fromList,
 		$elm$json$Json$Decode$keyValuePairs(decoder));
 };
-var $author$project$Domain$decodeFlock = A3(
+var $author$project$Domain$Flock$decode = A3(
 	$NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
 	'boids',
-	$elm$json$Json$Decode$dict($author$project$Domain$decodeBoid),
-	$elm$json$Json$Decode$succeed($author$project$Domain$Flock));
-var $author$project$Domain$decodeTeam = A3(
+	$elm$json$Json$Decode$dict($author$project$Domain$Boid$decode),
+	$elm$json$Json$Decode$succeed($author$project$Domain$Flock$flock));
+var $author$project$Domain$Team$decode = A3(
 	$NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
 	'flock',
-	$author$project$Domain$decodeFlock,
+	$author$project$Domain$Flock$decode,
 	A3(
 		$NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
 		'connected',
@@ -5340,12 +5347,13 @@ var $author$project$Domain$decodeTeam = A3(
 			$NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
 			'name',
 			$elm$json$Json$Decode$string,
-			$elm$json$Json$Decode$succeed($author$project$Domain$Team))));
-var $author$project$Domain$decodeTeams = A3(
+			$elm$json$Json$Decode$succeed($author$project$Domain$Team$team))));
+var $author$project$Simulation$decode = A3(
 	$NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
 	'teams',
-	$elm$json$Json$Decode$dict($author$project$Domain$decodeTeam),
-	$elm$json$Json$Decode$succeed($author$project$Domain$Teams));
+	$elm$json$Json$Decode$dict($author$project$Domain$Team$decode),
+	$elm$json$Json$Decode$succeed($author$project$Simulation$Simulation));
+var $elm$json$Json$Decode$decodeString = _Json_runOnString;
 var $elm$core$Set$Set_elm_builtin = $elm$core$Basics$identity;
 var $elm$core$Dict$foldl = F3(
 	function (func, acc, dict) {
@@ -5774,22 +5782,26 @@ var $elm$core$Set$fromList = function (list) {
 };
 var $elm$json$Json$Encode$string = _Json_wrap;
 var $author$project$Boiding$spawn = _Platform_outgoingPort('spawn', $elm$json$Json$Encode$string);
+var $author$project$Simulation$teamsOf = function ($) {
+	return $.as;
+};
 var $author$project$Boiding$update = F2(
 	function (message, model) {
 		switch (message.$) {
 			case 0:
 				var updateMessage = message.a;
-				var next_model = function () {
-					var _v1 = A2($elm$json$Json$Decode$decodeString, $author$project$Domain$decodeTeams, updateMessage);
+				var nextModel = function () {
+					var _v1 = A2($elm$json$Json$Decode$decodeString, $author$project$Simulation$decode, updateMessage);
 					if (!_v1.$) {
-						var teams = _v1.a;
+						var simulation = _v1.a;
 						var fresh = $elm$core$Set$fromList(
-							$elm$core$Dict$keys(teams.V));
+							$elm$core$Dict$keys(
+								$author$project$Simulation$teamsOf(simulation)));
 						var existing = $elm$core$Set$fromList(
-							$elm$core$Dict$keys(model.i));
+							$elm$core$Dict$keys(model.j));
 						var _new = A2($elm$core$Set$diff, fresh, existing);
 						var old = A2($elm$core$Set$diff, existing, fresh);
-						var show_team = function (map) {
+						var visibleTeams = function (map) {
 							return A3(
 								$elm$core$Set$foldl,
 								function (name) {
@@ -5800,40 +5812,40 @@ var $author$project$Boiding$update = F2(
 						}(
 							function (map) {
 								return A3($elm$core$Set$foldl, $elm$core$Dict$remove, map, old);
-							}(model.i));
+							}(model.j));
 						return _Utils_update(
 							model,
-							{i: show_team, D: teams});
+							{D: simulation, j: visibleTeams});
 					} else {
 						var error = _v1.a;
 						return _Utils_update(
 							model,
 							{
-								H: $elm$core$Maybe$Just(
+								I: $elm$core$Maybe$Just(
 									$elm$json$Json$Decode$errorToString(error))
 							});
 					}
 				}();
-				return _Utils_Tuple2(next_model, $elm$core$Platform$Cmd$none);
+				return _Utils_Tuple2(nextModel, $elm$core$Platform$Cmd$none);
 			case 1:
-				var team_name = message.a;
+				var teamName = message.a;
 				return _Utils_Tuple2(
 					model,
-					$author$project$Boiding$spawn(team_name));
+					$author$project$Boiding$spawn(teamName));
 			case 2:
-				var team_name = message.a;
-				var show_it = message.b;
-				var show_team = A3($elm$core$Dict$insert, team_name, show_it, model.i);
-				var next_model = _Utils_update(
+				var teamName = message.a;
+				var showTeam = message.b;
+				var visibleTeams = A3($elm$core$Dict$insert, teamName, showTeam, model.j);
+				var nextModel = _Utils_update(
 					model,
-					{i: show_team});
-				return _Utils_Tuple2(next_model, $elm$core$Platform$Cmd$none);
+					{j: visibleTeams});
+				return _Utils_Tuple2(nextModel, $elm$core$Platform$Cmd$none);
 			default:
-				var hover_over = message.a;
-				var next_model = _Utils_update(
+				var hoverOver = message.a;
+				var nextModel = _Utils_update(
 					model,
-					{A: hover_over});
-				return _Utils_Tuple2(next_model, $elm$core$Platform$Cmd$none);
+					{B: hoverOver});
+				return _Utils_Tuple2(nextModel, $elm$core$Platform$Cmd$none);
 		}
 	});
 var $author$project$Boiding$Hover = function (a) {
@@ -5868,7 +5880,16 @@ var $elm$core$Dict$values = function (dict) {
 		_List_Nil,
 		dict);
 };
-var $elm$svg$Svg$Attributes$fill = _VirtualDom_attribute('fill');
+var $elm$html$Html$button = _VirtualDom_node('button');
+var $elm$json$Json$Encode$bool = _Json_wrap;
+var $elm$html$Html$Attributes$boolProperty = F2(
+	function (key, bool) {
+		return A2(
+			_VirtualDom_property,
+			key,
+			$elm$json$Json$Encode$bool(bool));
+	});
+var $elm$html$Html$Attributes$checked = $elm$html$Html$Attributes$boolProperty('checked');
 var $elm$core$List$filter = F2(
 	function (isGood, list) {
 		return A3(
@@ -5880,8 +5901,20 @@ var $elm$core$List$filter = F2(
 			_List_Nil,
 			list);
 	});
-var $elm$svg$Svg$trustedNode = _VirtualDom_nodeNS('http://www.w3.org/2000/svg');
-var $elm$svg$Svg$g = $elm$svg$Svg$trustedNode('g');
+var $elm$core$Tuple$second = function (_v0) {
+	var y = _v0.b;
+	return y;
+};
+var $elm$html$Html$Attributes$classList = function (classes) {
+	return $elm$html$Html$Attributes$class(
+		A2(
+			$elm$core$String$join,
+			' ',
+			A2(
+				$elm$core$List$map,
+				$elm$core$Tuple$first,
+				A2($elm$core$List$filter, $elm$core$Tuple$second, classes))));
+};
 var $elm$core$Dict$get = F2(
 	function (targetKey, dict) {
 		get:
@@ -5913,29 +5946,7 @@ var $elm$core$Dict$get = F2(
 			}
 		}
 	});
-var $elm$svg$Svg$Attributes$height = _VirtualDom_attribute('height');
-var $elm$svg$Svg$Attributes$stroke = _VirtualDom_attribute('stroke');
-var $elm$svg$Svg$Attributes$strokeWidth = _VirtualDom_attribute('stroke-width');
-var $elm$svg$Svg$svg = $elm$svg$Svg$trustedNode('svg');
-var $elm$svg$Svg$Attributes$viewBox = _VirtualDom_attribute('viewBox');
-var $elm$core$Maybe$andThen = F2(
-	function (callback, maybeValue) {
-		if (!maybeValue.$) {
-			var value = maybeValue.a;
-			return callback(value);
-		} else {
-			return $elm$core$Maybe$Nothing;
-		}
-	});
-var $elm$core$List$head = function (list) {
-	if (list.b) {
-		var x = list.a;
-		var xs = list.b;
-		return $elm$core$Maybe$Just(x);
-	} else {
-		return $elm$core$Maybe$Nothing;
-	}
-};
+var $elm$html$Html$input = _VirtualDom_node('input');
 var $elm$core$Maybe$map = F2(
 	function (f, maybe) {
 		if (!maybe.$) {
@@ -5946,152 +5957,6 @@ var $elm$core$Maybe$map = F2(
 			return $elm$core$Maybe$Nothing;
 		}
 	});
-var $elm$core$Basics$cos = _Basics_cos;
-var $elm$core$String$fromFloat = _String_fromNumber;
-var $elm$core$Basics$pi = _Basics_pi;
-var $elm$svg$Svg$Attributes$points = _VirtualDom_attribute('points');
-var $elm$svg$Svg$polygon = $elm$svg$Svg$trustedNode('polygon');
-var $elm$core$Basics$sin = _Basics_sin;
-var $author$project$Domain$viewBoid = function (boid) {
-	var r = 0.01;
-	var circlePoint = function (angle) {
-		return _Utils_Tuple2(
-			(r * $elm$core$Basics$cos(angle)) + boid.W,
-			(r * $elm$core$Basics$sin(angle)) + boid.X);
-	};
-	var a = (2 * $elm$core$Basics$pi) / 3;
-	var path = A2(
-		$elm$core$String$join,
-		' ',
-		A2(
-			$elm$core$List$map,
-			function (_v0) {
-				var x = _v0.a;
-				var y = _v0.b;
-				return $elm$core$String$fromFloat(x) + (',' + $elm$core$String$fromFloat(y));
-			},
-			_List_fromArray(
-				[
-					circlePoint(boid.I),
-					circlePoint(boid.I + a),
-					_Utils_Tuple2(boid.W, boid.X),
-					circlePoint(boid.I - a)
-				])));
-	return A2(
-		$elm$svg$Svg$polygon,
-		_List_fromArray(
-			[
-				$elm$svg$Svg$Attributes$points(path)
-			]),
-		_List_Nil);
-};
-var $elm$core$Maybe$withDefault = F2(
-	function (_default, maybe) {
-		if (!maybe.$) {
-			var value = maybe.a;
-			return value;
-		} else {
-			return _default;
-		}
-	});
-var $author$project$Domain$viewFlockOf = F2(
-	function (attention, team) {
-		var highlightColor = function (sentinal) {
-			return sentinal ? $elm$core$Maybe$Just('blue') : $elm$core$Maybe$Nothing;
-		};
-		var stroke_color = A2(
-			$elm$core$Maybe$withDefault,
-			'black',
-			A2(
-				$elm$core$Maybe$andThen,
-				highlightColor,
-				A2(
-					$elm$core$Maybe$map,
-					function (name) {
-						return _Utils_eq(name, team.O);
-					},
-					attention)));
-		var fill_color = A2(
-			$elm$core$Maybe$withDefault,
-			'white',
-			$elm$core$List$head(
-				A2($elm$core$String$split, '-', team.O)));
-		var boids = A2(
-			$elm$core$List$map,
-			$author$project$Domain$viewBoid,
-			$elm$core$Dict$values(team.M.J));
-		return A2(
-			$elm$svg$Svg$g,
-			_List_fromArray(
-				[
-					$elm$svg$Svg$Attributes$fill(fill_color),
-					$elm$svg$Svg$Attributes$stroke(stroke_color)
-				]),
-			boids);
-	});
-var $elm$svg$Svg$Attributes$width = _VirtualDom_attribute('width');
-var $author$project$Domain$viewFlocks = F4(
-	function (size, view_team, attention, teams) {
-		var should_view = function (team) {
-			return A2(
-				$elm$core$Maybe$withDefault,
-				true,
-				A2($elm$core$Dict$get, team.O, view_team));
-		};
-		var s = $elm$core$String$fromInt(size);
-		var flocks = A2(
-			$elm$core$List$map,
-			$author$project$Domain$viewFlockOf(attention),
-			A2(
-				$elm$core$List$filter,
-				should_view,
-				$elm$core$Dict$values(teams.V)));
-		return A2(
-			$elm$svg$Svg$svg,
-			_List_fromArray(
-				[
-					$elm$svg$Svg$Attributes$width(s),
-					$elm$svg$Svg$Attributes$height(s),
-					$elm$svg$Svg$Attributes$viewBox('0 0 1 1')
-				]),
-			_List_fromArray(
-				[
-					A2(
-					$elm$svg$Svg$g,
-					_List_fromArray(
-						[
-							$elm$svg$Svg$Attributes$fill('white'),
-							$elm$svg$Svg$Attributes$stroke('black'),
-							$elm$svg$Svg$Attributes$strokeWidth('0.001')
-						]),
-					flocks)
-				]));
-	});
-var $elm$html$Html$button = _VirtualDom_node('button');
-var $elm$json$Json$Encode$bool = _Json_wrap;
-var $elm$html$Html$Attributes$boolProperty = F2(
-	function (key, bool) {
-		return A2(
-			_VirtualDom_property,
-			key,
-			$elm$json$Json$Encode$bool(bool));
-	});
-var $elm$html$Html$Attributes$checked = $elm$html$Html$Attributes$boolProperty('checked');
-var $elm$core$Tuple$second = function (_v0) {
-	var y = _v0.b;
-	return y;
-};
-var $elm$html$Html$Attributes$classList = function (classes) {
-	return $elm$html$Html$Attributes$class(
-		A2(
-			$elm$core$String$join,
-			' ',
-			A2(
-				$elm$core$List$map,
-				$elm$core$Tuple$first,
-				A2($elm$core$List$filter, $elm$core$Tuple$second, classes))));
-};
-var $elm$html$Html$input = _VirtualDom_node('input');
 var $elm$core$Basics$not = _Basics_not;
 var $elm$virtual_dom$VirtualDom$Normal = function (a) {
 	return {$: 0, a: a};
@@ -6138,27 +6003,37 @@ var $elm$html$Html$Events$onMouseLeave = function (msg) {
 		$elm$json$Json$Decode$succeed(msg));
 };
 var $elm$html$Html$Attributes$type_ = $elm$html$Html$Attributes$stringProperty('type');
-var $author$project$Domain$viewTeam = F6(
-	function (onPlus, onCheck, onHover, show_team, attention, team) {
+var $elm$core$Maybe$withDefault = F2(
+	function (_default, maybe) {
+		if (!maybe.$) {
+			var value = maybe.a;
+			return value;
+		} else {
+			return _default;
+		}
+	});
+var $author$project$Domain$Team$view = F6(
+	function (addBoidsFor, show, focusOn, visibleTeams, attention, _v0) {
+		var aTeam = _v0;
 		var checked = A2(
 			$elm$core$Maybe$withDefault,
 			true,
-			A2($elm$core$Dict$get, team.O, show_team));
+			A2($elm$core$Dict$get, aTeam.m, visibleTeams));
 		return A2(
 			$elm$html$Html$div,
 			_List_fromArray(
 				[
 					$elm$html$Html$Events$onMouseEnter(
-					onHover(
-						$elm$core$Maybe$Just(team.O))),
+					focusOn(
+						$elm$core$Maybe$Just(aTeam.m))),
 					$elm$html$Html$Events$onMouseLeave(
-					onHover($elm$core$Maybe$Nothing)),
+					focusOn($elm$core$Maybe$Nothing)),
 					$elm$html$Html$Attributes$classList(
 					_List_fromArray(
 						[
 							_Utils_Tuple2('team', true),
-							_Utils_Tuple2('disconnected', !team.K),
-							_Utils_Tuple2('connected', team.K),
+							_Utils_Tuple2('disconnected', !aTeam.K),
+							_Utils_Tuple2('connected', aTeam.K),
 							_Utils_Tuple2(
 							'attention',
 							A2(
@@ -6167,7 +6042,7 @@ var $author$project$Domain$viewTeam = F6(
 								A2(
 									$elm$core$Maybe$map,
 									function (name) {
-										return _Utils_eq(name, team.O);
+										return _Utils_eq(name, aTeam.m);
 									},
 									attention)))
 						]))
@@ -6179,7 +6054,7 @@ var $author$project$Domain$viewTeam = F6(
 					_List_fromArray(
 						[
 							$elm$html$Html$Events$onCheck(
-							onCheck(team.O)),
+							show(aTeam.m)),
 							$elm$html$Html$Attributes$type_('checkbox'),
 							$elm$html$Html$Attributes$checked(checked)
 						]),
@@ -6199,14 +6074,14 @@ var $author$project$Domain$viewTeam = F6(
 						]),
 					_List_fromArray(
 						[
-							$elm$html$Html$text(team.O)
+							$elm$html$Html$text(aTeam.m)
 						])),
 					A2(
 					$elm$html$Html$button,
 					_List_fromArray(
 						[
 							$elm$html$Html$Events$onClick(
-							onPlus(team.O))
+							addBoidsFor(aTeam.m))
 						]),
 					_List_fromArray(
 						[
@@ -6214,12 +6089,168 @@ var $author$project$Domain$viewTeam = F6(
 						]))
 				]));
 	});
+var $elm$svg$Svg$Attributes$fill = _VirtualDom_attribute('fill');
+var $elm$svg$Svg$trustedNode = _VirtualDom_nodeNS('http://www.w3.org/2000/svg');
+var $elm$svg$Svg$g = $elm$svg$Svg$trustedNode('g');
+var $elm$svg$Svg$Attributes$height = _VirtualDom_attribute('height');
+var $elm$svg$Svg$Attributes$stroke = _VirtualDom_attribute('stroke');
+var $elm$svg$Svg$Attributes$strokeWidth = _VirtualDom_attribute('stroke-width');
+var $elm$svg$Svg$svg = $elm$svg$Svg$trustedNode('svg');
+var $elm$svg$Svg$Attributes$viewBox = _VirtualDom_attribute('viewBox');
+var $elm$core$Maybe$andThen = F2(
+	function (callback, maybeValue) {
+		if (!maybeValue.$) {
+			var value = maybeValue.a;
+			return callback(value);
+		} else {
+			return $elm$core$Maybe$Nothing;
+		}
+	});
+var $author$project$Domain$Team$flockOf = function (_v0) {
+	var aTeam = _v0;
+	return aTeam.aa;
+};
+var $elm$core$List$head = function (list) {
+	if (list.b) {
+		var x = list.a;
+		var xs = list.b;
+		return $elm$core$Maybe$Just(x);
+	} else {
+		return $elm$core$Maybe$Nothing;
+	}
+};
+var $elm$core$Basics$cos = _Basics_cos;
+var $elm$core$String$fromFloat = _String_fromNumber;
+var $elm$core$Basics$pi = _Basics_pi;
+var $elm$svg$Svg$Attributes$points = _VirtualDom_attribute('points');
+var $elm$svg$Svg$polygon = $elm$svg$Svg$trustedNode('polygon');
+var $elm$core$Basics$sin = _Basics_sin;
+var $author$project$Domain$Boid$view = function (_v0) {
+	var b = _v0;
+	var r = 0.01;
+	var circlePoint = function (angle) {
+		return _Utils_Tuple2(
+			(r * $elm$core$Basics$cos(angle)) + b.T,
+			(r * $elm$core$Basics$sin(angle)) + b.U);
+	};
+	var a = (2 * $elm$core$Basics$pi) / 3;
+	var path = A2(
+		$elm$core$String$join,
+		' ',
+		A2(
+			$elm$core$List$map,
+			function (_v1) {
+				var x = _v1.a;
+				var y = _v1.b;
+				return $elm$core$String$fromFloat(x) + (',' + $elm$core$String$fromFloat(y));
+			},
+			_List_fromArray(
+				[
+					circlePoint(b.J),
+					circlePoint(b.J + a),
+					_Utils_Tuple2(b.T, b.U),
+					circlePoint(b.J - a)
+				])));
+	return A2(
+		$elm$svg$Svg$polygon,
+		_List_fromArray(
+			[
+				$elm$svg$Svg$Attributes$points(path)
+			]),
+		_List_Nil);
+};
+var $author$project$Domain$Flock$view = function (_v0) {
+	var f = _v0;
+	return A2(
+		$elm$core$List$map,
+		$author$project$Domain$Boid$view,
+		$elm$core$Dict$values(f.W));
+};
+var $author$project$Simulation$viewFlockOf = F2(
+	function (attention, team) {
+		var highlightColor = function (sentinal) {
+			return sentinal ? $elm$core$Maybe$Just('blue') : $elm$core$Maybe$Nothing;
+		};
+		var stroke_color = A2(
+			$elm$core$Maybe$withDefault,
+			'black',
+			A2(
+				$elm$core$Maybe$andThen,
+				highlightColor,
+				A2(
+					$elm$core$Maybe$map,
+					function (name) {
+						return _Utils_eq(
+							name,
+							$author$project$Domain$Team$nameOf(team));
+					},
+					attention)));
+		var fill_color = A2(
+			$elm$core$Maybe$withDefault,
+			'white',
+			$elm$core$List$head(
+				A2(
+					$elm$core$String$split,
+					'-',
+					$author$project$Domain$Team$nameOf(team))));
+		var boids = $author$project$Domain$Flock$view(
+			$author$project$Domain$Team$flockOf(team));
+		return A2(
+			$elm$svg$Svg$g,
+			_List_fromArray(
+				[
+					$elm$svg$Svg$Attributes$fill(fill_color),
+					$elm$svg$Svg$Attributes$stroke(stroke_color)
+				]),
+			boids);
+	});
+var $elm$svg$Svg$Attributes$width = _VirtualDom_attribute('width');
+var $author$project$Simulation$view = F4(
+	function (size, visibleTeams, attention, simulation) {
+		var shouldView = function (team) {
+			return A2(
+				$elm$core$Maybe$withDefault,
+				true,
+				A2(
+					$elm$core$Dict$get,
+					$author$project$Domain$Team$nameOf(team),
+					visibleTeams));
+		};
+		var s = $elm$core$String$fromInt(size);
+		var flocks = A2(
+			$elm$core$List$map,
+			$author$project$Simulation$viewFlockOf(attention),
+			A2(
+				$elm$core$List$filter,
+				shouldView,
+				$elm$core$Dict$values(simulation.as)));
+		return A2(
+			$elm$svg$Svg$svg,
+			_List_fromArray(
+				[
+					$elm$svg$Svg$Attributes$width(s),
+					$elm$svg$Svg$Attributes$height(s),
+					$elm$svg$Svg$Attributes$viewBox('0 0 1 1')
+				]),
+			_List_fromArray(
+				[
+					A2(
+					$elm$svg$Svg$g,
+					_List_fromArray(
+						[
+							$elm$svg$Svg$Attributes$fill('white'),
+							$elm$svg$Svg$Attributes$stroke('black'),
+							$elm$svg$Svg$Attributes$strokeWidth('0.001')
+						]),
+					flocks)
+				]));
+	});
 var $author$project$Boiding$view = function (model) {
 	var teams = A2(
 		$elm$core$List$map,
-		A5($author$project$Domain$viewTeam, $author$project$Boiding$Spawn, $author$project$Boiding$ViewTeam, $author$project$Boiding$Hover, model.i, model.A),
-		$elm$core$Dict$values(model.D.V));
-	var error_message = A2($elm$core$Maybe$withDefault, '', model.H);
+		A5($author$project$Domain$Team$view, $author$project$Boiding$Spawn, $author$project$Boiding$ViewTeam, $author$project$Boiding$Hover, model.j, model.B),
+		$elm$core$Dict$values(model.D.as));
+	var errorMessage = A2($elm$core$Maybe$withDefault, '', model.I);
 	return A2(
 		$elm$html$Html$div,
 		_List_Nil,
@@ -6233,7 +6264,7 @@ var $author$project$Boiding$view = function (model) {
 					]),
 				_List_fromArray(
 					[
-						$elm$html$Html$text(error_message)
+						$elm$html$Html$text(errorMessage)
 					])),
 				A2(
 				$elm$html$Html$div,
@@ -6250,7 +6281,7 @@ var $author$project$Boiding$view = function (model) {
 					]),
 				_List_fromArray(
 					[
-						A4($author$project$Domain$viewFlocks, model.L.S, model.i, model.A, model.D)
+						A4($author$project$Simulation$view, model.L.Q, model.j, model.B, model.D)
 					]))
 			]));
 };
@@ -6261,6 +6292,6 @@ _Platform_export({'Boiding':{'init':$author$project$Boiding$main(
 		$elm$json$Json$Decode$andThen,
 		function (size) {
 			return $elm$json$Json$Decode$succeed(
-				{S: size});
+				{Q: size});
 		},
 		A2($elm$json$Json$Decode$field, 'size', $elm$json$Json$Decode$int)))(0)}});}(this));

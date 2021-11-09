@@ -2,14 +2,16 @@ port module Boiding exposing (..)
 
 import Browser
 import Dict
-import Domain exposing (Team, Teams, decodeTeams, viewFlocks, viewTeam)
+import Domain.Flock as Flock
+import Domain.Team as Team exposing (Name, team)
 import Html
 import Html.Attributes as Attribute
-import Json.Decode exposing (decodeString, decodeValue, errorToString)
-import Json.Encode exposing (Value)
+import Json.Decode exposing (decodeString, errorToString)
 import Set
+import Simulation exposing (Simulation, teamsOf)
 
 
+main : Program Flags Model Message
 main =
     Browser.element
         { init = init
@@ -22,22 +24,27 @@ main =
 init : Flags -> ( Model, Cmd Message )
 init flags =
     let
-        teams =
-            Dict.empty
-                |> Dict.insert "red-bergen-crab" { name = "red-bergen-crab", connected = True, flock = { boids = Dict.empty } }
-                |> Dict.insert "yellow-nijmegen-whale" { name = "yellow-nijmegen-whale", connected = False, flock = { boids = Dict.empty } }
-                |> Dict.insert "blue-ibiza-flamingo" { name = "blue-ibiza-flamingo", connected = False, flock = { boids = Dict.empty } }
+        data =
+            [ ( team "red-bergen-crab" True Flock.empty, True )
+            , ( team "yellow-nijmegen-whale" False Flock.empty, True )
+            , ( team "blue-ibiza-flamingo" False Flock.empty, False )
+            ]
 
-        show_team =
-            Dict.empty
-                |> Dict.insert "red-bergen-crab" True
-                |> Dict.insert "yellow-nijmegen-whale" True
-                |> Dict.insert "blue-ibiza-flamingo" False
+        teams =
+            data
+                |> List.map Tuple.first
+                |> List.map (\t -> ( Team.nameOf t, t ))
+                |> Dict.fromList
+
+        visibleTeams =
+            data
+                |> List.map (Tuple.mapFirst Team.nameOf)
+                |> Dict.fromList
     in
-    ( { team_repository = { teams = teams }
-      , error_message = Nothing
-      , show_team = show_team
-      , hover_over = Nothing
+    ( { simulation = { teams = teams }
+      , errorMessage = Nothing
+      , visibleTeams = visibleTeams
+      , hoverOver = Nothing
       , flags = flags
       }
     , Cmd.none
@@ -49,19 +56,19 @@ type alias Flags =
 
 
 type alias Model =
-    { team_repository : Teams
-    , error_message : Maybe String
-    , show_team : Dict.Dict String Bool
-    , hover_over : Maybe String
+    { simulation : Simulation
+    , errorMessage : Maybe String
+    , visibleTeams : Dict.Dict String Bool
+    , hoverOver : Maybe String
     , flags : Flags
     }
 
 
 type Message
     = Update String
-    | Spawn String
-    | ViewTeam String Bool
-    | Hover (Maybe String)
+    | Spawn Name
+    | ViewTeam Name Bool
+    | Hover (Maybe Name)
 
 
 update : Message -> Model -> ( Model, Cmd Message )
@@ -69,17 +76,18 @@ update message model =
     case message of
         Update updateMessage ->
             let
-                next_model =
-                    case decodeString decodeTeams updateMessage of
-                        Ok teams ->
+                nextModel =
+                    case decodeString Simulation.decode updateMessage of
+                        Ok simulation ->
                             let
                                 existing =
-                                    model.show_team
+                                    model.visibleTeams
                                         |> Dict.keys
                                         |> Set.fromList
 
                                 fresh =
-                                    teams.teams
+                                    simulation
+                                        |> teamsOf
                                         |> Dict.keys
                                         |> Set.fromList
 
@@ -89,56 +97,56 @@ update message model =
                                 new =
                                     Set.diff fresh existing
 
-                                show_team =
-                                    model.show_team
+                                visibleTeams =
+                                    model.visibleTeams
                                         |> (\map -> Set.foldl Dict.remove map old)
                                         |> (\map -> Set.foldl (\name -> Dict.insert name True) map new)
                             in
-                            { model | team_repository = teams, show_team = show_team }
+                            { model | simulation = simulation, visibleTeams = visibleTeams }
 
                         Err error ->
-                            { model | error_message = Just (errorToString error) }
+                            { model | errorMessage = Just (errorToString error) }
             in
-            ( next_model, Cmd.none )
+            ( nextModel, Cmd.none )
 
-        Spawn team_name ->
-            ( model, spawn team_name )
+        Spawn teamName ->
+            ( model, spawn teamName )
 
-        ViewTeam team_name show_it ->
+        ViewTeam teamName showTeam ->
             let
-                show_team =
-                    model.show_team
-                        |> Dict.insert team_name show_it
+                visibleTeams =
+                    model.visibleTeams
+                        |> Dict.insert teamName showTeam
 
-                next_model =
-                    { model | show_team = show_team }
+                nextModel =
+                    { model | visibleTeams = visibleTeams }
             in
-            ( next_model, Cmd.none )
+            ( nextModel, Cmd.none )
 
-        Hover hover_over ->
+        Hover hoverOver ->
             let
-                next_model =
-                    { model | hover_over = hover_over }
+                nextModel =
+                    { model | hoverOver = hoverOver }
             in
-            ( next_model, Cmd.none )
+            ( nextModel, Cmd.none )
 
 
 view : Model -> Html.Html Message
 view model =
     let
         teams =
-            model.team_repository
+            model.simulation
                 |> .teams
                 |> Dict.values
-                |> List.map (viewTeam Spawn ViewTeam Hover model.show_team model.hover_over)
+                |> List.map (Team.view Spawn ViewTeam Hover model.visibleTeams model.hoverOver)
 
-        error_message =
-            Maybe.withDefault "" model.error_message
+        errorMessage =
+            Maybe.withDefault "" model.errorMessage
     in
     Html.div []
-        [ Html.span [ Attribute.class "error" ] [ Html.text error_message ]
+        [ Html.span [ Attribute.class "error" ] [ Html.text errorMessage ]
         , Html.div [ Attribute.class "teams" ] teams
-        , Html.div [ Attribute.class "flocks" ] [ viewFlocks model.flags.size model.show_team model.hover_over model.team_repository ]
+        , Html.div [ Attribute.class "flocks" ] [ Simulation.view model.flags.size model.visibleTeams model.hoverOver model.simulation ]
         ]
 
 
@@ -149,5 +157,5 @@ port spawn : String -> Cmd msg
 
 
 subscriptions : Model -> Sub Message
-subscriptions model =
+subscriptions _ =
     updateTeams Update
