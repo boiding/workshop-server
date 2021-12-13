@@ -8,7 +8,6 @@ import Html.Events as Event
 import Json.Decode as Decode exposing (Decoder, bool, string)
 import Json.Decode.Pipeline exposing (required)
 
-
 type Team
     = Team
         { name : Name

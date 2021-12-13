@@ -118,6 +118,14 @@ impl Simulation {
                         info!("spawning {} boids in team {}", n, team_name);
                         self.team_repository.spawn_in_team(team_name, n);
                     }
+                    Message::SpawnFoodAll(n) => {
+                        info!("spawning {} food in all connected teams", n);
+                        self.team_repository.spawn_food(n);
+                    }
+                    Message::SpawnFood((team_name, n)) => {
+                        info!("spawning {} food in team {}", n, team_name);
+                        self.team_repository.spawn_food_in_team(team_name, n);
+                    }
                     Message::BrainUpdate(team_name, intentions) => {
                         info!("processing brain update for {}", team_name);
                         self.team_repository.update(team_name, &intentions);
@@ -171,6 +179,10 @@ impl Simulate for Simulation {
 
 pub trait Spawn {
     fn spawn(&mut self, n: usize);
+}
+
+pub trait SpawnFood {
+    fn spawn_food(&mut self, n: usize);
 }
 
 pub trait TeamRepository {
@@ -320,6 +332,13 @@ impl Teams {
             .for_each(|team| team.spawn(n))
     }
 
+    pub fn spawn_food_in_team(&mut self, name: String, n: usize) {
+        self.teams
+            .get_mut(&name)
+            .iter_mut()
+            .for_each(|team| team.spawn_food(n))
+    }
+
     pub fn update(&mut self, name: String, intentions: &Intentions) {
         self.teams
             .get_mut(&name)
@@ -337,6 +356,14 @@ impl Simulate for Teams {
 impl Spawn for Teams {
     fn spawn(&mut self, n: usize) {
         self.teams.iter_mut().for_each(|(_, team)| team.spawn(n))
+    }
+}
+
+impl SpawnFood for Teams {
+    fn spawn_food(&mut self, n: usize) {
+        self.teams
+            .iter_mut()
+            .for_each(|(_, team)| team.spawn_food(n))
     }
 }
 
@@ -401,6 +428,12 @@ impl Spawn for Team {
     }
 }
 
+impl SpawnFood for Team {
+    fn spawn_food(&mut self, n: usize) {
+        self.flock.spawn_food(n)
+    }
+}
+
 impl Display for Team {
     fn fmt(&self, f: &mut Formatter) -> Result<(), Error> {
         write!(f, "{} {}", self.name, self.ip_address)
@@ -410,12 +443,16 @@ impl Display for Team {
 #[derive(Serialize, Default)]
 pub struct Flock {
     pub boids: HashMap<FlockId, Boid>,
+    pub food: Vec<Location>,
 }
 
 impl Flock {
     pub fn new() -> Flock {
         let boids = HashMap::new();
-        Flock { boids }
+        Flock {
+            boids,
+            food: Vec::new(),
+        }
     }
 
     pub fn is_empty(&self) -> bool {
@@ -448,6 +485,44 @@ impl Spawn for Flock {
             let boid = source.read::<Boid>();
             self.boids.insert(identifier, boid);
         }
+    }
+}
+
+impl SpawnFood for Flock {
+    fn spawn_food(&mut self, n: usize) {
+        let mut source = random::default();
+        let old_size = self.food.len();
+        while (self.food.len() - old_size) < n {
+            let location = source.read::<Location>();
+            self.food.push(location)
+        }
+    }
+}
+
+#[derive(Serialize)]
+pub struct Location {
+    x: f64,
+    y: f64,
+}
+
+impl From<(f64, f64)> for Location {
+    fn from(tuple: (f64, f64)) -> Self {
+        Self {
+            x: tuple.0,
+            y: tuple.1,
+        }
+    }
+}
+
+impl Value for Location {
+    fn read<S>(source: &mut S) -> Self
+    where
+        S: Source,
+    {
+        let x = source.read_f64();
+        let y = source.read_f64();
+
+        Self::from((x, y))
     }
 }
 

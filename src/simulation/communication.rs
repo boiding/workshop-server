@@ -9,5 +9,7 @@ pub enum Message {
     Tick,
     SpawnAll(usize),
     Spawn((String, usize)),
+    SpawnFoodAll(usize),
+    SpawnFood((String, usize)),
     BrainUpdate(String, Intentions),
 }
